@@ -44,11 +44,13 @@ export function ProductDetail({ route }) {
 
       <ScrollView
         horizontal={true}
+        pagingEnabled={true}
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollViewContainer}
       >
         {renderProductImages()}
       </ScrollView>
+
 
       <View style={styles.container}>
         <Text style={styles.productName}>{product[1]}</Text>
@@ -76,7 +78,7 @@ const styles = StyleSheet.create({
     width: 'auto'
   },
   productImage: {
-    width: 390,
+    width: 377,
     height: '100%',
   },
   container: {

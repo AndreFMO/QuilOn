@@ -132,7 +132,11 @@ export function Home() {
         </View>
 
         <Text style={styles.title}>Produtos Diversos</Text>
+        
         <View style={styles.productArea}>
+          {products.length === 0 ? (
+            <Text style={styles.noProductText}>Nenhum produto{"\n"}encontrado</Text>
+          ) : (
             <View style={styles.produtosList}>
               {products.map(product => (
                 <TouchableOpacity key={product[0]} style={styles.produto} onPress={() => handleProductPress(product)}>
@@ -145,6 +149,7 @@ export function Home() {
                 </TouchableOpacity>
               ))}
             </View>
+          )}
         </View>
       </ScrollView>
     </View>
@@ -242,6 +247,12 @@ const styles = StyleSheet.create({
     marginBottom: 90,
     marginTop: 15,
   },
+  noProductText: {
+  fontSize: 19,
+  fontFamily: 'Poppins_400Regular',
+  textAlign: 'center',
+  marginTop: '35%',
+},
   produtosList:{
     flexDirection: "row",
     flexWrap: 'wrap',
@@ -254,9 +265,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   produto:{
-  width: "47%",
+  width: "47.5%",
   height: "auto",
-  marginBottom: 10,
+  minHeight: 260,
   backgroundColor: "#FFF",
   alignItems: 'center',
   borderTopStartRadius: 5,
@@ -265,7 +276,8 @@ const styles = StyleSheet.create({
   borderWidth: 1,
   borderColor: "#6666",
   elevation: 5,
-  marginHorizontal: "1%",
+  marginLeft: "0.5%",
+  marginBottom: 15,
   },
   productImage:{
     width: "100%",
