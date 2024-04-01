@@ -12,17 +12,17 @@ export function ProductDetail({ route }) {
 
   const fetchTotalImages = async () => {
     try {
-      const response = await fetch(`http://192.168.0.104:5000/upload/${product[0]}/total`);
+      const response = await fetch(`https://quilon-api.onrender.com/upload/${product[0]}/total`);
       const data = await response.json();
       setTotalImages(data.total_images);
     } catch (error) {
-      console.error('Erro ao obter o número total de imagens:', error);
+      // console.error('Erro ao obter o número total de imagens:', error);
     }
   };
   const renderProductImages = () => {
     const images = [];
     for (let i = 1; i <= totalImages; i++) {
-      const imageUrl = `http://192.168.0.104:5000/upload/${product[0]}/${i}?timestamp=${new Date().getTime()}`;
+      const imageUrl = `https://quilon-api.onrender.com/upload/${product[0]}/${i}?timestamp=${new Date().getTime()}`;
       images.push(
         <Image key={i} source={{ uri: imageUrl }} style={styles.productImage} />
       );
@@ -78,7 +78,6 @@ const styles = StyleSheet.create({
   productImage: {
     width: 390,
     height: '100%',
-    marginRight: 10,
   },
   container: {
    backgroundColor: "#FFF",

@@ -13,17 +13,41 @@ export function Home() {
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [selectedCategory]);
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://192.168.0.104:5000/products');
+      const response = await fetch('https://quilon-api.onrender.com/products');
       const data = await response.json();
-      setProducts(data.products);
+      let filteredProducts = data.products;
+  
+      if (searchQuery) {
+        const searchTerm = searchQuery.toLowerCase();
+        filteredProducts = data.products.filter(product => {
+          const productName = product[1].toLowerCase();
+          const productCategory = product[2].toLowerCase();
+          const productDescription = product[3].toLowerCase();
+          return (
+            productName.includes(searchTerm) ||
+            productCategory.includes(searchTerm) ||
+            productDescription.includes(searchTerm)
+          );
+        });
+      }
+
+      if (selectedCategory === 'Diversos') {
+        setProducts(filteredProducts);
+      } else {
+        setProducts(filteredProducts.filter(product => product[2] === selectedCategory));
+      }
     } catch (error) {
-      console.error('Erro ao obter produtos:', error);
+      // console.error('Erro ao obter produtos:', error);
     }
   };
+  
+  
+  
+
 
   const handleProductPress = (product) => {
     navigation.navigate('ProductDetail', { product });
@@ -35,12 +59,11 @@ export function Home() {
   };
 
   const handleSearch = () => {
-    console.log("Pesquisar por:", searchQuery);
+    fetchProducts();
   };
 
   const handleCategoryPress = (category) => {
     if (selectedCategory === category) {
-      // Se a categoria atual já estiver selecionada, não faça nada
       return;
     } else {
       setSelectedCategory(category);
@@ -74,7 +97,10 @@ export function Home() {
               style={styles.input}
               onChangeText={setSearchQuery}
               value={searchQuery}
+              returnKeyType="search"
+              onSubmitEditing={handleSearch}
             />
+
           </View>
           <TouchableOpacity style={styles.userIcon}></TouchableOpacity>
         </View>
@@ -89,19 +115,19 @@ export function Home() {
             <Text style={[styles.categoryText, selectedCategory === 'Diversos' && styles.selectedCategoryText]}>Diversos</Text>
           </TouchableOpacity>
           <TouchableOpacity 
-            style={[styles.categoryButton, selectedCategory === 'Serviços' && styles.selectedCategoryButton]}
-            onPress={() => handleCategoryPress('Serviços')}>
-            <Text style={[styles.categoryText, selectedCategory === 'Serviços' && styles.selectedCategoryText]}>Loças</Text>
+            style={[styles.categoryButton, selectedCategory === 'Acessórios' && styles.selectedCategoryButton]}
+            onPress={() => handleCategoryPress('Acessórios')}>
+            <Text style={[styles.categoryText, selectedCategory === 'Acessórios' && styles.selectedCategoryText]}>Acessórios</Text>
           </TouchableOpacity>
           <TouchableOpacity 
-            style={[styles.categoryButton, selectedCategory === 'Produtos' && styles.selectedCategoryButton]}
-            onPress={() => handleCategoryPress('Produtos')}>
-            <Text style={[styles.categoryText, selectedCategory === 'Produtos' && styles.selectedCategoryText]}>Tapeçaria</Text>
+            style={[styles.categoryButton, selectedCategory === 'Cestaria' && styles.selectedCategoryButton]}
+            onPress={() => handleCategoryPress('Cestaria')}>
+            <Text style={[styles.categoryText, selectedCategory === 'Cestaria' && styles.selectedCategoryText]}>Cestaria</Text>
           </TouchableOpacity>
           <TouchableOpacity 
-            style={[styles.categoryButton, selectedCategory === 'Trilhas' && styles.selectedCategoryButton]}
-            onPress={() => handleCategoryPress('Trilhas')}>
-            <Text style={[styles.categoryText, selectedCategory === 'Trilhas' && styles.selectedCategoryText]}>Cesto</Text>
+            style={[styles.categoryButton, selectedCategory === 'Cerâmica' && styles.selectedCategoryButton]}
+            onPress={() => handleCategoryPress('Cerâmica')}>
+            <Text style={[styles.categoryText, selectedCategory === 'Cerâmica' && styles.selectedCategoryText]}>Cerâmica</Text>
           </TouchableOpacity>
         </View>
 
@@ -110,7 +136,7 @@ export function Home() {
             <View style={styles.produtosList}>
               {products.map(product => (
                 <TouchableOpacity key={product[0]} style={styles.produto} onPress={() => handleProductPress(product)}>
-                  <Image source={{ uri: `http://192.168.0.104:5000/upload/${product[0]}/1` }} style={styles.productImage}/>
+                  <Image source={{ uri: `https://quilon-api.onrender.com/upload/${product[0]}/1` }} style={styles.productImage}/>
                   <View style={styles.produtosInfo}>
                     <Text style={styles.productText1}>{product[1]}</Text>
                     <Text style={styles.productText2}>{product[2]}</Text>
