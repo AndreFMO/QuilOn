@@ -2,7 +2,7 @@
 ## 🟡 Repositório: E-commerce QuilOn
 
 
-Este repositório é dedicado ao E-commerce QuilOn desenvolvido em react-native.
+Este repositório é dedicado ao E-commerce QuilOn desenvolvido em react-native. 
 
 
 ### Para executar este projeto, siga as instruções abaixo:
