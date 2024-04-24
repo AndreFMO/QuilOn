@@ -12,7 +12,7 @@ export function ProductDetail({ route }) {
 
   const fetchTotalImages = async () => {
     try {
-      const response = await fetch(`https://quilon-api.onrender.com/upload/${product[0]}/total`);
+      const response = await fetch(`http://10.67.56.209:5000/upload/${product[0]}/total`);
       const data = await response.json();
       setTotalImages(data.total_images);
     } catch (error) {
@@ -22,7 +22,7 @@ export function ProductDetail({ route }) {
   const renderProductImages = () => {
     const images = [];
     for (let i = 1; i <= totalImages; i++) {
-      const imageUrl = `https://quilon-api.onrender.com/upload/${product[0]}/${i}?timestamp=${new Date().getTime()}`;
+      const imageUrl = `http://10.67.56.209:5000/upload/${product[0]}/${i}?timestamp=${new Date().getTime()}`;
       images.push(
         <Image key={i} source={{ uri: imageUrl }} style={styles.productImage} />
       );

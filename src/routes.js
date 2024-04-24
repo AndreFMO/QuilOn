@@ -1,14 +1,19 @@
+import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Home } from './pages/home';
 import { Map } from './pages/map';
 import { User } from './pages/user';
+import { Start } from './pages/start';
+import { Personal } from './pages/register/personal';
+import { Address } from './pages/register/address';
+import { Account } from './pages/register/account';
 import { ProductDetail } from './pages/home/productDetail';
 
 import { Ionicons } from '@expo/vector-icons';
 
 const Tab = createBottomTabNavigator();
-const Stack = createStackNavigator(); 
+const Stack = createStackNavigator();
 
 function HomeStack() {
   return (
@@ -18,7 +23,6 @@ function HomeStack() {
         component={Home}
         options={{ headerShown: false }}
       />
-      {/* Adicione mais telas aqui, se necessário */}
       <Stack.Screen
         name="ProductDetail"
         component={ProductDetail}
@@ -28,7 +32,7 @@ function HomeStack() {
   );
 }
 
-export function Routes() {
+function MainTabNavigator() {
   return (
     <Tab.Navigator>
       <Tab.Screen
@@ -77,5 +81,37 @@ export function Routes() {
         }}
       />
     </Tab.Navigator>
+  );
+}
+
+export function Routes() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Start"
+        component={Start}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Personal"
+        component={Personal}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Address"
+        component={Address}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Account"
+        component={Account}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="MainTabNavigator"
+        component={MainTabNavigator}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
   );
 }

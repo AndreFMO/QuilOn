@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView, RefreshControl } from 'react-native';
-import { useFonts, Poppins_400Regular, Poppins_700Bold } from '@expo-google-fonts/poppins';
 import { useNavigation } from '@react-navigation/native';
 
 export function Home() {
-  const [size, setSize] = useState("Eliana");
+  const [username, setUsername] = useState("Eliana");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState('Diversos');
   const [products, setProducts] = useState([]);
@@ -17,7 +16,7 @@ export function Home() {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('https://quilon-api.onrender.com/products');
+      const response = await fetch('http://10.67.56.209:5000/products');
       const data = await response.json();
       let filteredProducts = data.products;
   
@@ -70,14 +69,6 @@ export function Home() {
     }
   };
 
-  let [fontsLoaded, fontError] = useFonts({
-    Poppins_700Bold, Poppins_400Regular,
-  });
-
-  if (!fontsLoaded && !fontError) {
-    return null;
-  }
-
   return (
     <View style={styles.tela}>
       <ScrollView contentContainerStyle={styles.container}
@@ -88,7 +79,7 @@ export function Home() {
         }
       >
 
-        <Text style={styles.title}>Bem-vinda, {size}!</Text>
+        <Text style={styles.title}>Bem-vinda, {username}!</Text>
 
         <View style={styles.searchArea}>
           <View style={styles.searchContainer}>
@@ -140,7 +131,7 @@ export function Home() {
             <View style={styles.produtosList}>
               {products.map(product => (
                 <TouchableOpacity key={product[0]} style={styles.produto} onPress={() => handleProductPress(product)}>
-                  <Image source={{ uri: `https://quilon-api.onrender.com/upload/${product[0]}/1` }} style={styles.productImage}/>
+                  <Image source={{ uri: `http://10.67.56.209:5000/upload/${product[0]}/1` }} style={styles.productImage}/>
                   <View style={styles.produtosInfo}>
                     <Text style={styles.productText1}>{product[1]}</Text>
                     <Text style={styles.productText2}>{product[2]}</Text>
@@ -251,7 +242,7 @@ const styles = StyleSheet.create({
   fontSize: 19,
   fontFamily: 'Poppins_400Regular',
   textAlign: 'center',
-  marginTop: '35%',
+  marginTop: 60,
 },
   produtosList:{
     flexDirection: "row",
