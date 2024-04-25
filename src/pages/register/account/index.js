@@ -8,7 +8,7 @@ export function Account() {
   const [userType, setUserType] = useState("Dados da Conta");
 
   const handleNextPress = () => {
-    navigation.navigate('MainTabNavigator');
+    navigation.navigate('Concluded');
   };
 
   const handleReturnPress = () => {
