@@ -1,9 +1,20 @@
-import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Text, ImageBackground, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, TouchableOpacity, Text, ImageBackground, Image, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { Asset } from 'expo-asset';
 
 export function Start() {
   const navigation = useNavigation();
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    async function loadAssets() {
+      await Asset.loadAsync(require('./../../assets/backgound.png'));
+      setIsReady(true);
+    }
+
+    loadAssets();
+  }, []);
 
   const handleLoginPress = () => {
     navigation.navigate('MainTabNavigator');
@@ -12,6 +23,14 @@ export function Start() {
   const handleSignUpPress = () => {
     navigation.navigate('Personal');
   };
+
+  if (!isReady) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#D86626" />
+      </View>
+    );
+  }
 
   return (
     <ImageBackground source={require('./../../assets/backgound.png')} style={styles.backgroundImage}>
@@ -31,6 +50,11 @@ export function Start() {
 }
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   container: {
     flex: 1,
     alignItems: 'center',

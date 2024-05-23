@@ -16,7 +16,7 @@ export function Home() {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://10.67.56.209:5000/products');
+      const response = await fetch('http://192.168.0.105:5000/products');
       const data = await response.json();
       let filteredProducts = data.products;
   
@@ -131,7 +131,7 @@ export function Home() {
             <View style={styles.produtosList}>
               {products.map(product => (
                 <TouchableOpacity key={product[0]} style={styles.produto} onPress={() => handleProductPress(product)}>
-                  <Image source={{ uri: `http://10.67.56.209:5000/upload/${product[0]}/1` }} style={styles.productImage}/>
+                  <Image source={{ uri: `http://192.168.0.105:5000/upload/${product[0]}/1` }} style={styles.productImage}/>
                   <View style={styles.produtosInfo}>
                     <Text style={styles.productText1}>{product[1]}</Text>
                     <Text style={styles.productText2}>{product[2]}</Text>
