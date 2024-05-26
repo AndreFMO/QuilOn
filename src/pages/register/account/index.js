@@ -1,26 +1,34 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform, Switch } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import DotIndicator from './../../../assets/components/DotIndicator'; // Caminho para o componente de indicador de progresso
 
 export function Account() {
   const navigation = useNavigation();
 
   const [userType, setUserType] = useState("Dados da Conta");
+  const [isChecked, setIsChecked] = useState(false);
 
   const handleNextPress = () => {
-    navigation.navigate('Concluded');
-  };
-
-  const handleReturnPress = () => {
-    navigation.navigate('Address');
+    if (isChecked) {
+      navigation.navigate('Quilombo');
+    } else {
+      navigation.navigate('Concluded');
+    }
   };
 
   return (
-    <View style={styles.tela}>
+    <KeyboardAvoidingView
+      style={styles.tela}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
       <ScrollView contentContainerStyle={styles.container}>
-        <TouchableOpacity onPress={handleReturnPress}><Image source={require('./../../../assets/return.png')} style={styles.returnButton}></Image></TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Address')}>
+          <Image source={require('./../../../assets/return.png')} style={styles.returnButton} />
+        </TouchableOpacity>
         <View style={styles.containerLogo}>
-          <Image source={require('./../../../assets/quilon.png')} style={styles.backgroundText}></Image>
+          <Image source={require('./../../../assets/quilon.png')} style={styles.backgroundText} />
         </View>
 
         <Text style={styles.userType}>{userType}</Text>
@@ -40,29 +48,36 @@ export function Account() {
           <TextInput style={styles.input}/>
         </View>
 
-        <View style={styles.progressIndicatorContainer}>
-          <View style={styles.progressIndicator} />
-          <View style={styles.progressIndicator} />
-          <View style={styles.progressIndicatorActive} />
+        <View style={styles.checkboxContainer}>
+          <Switch
+            trackColor={{ false: "#6666", true: "#D86626" }}
+            thumbColor={isChecked ? "#ffffff" : "#ffffff"}
+            ios_backgroundColor="#6666"
+            onValueChange={() => setIsChecked(!isChecked)}
+            value={isChecked}
+          />
+          <Text style={styles.checkboxText}>Entrar como representante quilombola</Text>
         </View>
-
-        <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
-            <Text style={styles.ButtonText}>Próximo</Text>
-        </TouchableOpacity>
-
       </ScrollView>
-    </View>
+
+      <View style={styles.bottomContainer}>
+        <DotIndicator totalSteps={3} currentStep={2} />
+        <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
+          <Text style={styles.ButtonText}>Próximo</Text>
+        </TouchableOpacity>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   tela: {
-    flexGrow: 1,
+    flex: 1,
+    marginTop: 50,
   },
   container: {
-    marginTop: 40,
     paddingHorizontal: "5%",
-    paddingBottom: 100,
+    paddingBottom: 10,
   },
   returnButton: {
     height: 25,
@@ -76,11 +91,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
     width: 230,
     height: 50,
-  },
-  title: {
-    fontSize: 22,
-    fontFamily: 'Poppins_700Bold',
-    marginTop: 40,
   },
   userType: {
     fontSize: 16,
@@ -104,10 +114,15 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_400Regular',
     marginBottom: -3,
   },
+  bottomContainer: {
+    paddingHorizontal: "5%",
+    paddingTop: 20,
+    paddingBottom: 30,
+  },
   nextButton: {
     backgroundColor: "#D86626",
-    width: "100%",
     height: 50,
+    marginTop: 10,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 25,
@@ -119,24 +134,16 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontWeight: 'bold',
   },
-  progressIndicatorContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 30,
-    marginBottom: 20,
+  checkboxContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
   },
-  progressIndicator: {
-    width: 10,
-    height: 8,
-    borderRadius: 10,
-    backgroundColor: '#DDDDDD',
-    marginHorizontal: 5,
-  },
-  progressIndicatorActive: {
-    width: 20,
-    height: 8,
-    borderRadius: 10,
-    backgroundColor: '#BF8B6E',
-    marginHorizontal: 5,
+  checkboxText: {
+    fontSize: 14,
+    fontFamily: 'Poppins_700Bold',
+    marginLeft: 10,
   },
 });
+
+export default Account;

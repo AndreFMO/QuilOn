@@ -5,16 +5,20 @@ import { Home } from './pages/home';
 import { Map } from './pages/map';
 import { User } from './pages/user/myProducts';
 import { Start } from './pages/start';
+import { Login } from './pages/login';
 import { Personal } from './pages/register/personal';
 import { Address } from './pages/register/address';
 import { Account } from './pages/register/account';
+import { Quilombo } from './pages/register/quilombo';
 import { Concluded } from './pages/register/concluded';
 import { ProductDetail } from './pages/home/productDetail';
-
 import { Ionicons } from '@expo/vector-icons';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
+const Drawer = createDrawerNavigator();
 
 function HomeStack() {
   return (
@@ -67,21 +71,29 @@ function MainTabNavigator() {
         }}
       />
       <Tab.Screen
-        name="User"
-        component={User}
+        name="Menu"
+        component={DrawerNavigator}
         options={{
           tabBarShowLabel: false,
           headerShown: false,
           tabBarIcon: ({ focused, size, color }) => (
             <Ionicons
-              size={size}
+              size={30} // Definindo o tamanho como 30
               color={focused ? "#D86626" : color}
-              name={focused ? "person-sharp" : "person-outline"}
+              name={focused ? "menu-sharp" : "menu-outline"}
             />
           ),
         }}
       />
     </Tab.Navigator>
+  );
+}
+
+function DrawerNavigator() {
+  return (
+    <Drawer.Navigator>
+      <Drawer.Screen name="User" component={User} />
+    </Drawer.Navigator>
   );
 }
 
@@ -91,6 +103,11 @@ export function Routes() {
       <Stack.Screen
         name="Start"
         component={Start}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Login"
+        component={Login}
         options={{ headerShown: false }}
       />
       <Stack.Screen
@@ -106,6 +123,11 @@ export function Routes() {
       <Stack.Screen
         name="Account"
         component={Account}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Quilombo"
+        component={Quilombo}
         options={{ headerShown: false }}
       />
       <Stack.Screen

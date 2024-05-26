@@ -17,7 +17,7 @@ export function Start() {
   }, []);
 
   const handleLoginPress = () => {
-    navigation.navigate('MainTabNavigator');
+    navigation.navigate('Login');
   };
 
   const handleSignUpPress = () => {

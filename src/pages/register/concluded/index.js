@@ -9,10 +9,6 @@ export function Concluded() {
     navigation.navigate('MainTabNavigator');
   };
 
-  const handleReturnPress = () => {
-    navigation.navigate('Address');
-  };
-
   return (
     <View style={styles.tela}>
       <ScrollView contentContainerStyle={styles.container}>
@@ -44,6 +40,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between"
   },
   containerLogo: {
+    marginTop: "20%",
     justifyContent: 'center',
     alignItems: 'center',
   },

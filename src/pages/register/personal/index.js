@@ -1,98 +1,182 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import DateTimePicker from '@react-native-community/datetimepicker'; // Importando o DateTimePicker
+import RNPickerSelect from 'react-native-picker-select';
+import DotIndicator from './../../../assets/components/DotIndicator'; // Caminho para o componente de indicador de progresso
 
 export function Personal() {
   const navigation = useNavigation();
 
-  const [userType, setUserType] = useState("Dados do Usuário");
+  const [name, setName] = useState('');
+  const [birthDate, setBirthDate] = useState(new Date()); // Defina a data inicial para o estado birthDate
+  const [sex, setSex] = useState('');
+  const [cpf, setCpf] = useState('');
+  const [rg, setRg] = useState('');
+  const [cellphone, setCellphone] = useState('');
+  const [phone, setPhone] = useState('');
+  const [showDatePicker, setShowDatePicker] = useState(false); // Estado para controlar a visibilidade do DatePicker
+
+  const handleDateChange = (event, selectedDate) => {
+    const currentDate = selectedDate || birthDate;
+    setShowDatePicker(Platform.OS === 'ios'); // Oculta o DatePicker no iOS quando uma data é selecionada
+    setBirthDate(currentDate);
+  };
 
   const handleNextPress = () => {
+    if (!name || !birthDate || !sex || !cpf || !rg || !cellphone) {
+      Alert.alert('Erro', 'Por favor, preencha todos os campos obrigatórios.');
+      return;
+    }
     navigation.navigate('Address');
-  };
-  const handleReturnPress = () => {
-    navigation.navigate('Start');
   };
 
   return (
-    <View style={styles.tela}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <TouchableOpacity onPress={handleReturnPress}><Image source={require('./../../../assets/return.png')} style={styles.returnButton}></Image></TouchableOpacity>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <ScrollView contentContainerStyle={styles.contentContainer}>
+        <TouchableOpacity onPress={() => navigation.navigate('Start')}>
+          <Image source={require('./../../../assets/return.png')} style={styles.returnButton} />
+        </TouchableOpacity>
         <View style={styles.containerLogo}>
-          <Image source={require('./../../../assets/quilon.png')} style={styles.backgroundText}></Image>
+          <Image source={require('./../../../assets/quilon.png')} style={styles.backgroundText} />
         </View>
 
         <Text style={styles.title}>Cadastre-se</Text>
-        <Text style={styles.userType}>{userType}</Text>
+        <Text style={styles.userType}>Dados do Usuário</Text>
 
         <Text style={styles.subTitle}>Nome</Text>
         <View style={styles.orangeBorder}>
-          <TextInput style={styles.input}/>
+          <TextInput
+            style={styles.input}
+            value={name}
+            onChangeText={setName}
+          />
         </View>
 
         <View style={styles.horizontalArea}>
           <View style={styles.contactField}>
             <Text style={styles.subTitle}>Data de Nascimento</Text>
             <View style={styles.orangeBorder}>
-              <TextInput style={styles.input}/>
+              <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+                <Text style={styles.input}>{birthDate.toLocaleDateString()}</Text>
+              </TouchableOpacity>
+              {showDatePicker && (
+                <DateTimePicker
+                  value={birthDate}
+                  mode="date"
+                  display="spinner"
+                  onChange={handleDateChange}
+                />
+              )}
             </View>
           </View>
           <View style={styles.contactField}>
             <Text style={styles.subTitle}>Sexo</Text>
             <View style={styles.orangeBorder}>
-              <TextInput style={styles.input}/>
+              <RNPickerSelect
+                onValueChange={(value) => setSex(value)}
+                placeholder={{
+                  label: 'Selecione o sexo',
+                  value: null,
+                  color: '#c7c7cd',
+                }}
+                items={[
+                  { label: 'Masculino', value: 'Masculino' },
+                  { label: 'Feminino', value: 'Feminino' },
+                  { label: 'Outro', value: 'Outro' },
+                ]}
+                style={{
+                  inputIOS: {
+                    fontSize: 16,
+                    fontFamily: 'Poppins_400Regular',
+                    color: '#000',
+                    paddingTop: 4,
+                    paddingHorizontal: 10,
+                    paddingBottom: 4,
+                  },
+                  inputAndroid: {
+                    fontSize: 16,
+                    fontFamily: 'Poppins_400Regular',
+                    color: '#000',
+                  },
+                  placeholder: {
+                    color: '#c7c7cd',
+                  },
+                }}
+              />
             </View>
           </View>
         </View>
 
         <Text style={styles.subTitle}>CPF</Text>
         <View style={styles.orangeBorder}>
-          <TextInput style={styles.input}/>
+          <TextInput
+            style={styles.input}
+            value={cpf}
+            onChangeText={setCpf}
+            keyboardType="numeric"
+          />
         </View>
 
         <Text style={styles.subTitle}>RG</Text>
         <View style={styles.orangeBorder}>
-          <TextInput style={styles.input}/>
+          <TextInput
+            style={styles.input}
+            value={rg}
+            onChangeText={setRg}
+            keyboardType="numeric"
+          />
         </View>
 
         <View style={styles.horizontalArea}>
           <View style={styles.contactField}>
             <Text style={styles.subTitle}>Celular</Text>
             <View style={styles.orangeBorder}>
-              <TextInput style={styles.input}/>
+              <TextInput
+                style={styles.input}
+                value={cellphone}
+                onChangeText={setCellphone}
+                keyboardType="numeric"
+              />
             </View>
           </View>
           <View style={styles.contactField}>
             <Text style={styles.subTitle}>Telefone</Text>
             <View style={styles.orangeBorder}>
-              <TextInput style={styles.input}/>
+              <TextInput
+                style={styles.input}
+                value={phone}
+                onChangeText={setPhone}
+                keyboardType="numeric"
+              />
             </View>
           </View>
         </View>
 
-        <View style={styles.progressIndicatorContainer}>
-          <View style={styles.progressIndicatorActive} />
-          <View style={styles.progressIndicator} />
-          <View style={styles.progressIndicator} />
-        </View>
-
-        <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
-            <Text style={styles.ButtonText}>Próximo</Text>
-        </TouchableOpacity>
-
       </ScrollView>
-    </View>
+
+      <View style={styles.bottomContainer}>
+        <DotIndicator totalSteps={3} currentStep={0} />
+        <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
+          <Text style={styles.ButtonText}>Próximo</Text>
+        </TouchableOpacity>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
+// Estilos
 const styles = StyleSheet.create({
-  tela: {
-    flexGrow: 1,
-  },
   container: {
-    marginTop: 40,
+    marginTop: 50,
+    flex: 1,
+  },
+  contentContainer: {
     paddingHorizontal: "5%",
-    paddingBottom: 100,
+    paddingBottom: 10,
   },
   returnButton: {
     height: 25,
@@ -130,6 +214,7 @@ const styles = StyleSheet.create({
   horizontalArea: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "flex-end",
   },
   contactField: {
     width: "48%",
@@ -140,10 +225,15 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_400Regular',
     marginBottom: -3,
   },
+  bottomContainer: {
+    paddingHorizontal: "5%",
+    paddingTop: 20,
+    paddingBottom: 30,
+  },
   nextButton: {
     backgroundColor: "#D86626",
-    width: "100%",
     height: 50,
+    marginTop: 10,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 25,
@@ -155,24 +245,6 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontWeight: 'bold',
   },
-  progressIndicatorContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 30,
-    marginBottom: 20,
-  },
-  progressIndicator: {
-    width: 10,
-    height: 8,
-    borderRadius: 10,
-    backgroundColor: '#DDDDDD',
-    marginHorizontal: 5,
-  },
-  progressIndicatorActive: {
-    width: 20,
-    height: 8,
-    borderRadius: 10,
-    backgroundColor: '#BF8B6E',
-    marginHorizontal: 5,
-  },
 });
+
+export default Personal;

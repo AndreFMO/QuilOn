@@ -1,82 +1,73 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import DotIndicator from './../../../assets/components/DotIndicator'; // Caminho para o componente de indicador de progresso
 
 export function Quilombo() {
-  const [userType, setUserType] = useState("Representante Quilombola");
+  const navigation = useNavigation();
+
+  const [userType, setUserType] = useState("Estamos quase lá, insira os dados da sua comunidade");
+
+  const handleNextPress = () => {
+    navigation.navigate('Concluded');
+  };
 
   return (
-    <View style={styles.tela}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <TouchableOpacity><Image source={require('./../../../assets/return.png')} style={styles.returnButton}></Image></TouchableOpacity>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <ScrollView contentContainerStyle={styles.contentContainer}>
+        <TouchableOpacity onPress={() => navigation.navigate('Account')}>
+          <Image source={require('./../../../assets/return.png')} style={styles.returnButton} />
+        </TouchableOpacity>
         <View style={styles.containerLogo}>
-          <Image source={require('./../../../assets/quilon.png')} style={styles.backgroundText}></Image>
+          <Image source={require('./../../../assets/quilon.png')} style={styles.backgroundText} />
         </View>
 
-        <Text style={styles.title}>Cadastre-se</Text>
+        <Text style={styles.title}>Dados do Quilombo</Text>
         <Text style={styles.userType}>{userType}</Text>
 
-        <Text style={styles.subTitle}>Nome</Text>
+        <Text style={styles.subTitle}>Nome da comunidade</Text>
         <View style={styles.orangeBorder}>
-          <TextInput style={styles.input}/>
+          <TextInput style={styles.input} />
         </View>
 
-        <View style={styles.contactArea}>
-          <View style={styles.contactField}>
-            <Text style={styles.subTitle}>Data de Nascimento</Text>
-            <View style={styles.orangeBorder}>
-              <TextInput style={styles.input}/>
-            </View>
-          </View>
-          <View style={styles.contactField}>
-            <Text style={styles.subTitle}>Sexo</Text>
-            <View style={styles.orangeBorder}>
-              <TextInput style={styles.input}/>
-            </View>
-          </View>
-        </View>
-
-        <Text style={styles.subTitle}>CPF</Text>
+        <Text style={styles.subTitle}>Número de certificação do Quilombo</Text>
         <View style={styles.orangeBorder}>
-          <TextInput style={styles.input}/>
+          <TextInput style={styles.input} />
         </View>
 
-        <Text style={styles.subTitle}>RG</Text>
+        <Text style={styles.subTitle}>Latitude e Longitude</Text>
         <View style={styles.orangeBorder}>
-          <TextInput style={styles.input}/>
+          <TextInput style={styles.input} />
         </View>
 
-        <View style={styles.contactArea}>
-          <View style={styles.contactField}>
-            <Text style={styles.subTitle}>Celular</Text>
-            <View style={styles.orangeBorder}>
-              <TextInput style={styles.input}/>
-            </View>
-          </View>
-          <View style={styles.contactField}>
-            <Text style={styles.subTitle}>Telefone</Text>
-            <View style={styles.orangeBorder}>
-              <TextInput style={styles.input}/>
-            </View>
-          </View>
+        <Text style={styles.subTitle}>Quilometro e complemento</Text>
+        <View style={styles.orangeBorder}>
+          <TextInput style={styles.input} />
         </View>
-
-        <TouchableOpacity style={styles.loginButton}>
-            <Text style={styles.ButtonText}>Próximo</Text>
-        </TouchableOpacity>
 
       </ScrollView>
-    </View>
+
+      <View style={styles.bottomContainer}>
+        <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
+          <Text style={styles.ButtonText}>Próximo</Text>
+        </TouchableOpacity>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
+// Estilos
 const styles = StyleSheet.create({
-  tela: {
-    flexGrow: 1,
-  },
   container: {
-    marginTop: 40,
+    marginTop: 50,
+    flex: 1,
+  },
+  contentContainer: {
     paddingHorizontal: "5%",
-    paddingBottom: 100,
+    paddingBottom: 10,
   },
   returnButton: {
     height: 25,
@@ -104,41 +95,40 @@ const styles = StyleSheet.create({
   subTitle: {
     fontSize: 16,
     fontFamily: 'Poppins_700Bold',
-    marginTop: 10,
+    marginTop: 15,
   },
   orangeBorder: {
     width: "100%",
     borderBottomWidth: 1,
     borderBottomColor: '#BF8B6E',
   },
-  contactArea: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 20,
-  },
-  contactField: {
-    width: "48%",
-  },
+
   input: {
     height: 30,
     fontSize: 16,
     fontFamily: 'Poppins_400Regular',
     marginBottom: -3,
   },
-  loginButton: {
+  bottomContainer: {
+    paddingHorizontal: "5%",
+    paddingTop: 20,
+    paddingBottom: 30,
+  },
+  nextButton: {
     backgroundColor: "#D86626",
-    width: "100%",
     height: 50,
+    marginTop: 10,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 25,
     borderWidth: 1,
     borderColor: "#6666",
     elevation: 5,
-    marginTop: 60,
   },
   ButtonText: {
     color: "#FFF",
     fontWeight: 'bold',
   },
 });
+
+export default Quilombo;
