@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
 import { useFonts, Poppins_400Regular, Poppins_700Bold } from '@expo-google-fonts/poppins';
+import { API_BASE_URL } from './../../../config';
 
 export function ProductDetail({ route }) {
   const { product } = route.params;
@@ -12,7 +13,7 @@ export function ProductDetail({ route }) {
 
   const fetchTotalImages = async () => {
     try {
-      const response = await fetch(`http://192.168.0.105:5000/upload/${product[0]}/total`);
+      const response = await fetch(`${API_BASE_URL}/upload/${product[0]}/total`);
       const data = await response.json();
       setTotalImages(data.total_images);
     } catch (error) {
@@ -22,7 +23,7 @@ export function ProductDetail({ route }) {
   const renderProductImages = () => {
     const images = [];
     for (let i = 1; i <= totalImages; i++) {
-      const imageUrl = `http://192.168.0.105:5000/upload/${product[0]}/${i}?timestamp=${new Date().getTime()}`;
+      const imageUrl = `${API_BASE_URL}/upload/${product[0]}/${i}?timestamp=${new Date().getTime()}`;
       images.push(
         <Image key={i} source={{ uri: imageUrl }} style={styles.productImage} />
       );

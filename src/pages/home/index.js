@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView, RefreshControl } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { API_BASE_URL } from './../../config';
 
 export function Home() {
   const [username, setUsername] = useState("Eliana");
@@ -16,7 +17,7 @@ export function Home() {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://192.168.0.105:5000/products');
+      const response = await fetch(`${API_BASE_URL}/products`);
       const data = await response.json();
       let filteredProducts = data.products;
   
@@ -40,13 +41,9 @@ export function Home() {
         setProducts(filteredProducts.filter(product => product[2] === selectedCategory));
       }
     } catch (error) {
-      // console.error('Erro ao obter produtos:', error);
+      console.error('Erro ao obter produtos:', error);
     }
   };
-  
-  
-  
-
 
   const handleProductPress = (product) => {
     navigation.navigate('ProductDetail', { product });
@@ -78,9 +75,7 @@ export function Home() {
             onRefresh={onRefresh}/>
         }
       >
-
         <Text style={styles.title}>Bem-vinda, {username}!</Text>
-
         <View style={styles.searchArea}>
           <View style={styles.searchContainer}>
             <Image source={require('./../../assets/search-icon.png')} style={styles.searchIcon}/> 
@@ -91,15 +86,11 @@ export function Home() {
               returnKeyType="search"
               onSubmitEditing={handleSearch}
             />
-
           </View>
           <TouchableOpacity style={styles.userIcon}></TouchableOpacity>
         </View>
-
         <Text style={styles.title}>Categorias</Text>
-
         <View style={styles.categoryArea}>
-
           <TouchableOpacity 
             style={[styles.categoryButton, selectedCategory === 'Diversos' && styles.selectedCategoryButton]}
             onPress={() => handleCategoryPress('Diversos')}>
@@ -121,9 +112,7 @@ export function Home() {
             <Text style={[styles.categoryText, selectedCategory === 'Cerâmica' && styles.selectedCategoryText]}>Cerâmica</Text>
           </TouchableOpacity>
         </View>
-
         <Text style={styles.title}>Produtos Diversos</Text>
-        
         <View style={styles.productArea}>
           {products.length === 0 ? (
             <Text style={styles.noProductText}>Nenhum produto{"\n"}encontrado</Text>
@@ -131,7 +120,7 @@ export function Home() {
             <View style={styles.produtosList}>
               {products.map(product => (
                 <TouchableOpacity key={product[0]} style={styles.produto} onPress={() => handleProductPress(product)}>
-                  <Image source={{ uri: `http://192.168.0.105:5000/upload/${product[0]}/1` }} style={styles.productImage}/>
+                  <Image source={{ uri: `${API_BASE_URL}/upload/${product[0]}/1` }} style={styles.productImage}/>
                   <View style={styles.produtosInfo}>
                     <Text style={styles.productText1}>{product[1]}</Text>
                     <Text style={styles.productText2}>{product[2]}</Text>
@@ -249,11 +238,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
 
-  },
-  produtosList:{
-    flexDirection: "row",
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
   },
   produto:{
   width: "47.5%",

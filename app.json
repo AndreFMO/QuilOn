@@ -21,7 +21,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.andrefmo.QuilOn"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -31,6 +32,11 @@
         "expo-font"
       ],
       "expo-asset"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "80f9d3a1-9a8a-4506-a295-6017f87cb23c"
+      }
+    }
   }
 }
