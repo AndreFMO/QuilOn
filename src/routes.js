@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
 import { Home } from './pages/home';
 import { Map } from './pages/map';
 import { User } from './pages/user/myProducts';
@@ -12,14 +13,12 @@ import { Account } from './pages/register/account';
 import { Quilombo } from './pages/register/quilombo';
 import { Concluded } from './pages/register/concluded';
 import { ProductDetail } from './pages/home/productDetail';
-import { Ionicons } from '@expo/vector-icons';
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import Menu from './pages/menu'; 
+import { View } from 'react-native';
 
-
-
+// Criação das instâncias dos navegadores
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
-const Drawer = createDrawerNavigator();
 
 function HomeStack() {
   return (
@@ -38,66 +37,75 @@ function HomeStack() {
   );
 }
 
-function MainTabNavigator() {
+function MainTabNavigator({ navigation }) {
+  const [isMenuVisible, setMenuVisible] = useState(false);
+
+  const toggleMenu = () => {
+    setMenuVisible(!isMenuVisible);
+  };
+
   return (
-    <Tab.Navigator>
-      <Tab.Screen
-        name="HomeStack"
-        component={HomeStack}
-        options={{
-          tabBarShowLabel: false,
-          headerShown: false,
-          tabBarIcon: ({ focused, size, color }) => (
-            <Ionicons
-              size={size}
-              color={focused ? "#D86626" : color}
-              name={focused ? "home-sharp" : "home-outline"}
-            />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Map"
-        component={Map}
-        options={{
-          tabBarShowLabel: false,
-          headerShown: false,
-          tabBarIcon: ({ focused, size, color }) => (
-            <Ionicons
-              size={size}
-              color={focused ? "#D86626" : color}
-              name={focused ? "location-sharp" : "location-outline"}
-            />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Menu"
-        component={DrawerNavigator}
-        options={{
-          tabBarShowLabel: false,
-          headerShown: false,
-          tabBarIcon: ({ focused, size, color }) => (
-            <Ionicons
-              size={30} // Definindo o tamanho como 30
-              color={focused ? "#D86626" : color}
-              name={focused ? "menu-sharp" : "menu-outline"}
-            />
-          ),
-        }}
-      />
-    </Tab.Navigator>
+    <View style={{ flex: 1 }}>
+      <Tab.Navigator>
+        <Tab.Screen
+          name="HomeStack"
+          component={HomeStack}
+          options={{
+            tabBarShowLabel: false,
+            headerShown: false,
+            tabBarIcon: ({ focused, size, color }) => (
+              <Ionicons
+                size={size}
+                color={focused ? "#D86626" : color}
+                name={focused ? "home-sharp" : "home-outline"}
+              />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Map"
+          component={Map}
+          options={{
+            tabBarShowLabel: false,
+            headerShown: false,
+            tabBarIcon: ({ focused, size, color }) => (
+              <Ionicons
+                size={size}
+                color={focused ? "#D86626" : color}
+                name={focused ? "location-sharp" : "location-outline"}
+              />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Menu"
+          options={{
+            tabBarShowLabel: false,
+            headerShown: false,
+            tabBarIcon: ({ focused, size, color }) => (
+              <Ionicons
+                size={30} // Definindo o tamanho como 30
+                color={focused ? "#D86626" : color}
+                name={focused ? "menu-sharp" : "menu-outline"}
+              />
+            ),
+          }}
+          listeners={({ navigation }) => ({
+            tabPress: e => {
+              e.preventDefault();
+              toggleMenu();
+            },
+          })}
+        >
+          {() => null}
+        </Tab.Screen>
+      </Tab.Navigator>
+      <Menu visible={isMenuVisible} onClose={toggleMenu} navigation={navigation} />
+    </View>
   );
 }
 
-function DrawerNavigator() {
-  return (
-    <Drawer.Navigator>
-      <Drawer.Screen name="User" component={User} />
-    </Drawer.Navigator>
-  );
-}
-
+// Definição das Rotas Principais
 export function Routes() {
   return (
     <Stack.Navigator>
@@ -139,6 +147,11 @@ export function Routes() {
       <Stack.Screen
         name="MainTabNavigator"
         component={MainTabNavigator}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="User"
+        component={User}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
