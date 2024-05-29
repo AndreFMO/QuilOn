@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView, RefreshControl } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { API_BASE_URL } from './../../../config';
+import { API_BASE_URL } from './../../config';
 
 export function User() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -83,7 +83,7 @@ export function User() {
 
         <View style={styles.searchArea}>
           <View style={styles.searchContainer}>
-            <Image source={require('./../../../assets/search-icon.png')} style={styles.searchIcon}/> 
+            <Image source={require('./../../assets/search-icon.png')} style={styles.searchIcon}/> 
             <TextInput
               style={styles.input}
               onChangeText={setSearchQuery}
@@ -93,7 +93,6 @@ export function User() {
             />
 
           </View>
-          <TouchableOpacity style={styles.userIcon}></TouchableOpacity>
         </View>
 
         <Text style={styles.title}>Categorias</Text>
@@ -164,18 +163,18 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_700Bold'
   },
   searchArea: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     marginBottom: 10,
-    marginTop: 20
+    marginTop: 20,
+    paddingRight: 5,
+    height: 74,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    width:"80%",
+    width:"100%",
     height: "70%",
     marginBottom: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: 25,
     borderRadius: 40,
     backgroundColor: "#F3F4F6",
     elevation: 5
@@ -191,18 +190,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: 'Poppins_400Regular',
     marginBottom: -3,
-  },
-  userIcon: {
-    backgroundColor: "#D86626",
-    width: 55,
-    height: 55,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 40,
-    marginBottom: 18,
-    borderWidth: 1,
-    borderColor: "#6666",
-    elevation: 5,
   },
   categoryArea: {
     flexDirection: 'row',

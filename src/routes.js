@@ -4,7 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { Home } from './pages/home';
 import { Map } from './pages/map';
-import { User } from './pages/user/myProducts';
+import { User } from './pages/myProducts';
 import { Start } from './pages/start';
 import { Login } from './pages/login';
 import { Personal } from './pages/register/personal';

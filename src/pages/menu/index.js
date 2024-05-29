@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome'; // Importando a biblioteca de ícones
 
 const Menu = ({ visible, onClose, navigation }) => {
   if (!visible) return null;
@@ -9,23 +10,56 @@ const Menu = ({ visible, onClose, navigation }) => {
   };
 
   const handleOverlayClick = (event) => {
-    // Verificar se o clique foi dentro do menu ou fora dele (na parte cinza)
     if (event.target === event.currentTarget) {
-      // Se o clique foi na parte cinza (overlay), feche o menu
       onClose();
     }
   };
 
+  const [username, setUsername] = useState("Eliana Alves");
+
   return (
     <View style={styles.overlay} onTouchEnd={handleOverlayClick}>
       <View style={styles.container}>
-        <Text style={styles.menuItem}>Perfil</Text>
-        <Text style={styles.menuItem}>Configurações</Text>
-        <TouchableOpacity onPress={myProducts}>
+        <TouchableOpacity style={styles.buttons}>
+          <View style={styles.userIcon}>
+            <Icon name="user" size={24} color="#D86626" /> 
+          </View>
+          <Text style={styles.menuItem}>{username}</Text>
+        </TouchableOpacity>
+        <View style={styles.divider} />
+        <TouchableOpacity style={styles.buttons}>
+          <Icon name="home" size={25} color="#fff" style={[styles.icon, styles.homeIcon]} /> 
+          <Text style={styles.menuItem}>Home</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.buttons}>
+          <Icon name="user" size={24} color="#fff" style={[styles.icon, styles.profileIcon]} /> 
+          <Text style={styles.menuItem}>Perfil</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.buttons}>
+          <Icon name="heart" size={20} color="#fff" style={styles.icon} /> 
+          <Text style={styles.menuItem}>Favoritos</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.buttons} onPress={myProducts}>
+          <Icon name="shopping-bag" size={19} color="#fff" style={styles.icon} />
           <Text style={styles.menuItem}>Meus Produtos</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={onClose}>
-          <Text style={styles.menuItem}>Sair</Text>
+        <View style={styles.divider} />
+        <TouchableOpacity style={styles.buttons}>
+          <Icon name="cog" size={22} color="#fff" style={styles.icon} /> 
+          <Text style={styles.menuItem}>Configurações</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.buttons}>
+          <Icon name="bell" size={20} color="#fff" style={styles.icon} /> 
+          <Text style={styles.menuItem}>Notificação</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.buttons}>
+          <Icon name="question-circle" size={22} color="#fff" style={styles.icon} /> 
+          <Text style={styles.menuItem}>Ajuda</Text>
+        </TouchableOpacity>
+        <View style={styles.divider} />
+        <TouchableOpacity style={styles.buttons} onPress={() => navigation.navigate('Start')}>
+          <Icon name="sign-out" size={24} color="#fff" style={styles.icon} />
+          <Text style={styles.menuItem}>Logout</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -48,12 +82,46 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: '#D86626',
     padding: 20,
+    paddingTop: 60,
   },
   menuItem: {
     fontSize: 16,
-    marginVertical: 10,
+    marginTop: 10,
+    marginHorizontal: 20,
     color: "#fff",
-    fontFamily: 'Poppins_700Bold'
+    fontFamily: 'Poppins_700Bold',
+    marginBottom: 5,
+  },
+  divider: {
+    borderBottomColor: '#fff',
+    borderBottomWidth: 0.5,
+    marginVertical: 30,
+    elevation: 5,
+  },
+  userIcon: {
+    backgroundColor: "#fff",
+    width: 55,
+    height: 55,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 40,
+    borderWidth: 1,
+    borderColor: "#6666",
+    marginLeft: 8,
+  },
+  buttons: {
+    flexDirection: 'row',
+    alignItems: "center",
+  },
+  icon: {
+    marginRight: 10,
+    marginLeft: 10,
+  },
+  homeIcon: {
+    marginLeft: 8,
+  },
+  profileIcon: {
+    marginLeft: 11,
   },
 });
 
