@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { API_BASE_URL } from './../../config';
 
 export function Home() {
+  const [idUsuario, setIdUsuario] = useState(1);
   const [username, setUsername] = useState("Eliana");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState('Diversos');
@@ -54,9 +55,32 @@ export function Home() {
     fetchProducts().then(() => setRefreshing(false));
   };
 
-  const handleSearch = () => {
-    fetchProducts();
+  const handleSearch = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/search`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          idUsuario: idUsuario,
+          conteudoBuscado: searchQuery,
+        }),
+      });
+      
+      if (response.ok) {
+        console.log('Busca cadastrada com sucesso!');
+      } else {
+        // console.error('Erro ao cadastrar busca:', response.status);
+      }
+  
+      fetchProducts();
+    } catch (error) {
+      // console.error('Erro ao cadastrar busca:', error);
+    }
   };
+  
+  
 
   const handleCategoryPress = (category) => {
     if (selectedCategory === category) {

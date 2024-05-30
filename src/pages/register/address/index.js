@@ -1,17 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import DotIndicator from './../../../assets/components/DotIndicator'; // Caminho para o componente de indicador de progresso
 
-export function Address() {
+export function Address({ route }) {
   const navigation = useNavigation();
-
   const [userType, setUserType] = useState("Endereço do Usuário");
+  const [address, setAddress] = useState({
+    street: '',
+    neighborhood: '',
+    number: '',
+    city: '',
+    state: '',
+    complement: '',
+  });
+
+  const { personalData } = route.params || {}; // Definindo personalData como um objeto vazio se route.params não estiver definido
 
   const handleNextPress = () => {
-    navigation.navigate('Account');
+    const userData = {
+      ...personalData,
+      address: address,
+    };
+    navigation.navigate('Account', { userData });
   };
-  
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -29,20 +42,32 @@ export function Address() {
 
         <Text style={styles.subTitle}>Endereço</Text>
         <View style={styles.orangeBorder}>
-          <TextInput style={styles.input} />
+          <TextInput 
+            style={styles.input} 
+            value={address.street}
+            onChangeText={text => setAddress({...address, street: text})}
+          />
         </View>
 
         <View style={styles.horizontalArea}>
           <View style={styles.leftField}>
             <Text style={styles.subTitle}>Bairro</Text>
             <View style={styles.orangeBorder}>
-              <TextInput style={styles.input} />
+              <TextInput 
+                style={styles.input} 
+                value={address.neighborhood}
+                onChangeText={text => setAddress({...address, neighborhood: text})}
+              />
             </View>
           </View>
           <View style={styles.rightField}>
             <Text style={styles.subTitle}>Número</Text>
             <View style={styles.orangeBorder}>
-              <TextInput style={styles.input} />
+              <TextInput 
+                style={styles.input} 
+                value={address.number}
+                onChangeText={text => setAddress({...address, number: text})}
+              />
             </View>
           </View>
         </View>
@@ -51,20 +76,32 @@ export function Address() {
           <View style={styles.leftField}>
             <Text style={styles.subTitle}>Cidade</Text>
             <View style={styles.orangeBorder}>
-              <TextInput style={styles.input} />
+              <TextInput 
+                style={styles.input} 
+                value={address.city}
+                onChangeText={text => setAddress({...address, city: text})}
+              />
             </View>
           </View>
           <View style={styles.rightField}>
             <Text style={styles.subTitle}>UF</Text>
             <View style={styles.orangeBorder}>
-              <TextInput style={styles.input} />
+              <TextInput 
+                style={styles.input} 
+                value={address.state}
+                onChangeText={text => setAddress({...address, state: text})}
+              />
             </View>
           </View>
         </View>
 
         <Text style={styles.subTitle}>Complemento</Text>
         <View style={styles.orangeBorder}>
-          <TextInput style={styles.input} />
+          <TextInput 
+            style={styles.input} 
+            value={address.complement}
+            onChangeText={text => setAddress({...address, complement: text})}
+          />
         </View>
 
       </ScrollView>
@@ -78,6 +115,7 @@ export function Address() {
     </KeyboardAvoidingView>
   );
 }
+
 
 // Estilos
 const styles = StyleSheet.create({

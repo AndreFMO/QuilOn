@@ -1,34 +1,41 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import DateTimePicker from '@react-native-community/datetimepicker'; // Importando o DateTimePicker
+import DateTimePicker from '@react-native-community/datetimepicker';
 import RNPickerSelect from 'react-native-picker-select';
-import DotIndicator from './../../../assets/components/DotIndicator'; // Caminho para o componente de indicador de progresso
+import DotIndicator from './../../../assets/components/DotIndicator';
 
-export function Personal() {
+export function Personal({ route }) {
   const navigation = useNavigation();
 
   const [name, setName] = useState('');
-  const [birthDate, setBirthDate] = useState(new Date()); // Defina a data inicial para o estado birthDate
+  const [birthDate, setBirthDate] = useState(new Date());
   const [sex, setSex] = useState('');
   const [cpf, setCpf] = useState('');
   const [rg, setRg] = useState('');
   const [cellphone, setCellphone] = useState('');
   const [phone, setPhone] = useState('');
-  const [showDatePicker, setShowDatePicker] = useState(false); // Estado para controlar a visibilidade do DatePicker
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const { personalData } = route.params || {}; // Definindo personalData como um objeto vazio se route.params não estiver definido
 
   const handleDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || birthDate;
-    setShowDatePicker(Platform.OS === 'ios'); // Oculta o DatePicker no iOS quando uma data é selecionada
+    setShowDatePicker(Platform.OS === 'ios');
     setBirthDate(currentDate);
   };
 
   const handleNextPress = () => {
-    if (!name || !birthDate || !sex || !cpf || !rg || !cellphone) {
-      Alert.alert('Erro', 'Por favor, preencha todos os campos obrigatórios.');
-      return;
-    }
-    navigation.navigate('Address');
+    const dataToPass = {
+      name: name,
+      birthDate: birthDate.toLocaleDateString(),
+      sex: sex,
+      cpf: cpf,
+      rg: rg,
+      cellphone: cellphone,
+      phone: phone,
+    };
+    navigation.navigate('Address', { personalData: dataToPass });
   };
 
   return (
@@ -51,7 +58,7 @@ export function Personal() {
         <View style={styles.orangeBorder}>
           <TextInput
             style={styles.input}
-            value={name}
+            value={personalData ? personalData.name : name}
             onChangeText={setName}
           />
         </View>
@@ -61,11 +68,11 @@ export function Personal() {
             <Text style={styles.subTitle}>Data de Nascimento</Text>
             <View style={styles.orangeBorder}>
               <TouchableOpacity onPress={() => setShowDatePicker(true)}>
-                <Text style={styles.input}>{birthDate.toLocaleDateString()}</Text>
+                <Text style={styles.input}>{personalData ? personalData.birthDate : birthDate.toLocaleDateString()}</Text>
               </TouchableOpacity>
               {showDatePicker && (
                 <DateTimePicker
-                  value={birthDate}
+                  value={personalData ? new Date(personalData.birthDate) : birthDate}
                   mode="date"
                   display="spinner"
                   onChange={handleDateChange}
@@ -115,7 +122,7 @@ export function Personal() {
         <View style={styles.orangeBorder}>
           <TextInput
             style={styles.input}
-            value={cpf}
+            value={personalData ? personalData.cpf : cpf}
             onChangeText={setCpf}
             keyboardType="numeric"
           />
@@ -125,7 +132,7 @@ export function Personal() {
         <View style={styles.orangeBorder}>
           <TextInput
             style={styles.input}
-            value={rg}
+            value={personalData ? personalData.rg : rg}
             onChangeText={setRg}
             keyboardType="numeric"
           />
@@ -137,7 +144,7 @@ export function Personal() {
             <View style={styles.orangeBorder}>
               <TextInput
                 style={styles.input}
-                value={cellphone}
+                value={personalData ? personalData.cellphone : cellphone}
                 onChangeText={setCellphone}
                 keyboardType="numeric"
               />
@@ -148,7 +155,7 @@ export function Personal() {
             <View style={styles.orangeBorder}>
               <TextInput
                 style={styles.input}
-                value={phone}
+                value={personalData ? personalData.phone : phone}
                 onChangeText={setPhone}
                 keyboardType="numeric"
               />
