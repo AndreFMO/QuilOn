@@ -1,22 +1,133 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform, Switch } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
-import DotIndicator from './../../../assets/components/DotIndicator'; // Caminho para o componente de indicador de progresso
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform, Switch, Alert } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import DotIndicator from './../../../assets/components/DotIndicator';
+import { API_BASE_URL } from './../../../config';
 
 export function Account() {
   const navigation = useNavigation();
+  const route = useRoute();
+  const { personalData = {}, addressData = {} } = route.params || {};
 
   const [userType, setUserType] = useState("Dados da Conta");
   const [isChecked, setIsChecked] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [userId, setUserId] = useState(null); // Estado para armazenar o ID do usuário
 
-  const handleNextPress = () => {
-    if (isChecked) {
-      navigation.navigate('Quilombo');
-    } else {
-      navigation.navigate('Concluded');
+  const handleNextPress = async () => {
+    // Verificar se a opção de entrar como representante quilombola está marcada
+   if (isChecked) {
+     // Adicionar email e senha aos dados pessoais
+     const personalDataWithCredentials = {
+       ...personalData,
+       email,
+       senha: password
+     };
+     
+     // Passar todos os dados (incluindo email e senha) para a tela Quilombo
+     navigation.navigate('Quilombo', { personalData: personalDataWithCredentials, addressData });
+     return; // Retorna para evitar a execução do restante do código
+   }
+ 
+
+    // Verificar se todos os campos obrigatórios foram preenchidos
+    if (!email || !password || !confirmPassword) {
+      Alert.alert('Erro', 'Por favor, preencha todos os campos obrigatórios marcados por: *');
+      return;
+    }
+  
+    // Verificar se os dados pessoais foram preenchidos
+    for (const key in personalData) {
+      if (personalData.hasOwnProperty(key) && personalData[key] === '') {
+        continue; // Ignora os campos vazios
+      }
+      if (!personalData[key]) {
+        Alert.alert('Erro', `O campo ${key} está vazio.`);
+        return;
+      }
+    }
+    
+    // Verificar se os dados de endereço foram preenchidos
+    for (const key in addressData) {
+      if (addressData.hasOwnProperty(key) && addressData[key] === '') {
+        continue; // Ignora os campos vazios
+      }
+      if (!addressData[key]) {
+        Alert.alert('Erro', `O campo ${key} está vazio.`);
+        return;
+      }
+    }
+    
+  
+    // Verificar se as senhas coincidem
+    if (password !== confirmPassword) {
+      Alert.alert('Erro', 'As senhas não coincidem.');
+      return;
+    }
+  
+    // Se todas as verificações passarem, continuar com o envio dos dados
+    const userData = {
+      nome: personalData.name,
+      dataNasc: personalData.birthDate,
+      sexo: personalData.sex,
+      cpf: personalData.cpf,
+      rg: personalData.rg,
+      celular: personalData.cellphone,
+      telefone: personalData.phone || '',
+      email: email,
+      senha: password,
+    };
+  
+    const addressDataToSend = {
+      endereco: addressData.street,
+      bairro: addressData.neighborhood,
+      numero: addressData.number,
+      cidade: addressData.city,
+      uf: addressData.state,
+      complemento: addressData.complement || ''
+    };
+  
+    try {
+      const userResponse = await fetch(`${API_BASE_URL}/user`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userData)
+      });
+  
+      if (!userResponse.ok) {
+        throw new Error(`HTTP error! Status: ${userResponse.status}`);
+      }
+  
+      const userResult = await userResponse.json();
+      const userId = userResult.idUsuario;
+      setUserId(userId); // Atualiza o estado do ID do usuário
+
+      addressDataToSend.idUsuario = userId;
+  
+      const addressResponse = await fetch(`${API_BASE_URL}/address`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(addressDataToSend)
+      });
+  
+      if (!addressResponse.ok) {
+        throw new Error(`HTTP error! Status: ${addressResponse.status}`);
+      }
+  
+      navigation.navigate('Concluded', { userId }); // Passa o ID do usuário como parâmetro
+
+    } catch (error) {
+      console.error("Erro na promessa:", error);
+      Alert.alert('Erro', 'Ocorreu um erro ao realizar o cadastro.');
     }
   };
+  
 
   return (
     <KeyboardAvoidingView
@@ -24,7 +135,7 @@ export function Account() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={styles.container}>
-        <TouchableOpacity onPress={() => navigation.navigate('Address')}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <Image source={require('./../../../assets/return.png')} style={styles.returnButton} />
         </TouchableOpacity>
         <View style={styles.containerLogo}>
@@ -33,20 +144,21 @@ export function Account() {
 
         <Text style={styles.userType}>{userType}</Text>
 
-        <Text style={styles.subTitle}>Email</Text>
+        <Text style={styles.subTitle}>Email<Text style={styles.required}>*</Text></Text>
         <View style={styles.orangeBorder}>
-          <TextInput style={styles.input}/>
+          <TextInput style={styles.input} value={email} onChangeText={setEmail} />
         </View>
 
-        <Text style={styles.subTitle}>Senha</Text>
+        <Text style={styles.subTitle}>Senha<Text style={styles.required}>*</Text></Text>
         <View style={styles.orangeBorder}>
-          <TextInput style={styles.input}/>
+          <TextInput style={styles.input} value={password} onChangeText={setPassword} secureTextEntry />
         </View>
 
-        <Text style={styles.subTitle}>Confirmar senha</Text>
+        <Text style={styles.subTitle}>Confirmar senha<Text style={styles.required}>*</Text></Text>
         <View style={styles.orangeBorder}>
-          <TextInput style={styles.input}/>
+          <TextInput style={styles.input} value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry />
         </View>
+
 
         <View style={styles.checkboxContainer}>
           <Switch
@@ -143,6 +255,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Poppins_700Bold',
     marginLeft: 10,
+  },
+  required: {
+    color: 'red',
+    fontSize: 16,
   },
 });
 

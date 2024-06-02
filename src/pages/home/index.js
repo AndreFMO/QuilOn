@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { API_BASE_URL } from './../../config';
 
 export function Home() {
-  const [idUsuario, setIdUsuario] = useState(1);
+  const [idUsuario, setIdUsuario] = useState(0);
   const [username, setUsername] = useState("Eliana");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState('Diversos');

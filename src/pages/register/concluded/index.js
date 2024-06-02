@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 export function Concluded() {
   const navigation = useNavigation();
+  const route = useRoute();
+  const { userId } = route.params; // Recebendo o ID do usuário dos parâmetros de rota
 
   const handleNextPress = () => {
-    navigation.navigate('MainTabNavigator');
+    console.log("ID do usuário:", userId); // Exibe o ID do usuário no log
+    // Passando o ID do usuário para o MainTabNavigator
+    navigation.navigate('MainTabNavigator', { userId });
   };
 
   return (

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import DotIndicator from './../../../assets/components/DotIndicator'; // Caminho para o componente de indicador de progresso
 
@@ -18,12 +18,16 @@ export function Address({ route }) {
   const { personalData } = route.params || {}; // Definindo personalData como um objeto vazio se route.params não estiver definido
 
   const handleNextPress = () => {
-    const userData = {
-      ...personalData,
-      address: address,
-    };
-    navigation.navigate('Account', { userData });
+    // Verificar se todos os campos obrigatórios foram preenchidos
+    if (!address.street || !address.neighborhood || !address.number || !address.city || !address.state) {
+      Alert.alert('Erro', 'Por favor, preencha todos os campos obrigatórios marcados por: *');
+      return;
+    }
+  
+    navigation.navigate('Account', { personalData: personalData, addressData: address });
   };
+  
+  
 
   return (
     <KeyboardAvoidingView
@@ -40,7 +44,7 @@ export function Address({ route }) {
 
         <Text style={styles.userType}>{userType}</Text>
 
-        <Text style={styles.subTitle}>Endereço</Text>
+        <Text style={styles.subTitle}>Endereço<Text style={styles.required}>*</Text></Text>
         <View style={styles.orangeBorder}>
           <TextInput 
             style={styles.input} 
@@ -51,7 +55,7 @@ export function Address({ route }) {
 
         <View style={styles.horizontalArea}>
           <View style={styles.leftField}>
-            <Text style={styles.subTitle}>Bairro</Text>
+            <Text style={styles.subTitle}>Bairro<Text style={styles.required}>*</Text></Text>
             <View style={styles.orangeBorder}>
               <TextInput 
                 style={styles.input} 
@@ -61,20 +65,21 @@ export function Address({ route }) {
             </View>
           </View>
           <View style={styles.rightField}>
-            <Text style={styles.subTitle}>Número</Text>
+            <Text style={styles.subTitle}>Número<Text style={styles.required}>*</Text></Text>
             <View style={styles.orangeBorder}>
-              <TextInput 
-                style={styles.input} 
-                value={address.number}
-                onChangeText={text => setAddress({...address, number: text})}
-              />
+            <TextInput 
+              style={styles.input} 
+              value={address.number}
+              onChangeText={text => setAddress({...address, number: text})}
+              keyboardType="numeric" // Adicionando esta linha para definir o teclado como numérico
+            />
             </View>
           </View>
         </View>
 
         <View style={styles.horizontalArea}>
           <View style={styles.leftField}>
-            <Text style={styles.subTitle}>Cidade</Text>
+            <Text style={styles.subTitle}>Cidade<Text style={styles.required}>*</Text></Text>
             <View style={styles.orangeBorder}>
               <TextInput 
                 style={styles.input} 
@@ -84,7 +89,7 @@ export function Address({ route }) {
             </View>
           </View>
           <View style={styles.rightField}>
-            <Text style={styles.subTitle}>UF</Text>
+            <Text style={styles.subTitle}>UF<Text style={styles.required}>*</Text></Text>
             <View style={styles.orangeBorder}>
               <TextInput 
                 style={styles.input} 
@@ -103,6 +108,7 @@ export function Address({ route }) {
             onChangeText={text => setAddress({...address, complement: text})}
           />
         </View>
+
 
       </ScrollView>
 
@@ -192,6 +198,10 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontWeight: 'bold',
   },
+  required: {
+    color: 'red',
+    fontSize: 16,
+  },  
 });
 
 export default Address;

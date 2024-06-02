@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import RNPickerSelect from 'react-native-picker-select';
@@ -26,6 +26,12 @@ export function Personal({ route }) {
   };
 
   const handleNextPress = () => {
+    // Verificar se todos os campos obrigatórios foram preenchidos
+    if (!name || !birthDate || !sex || !cpf || !rg || !cellphone) {
+      Alert.alert('Erro', 'Por favor, preencha todos os campos obrigatórios marcados por: *');
+      return;
+    }
+  
     const dataToPass = {
       name: name,
       birthDate: birthDate.toLocaleDateString(),
@@ -35,8 +41,10 @@ export function Personal({ route }) {
       cellphone: cellphone,
       phone: phone,
     };
+    
     navigation.navigate('Address', { personalData: dataToPass });
   };
+  
 
   return (
     <KeyboardAvoidingView
@@ -53,8 +61,7 @@ export function Personal({ route }) {
 
         <Text style={styles.title}>Cadastre-se</Text>
         <Text style={styles.userType}>Dados do Usuário</Text>
-
-        <Text style={styles.subTitle}>Nome</Text>
+        <Text style={styles.subTitle}>Nome<Text style={styles.required}>*</Text></Text>
         <View style={styles.orangeBorder}>
           <TextInput
             style={styles.input}
@@ -65,7 +72,7 @@ export function Personal({ route }) {
 
         <View style={styles.horizontalArea}>
           <View style={styles.contactField}>
-            <Text style={styles.subTitle}>Data de Nascimento</Text>
+            <Text style={styles.subTitle}>Data de Nascimento<Text style={styles.required}>*</Text></Text>
             <View style={styles.orangeBorder}>
               <TouchableOpacity onPress={() => setShowDatePicker(true)}>
                 <Text style={styles.input}>{personalData ? personalData.birthDate : birthDate.toLocaleDateString()}</Text>
@@ -81,14 +88,13 @@ export function Personal({ route }) {
             </View>
           </View>
           <View style={styles.contactField}>
-            <Text style={styles.subTitle}>Sexo</Text>
+            <Text style={styles.subTitle}>Sexo<Text style={styles.required}>*</Text></Text>
             <View style={styles.orangeBorder}>
               <RNPickerSelect
                 onValueChange={(value) => setSex(value)}
                 placeholder={{
                   label: 'Selecione o sexo',
                   value: null,
-                  color: '#c7c7cd',
                 }}
                 items={[
                   { label: 'Masculino', value: 'Masculino' },
@@ -110,7 +116,8 @@ export function Personal({ route }) {
                     color: '#000',
                   },
                   placeholder: {
-                    color: '#c7c7cd',
+                    color: '#000',
+                    fontFamily: 'Poppins_700Bold',
                   },
                 }}
               />
@@ -118,7 +125,7 @@ export function Personal({ route }) {
           </View>
         </View>
 
-        <Text style={styles.subTitle}>CPF</Text>
+        <Text style={styles.subTitle}>CPF<Text style={styles.required}>*</Text></Text>
         <View style={styles.orangeBorder}>
           <TextInput
             style={styles.input}
@@ -128,7 +135,7 @@ export function Personal({ route }) {
           />
         </View>
 
-        <Text style={styles.subTitle}>RG</Text>
+        <Text style={styles.subTitle}>RG<Text style={styles.required}>*</Text></Text>
         <View style={styles.orangeBorder}>
           <TextInput
             style={styles.input}
@@ -140,7 +147,7 @@ export function Personal({ route }) {
 
         <View style={styles.horizontalArea}>
           <View style={styles.contactField}>
-            <Text style={styles.subTitle}>Celular</Text>
+            <Text style={styles.subTitle}>Celular<Text style={styles.required}>*</Text></Text>
             <View style={styles.orangeBorder}>
               <TextInput
                 style={styles.input}
@@ -162,6 +169,8 @@ export function Personal({ route }) {
             </View>
           </View>
         </View>
+
+        
 
       </ScrollView>
 
@@ -252,6 +261,11 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontWeight: 'bold',
   },
+  required: {
+    color: 'red',
+    fontSize: 16,
+  }
+  
 });
 
 export default Personal;

@@ -1,15 +1,69 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import DotIndicator from './../../../assets/components/DotIndicator'; // Caminho para o componente de indicador de progresso
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { API_BASE_URL } from './../../../config';
 
 export function Quilombo() {
   const navigation = useNavigation();
+  const route = useRoute();
+
+  const { personalData, addressData } = route.params || {};
+
+  useEffect(() => {
+    console.log("Dados recebidos:", personalData, addressData);
+  }, []);
 
   const [userType, setUserType] = useState("Estamos quase lá, insira os dados da sua comunidade");
+  const [quilomboData, setQuilomboData] = useState({
+    name: '',
+    certificationNumber: '',
+    latAndLng: '',
+    kmAndComplement: '',
+  });
 
-  const handleNextPress = () => {
-    navigation.navigate('Concluded');
+  const handleNextPress = async () => {
+    try {
+      // Primeiro, envia os dados do usuário
+      const userResponse = await fetch(`${API_BASE_URL}/user`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(personalData),
+      });
+
+      if (!userResponse.ok) throw new Error('Erro ao cadastrar usuário');
+
+      const userData = await userResponse.json();
+      const userId = userData.id;
+
+      // Em seguida, envia os dados do endereço
+      const addressResponse = await fetch(`${API_BASE_URL}/address`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ...addressData, idUsuario: userId }),
+      });
+
+      if (!addressResponse.ok) throw new Error('Erro ao cadastrar endereço');
+
+      // Finalmente, envia os dados do quilombo
+      const quilomboResponse = await fetch(`${API_BASE_URL}/quilombo`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ...quilomboData, idUsuario: userId }),
+      });
+
+      if (!quilomboResponse.ok) throw new Error('Erro ao cadastrar quilombo');
+
+      navigation.navigate('Concluded');
+    } catch (error) {
+      console.error('Erro ao cadastrar:', error);
+      alert('Erro ao cadastrar');
+    }
   };
 
   return (
@@ -30,22 +84,38 @@ export function Quilombo() {
 
         <Text style={styles.subTitle}>Nome da comunidade</Text>
         <View style={styles.orangeBorder}>
-          <TextInput style={styles.input} />
+          <TextInput 
+            style={styles.input} 
+            value={quilomboData.name}
+            onChangeText={(text) => setQuilomboData({ ...quilomboData, name: text })}
+          />
         </View>
 
         <Text style={styles.subTitle}>Número de certificação do Quilombo</Text>
         <View style={styles.orangeBorder}>
-          <TextInput style={styles.input} />
+          <TextInput 
+            style={styles.input} 
+            value={quilomboData.certificationNumber}
+            onChangeText={(text) => setQuilomboData({ ...quilomboData, certificationNumber: text })}
+          />
         </View>
 
         <Text style={styles.subTitle}>Latitude e Longitude</Text>
         <View style={styles.orangeBorder}>
-          <TextInput style={styles.input} />
+          <TextInput 
+            style={styles.input} 
+            value={quilomboData.latAndLng}
+            onChangeText={(text) => setQuilomboData({ ...quilomboData, latAndLng: text })}
+          />
         </View>
 
         <Text style={styles.subTitle}>Quilometro e complemento</Text>
         <View style={styles.orangeBorder}>
-          <TextInput style={styles.input} />
+          <TextInput 
+            style={styles.input} 
+            value={quilomboData.kmAndComplement}
+            onChangeText={(text) => setQuilomboData({ ...quilomboData, kmAndComplement: text })}
+          />
         </View>
 
       </ScrollView>
