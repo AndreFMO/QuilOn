@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform, Alert, Keyboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import RNPickerSelect from 'react-native-picker-select';
@@ -16,8 +16,29 @@ export function Personal({ route }) {
   const [cellphone, setCellphone] = useState('');
   const [phone, setPhone] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [keyboardIsVisible, setKeyboardIsVisible] = useState(false);
 
-  const { personalData } = route.params || {}; // Definindo personalData como um objeto vazio se route.params não estiver definido
+  const { personalData } = route.params || {};
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => {
+        setKeyboardIsVisible(true);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setKeyboardIsVisible(false);
+      }
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   const handleDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || birthDate;
@@ -26,7 +47,6 @@ export function Personal({ route }) {
   };
 
   const handleNextPress = () => {
-    // Verificar se todos os campos obrigatórios foram preenchidos
     if (!name || !birthDate || !sex || !cpf || !rg || !cellphone) {
       Alert.alert('Erro', 'Por favor, preencha todos os campos obrigatórios marcados por: *');
       return;
@@ -169,17 +189,16 @@ export function Personal({ route }) {
             </View>
           </View>
         </View>
-
-        
-
       </ScrollView>
 
-      <View style={styles.bottomContainer}>
-        <DotIndicator totalSteps={3} currentStep={0} />
-        <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
-          <Text style={styles.ButtonText}>Próximo</Text>
-        </TouchableOpacity>
-      </View>
+      {!keyboardIsVisible && (
+        <View style={styles.bottomContainer}>
+          <DotIndicator totalSteps={3} currentStep={0} />
+          <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
+            <Text style={styles.ButtonText}>Próximo</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </KeyboardAvoidingView>
   );
 }
@@ -265,7 +284,6 @@ const styles = StyleSheet.create({
     color: 'red',
     fontSize: 16,
   }
-  
 });
 
 export default Personal;

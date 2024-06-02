@@ -1,11 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 export function Login() {
   const navigation = useNavigation();
 
   const [userType, setUserType] = useState("Dados da conta");
+  const [keyboardIsVisible, setKeyboardIsVisible] = useState(false);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => {
+        setKeyboardIsVisible(true);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setKeyboardIsVisible(false);
+      }
+    );
+
+    // Remove os listeners quando o componente for desmontado
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   const handleNextPress = () => {
     navigation.navigate('MainTabNavigator');
@@ -50,22 +72,24 @@ export function Login() {
 
       </ScrollView>
 
-      <View style={styles.bottomContainer}>
-        <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
-          <Text style={styles.ButtonText}>Entrar</Text>
-        </TouchableOpacity>
+      {!keyboardIsVisible && (
+        <View style={styles.bottomContainer}>
+          <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
+            <Text style={styles.ButtonText}>Entrar</Text>
+          </TouchableOpacity>
 
-        <View style={styles.orContainer}>
-          <View style={styles.divider} />
-          <Text style={styles.orText}>ou</Text>
-          <View style={styles.divider} />
+          <View style={styles.orContainer}>
+            <View style={styles.divider} />
+            <Text style={styles.orText}>ou</Text>
+            <View style={styles.divider} />
+          </View>
+
+          <TouchableOpacity style={styles.googleButton}>
+            <Image source={require('./../../assets/google.png')} style={styles.googleIcon} />
+            <Text style={styles.googleButtonText}>Continue com Google</Text>
+          </TouchableOpacity>
         </View>
-
-        <TouchableOpacity style={styles.googleButton}>
-          <Image source={require('./../../assets/google.png')} style={styles.googleIcon} />
-          <Text style={styles.googleButtonText}>Continue com Google</Text>
-        </TouchableOpacity>
-      </View>
+      )}
     </KeyboardAvoidingView>
   );
 }

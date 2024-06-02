@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform, Alert, Keyboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import DotIndicator from './../../../assets/components/DotIndicator'; // Caminho para o componente de indicador de progresso
 
@@ -14,11 +14,31 @@ export function Address({ route }) {
     state: '',
     complement: '',
   });
+  const [keyboardIsVisible, setKeyboardIsVisible] = useState(false);
 
-  const { personalData } = route.params || {}; // Definindo personalData como um objeto vazio se route.params não estiver definido
+  const { personalData } = route.params || {};
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => {
+        setKeyboardIsVisible(true);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setKeyboardIsVisible(false);
+      }
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   const handleNextPress = () => {
-    // Verificar se todos os campos obrigatórios foram preenchidos
     if (!address.street || !address.neighborhood || !address.number || !address.city || !address.state) {
       Alert.alert('Erro', 'Por favor, preencha todos os campos obrigatórios marcados por: *');
       return;
@@ -26,8 +46,6 @@ export function Address({ route }) {
   
     navigation.navigate('Account', { personalData: personalData, addressData: address });
   };
-  
-  
 
   return (
     <KeyboardAvoidingView
@@ -112,15 +130,18 @@ export function Address({ route }) {
 
       </ScrollView>
 
-      <View style={styles.bottomContainer}>
-        <DotIndicator totalSteps={3} currentStep={1} />
-        <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
-          <Text style={styles.ButtonText}>Próximo</Text>
-        </TouchableOpacity>
-      </View>
+      {!keyboardIsVisible && (
+        <View style={styles.bottomContainer}>
+          <DotIndicator totalSteps={3} currentStep={1} />
+          <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
+            <Text style={styles.ButtonText}>Próximo</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </KeyboardAvoidingView>
   );
 }
+
 
 
 // Estilos

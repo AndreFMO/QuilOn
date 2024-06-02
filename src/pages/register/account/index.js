@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform, Switch, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform, Switch, Alert, Keyboard } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import DotIndicator from './../../../assets/components/DotIndicator';
 import { API_BASE_URL } from './../../../config';
@@ -15,6 +15,27 @@ export function Account() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [userId, setUserId] = useState(null); // Estado para armazenar o ID do usuário
+  const [keyboardIsVisible, setKeyboardIsVisible] = useState(false);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => {
+        setKeyboardIsVisible(true);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setKeyboardIsVisible(false);
+      }
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   const handleNextPress = async () => {
     // Verificar se a opção de entrar como representante quilombola está marcada
@@ -162,7 +183,7 @@ export function Account() {
 
         <View style={styles.checkboxContainer}>
           <Switch
-            trackColor={{ false: "#6666", true: "#D86626" }}
+            track            trackColor={{ false: "#6666", true: "#D86626" }}
             thumbColor={isChecked ? "#ffffff" : "#ffffff"}
             ios_backgroundColor="#6666"
             onValueChange={() => setIsChecked(!isChecked)}
@@ -172,12 +193,14 @@ export function Account() {
         </View>
       </ScrollView>
 
-      <View style={styles.bottomContainer}>
-        <DotIndicator totalSteps={3} currentStep={2} />
-        <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
-          <Text style={styles.ButtonText}>Próximo</Text>
-        </TouchableOpacity>
-      </View>
+      {!keyboardIsVisible && (
+        <View style={styles.bottomContainer}>
+          <DotIndicator totalSteps={3} currentStep={2} />
+          <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
+            <Text style={styles.ButtonText}>Próximo</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </KeyboardAvoidingView>
   );
 }

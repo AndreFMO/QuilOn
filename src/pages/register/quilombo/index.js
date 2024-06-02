@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform, Keyboard, Alert } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { API_BASE_URL } from './../../../config';
 
@@ -13,7 +13,6 @@ export function Quilombo() {
     console.log("Dados recebidos:", personalData, addressData);
   }, []);
 
-  const [userType, setUserType] = useState("Estamos quase lá, insira os dados da sua comunidade");
   const [quilomboData, setQuilomboData] = useState({
     name: '',
     certificationNumber: '',
@@ -21,50 +20,111 @@ export function Quilombo() {
     kmAndComplement: '',
   });
 
+  const [keyboardIsVisible, setKeyboardIsVisible] = useState(false);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardIsVisible(true);
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardIsVisible(false);
+    });
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
+
   const handleNextPress = async () => {
+    // Verificar se todos os campos obrigatórios foram preenchidos
+    if (!quilomboData.name || !quilomboData.certificationNumber || !quilomboData.latAndLng) {
+      Alert.alert('Erro', 'Por favor, preencha todos os campos obrigatórios marcados por: *');
+      return;
+    }
+  
+    // Se todas as verificações passarem, continuar com o envio dos dados
+    const userData = {
+      nome: personalData.name,
+      dataNasc: personalData.birthDate,
+      sexo: personalData.sex,
+      cpf: personalData.cpf,
+      rg: personalData.rg,
+      celular: personalData.cellphone,
+      telefone: personalData.phone || '',
+      email: personalData.email,
+      senha: personalData.senha,
+    };
+  
+    const addressDataToSend = {
+      endereco: addressData.street,
+      bairro: addressData.neighborhood,
+      numero: addressData.number,
+      cidade: addressData.city,
+      uf: addressData.state,
+      complemento: addressData.complement || ''
+    };
+
+    const quilomboDataToSend = {
+      name: quilomboData.name,
+      certificationNumber: quilomboData.certificationNumber,
+      latAndLng: quilomboData.latAndLng,
+      kmAndComplement: quilomboData.kmAndComplement,
+    };
+
     try {
-      // Primeiro, envia os dados do usuário
       const userResponse = await fetch(`${API_BASE_URL}/user`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(personalData),
+        body: JSON.stringify(userData)
       });
+  
+      if (!userResponse.ok) {
+        throw new Error(`HTTP error! Status: ${userResponse.status}`);
+      }
+  
+      const userResult = await userResponse.json();
+      const userId = userResult.idUsuario;
 
-      if (!userResponse.ok) throw new Error('Erro ao cadastrar usuário');
-
-      const userData = await userResponse.json();
-      const userId = userData.id;
-
-      // Em seguida, envia os dados do endereço
+      addressDataToSend.idUsuario = userId;
+      quilomboDataToSend.idUsuario = userId;
+      
+      // Envia endereço
       const addressResponse = await fetch(`${API_BASE_URL}/address`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ ...addressData, idUsuario: userId }),
+        body: JSON.stringify(addressDataToSend)
       });
+  
+      if (!addressResponse.ok) {
+        throw new Error(`HTTP error! Status: ${addressResponse.status}`);
+      }
 
-      if (!addressResponse.ok) throw new Error('Erro ao cadastrar endereço');
-
-      // Finalmente, envia os dados do quilombo
+      // Envia quilombo
       const quilomboResponse = await fetch(`${API_BASE_URL}/quilombo`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ ...quilomboData, idUsuario: userId }),
+        body: JSON.stringify(quilomboDataToSend)
       });
+  
+      if (!quilomboResponse.ok) {
+        throw new Error(`HTTP error! Status: ${quilomboResponse.status}`);
+      }
+  
+      navigation.navigate('Concluded', { userId }); // Passa o ID do usuário como parâmetro
 
-      if (!quilomboResponse.ok) throw new Error('Erro ao cadastrar quilombo');
-
-      navigation.navigate('Concluded');
     } catch (error) {
-      console.error('Erro ao cadastrar:', error);
-      alert('Erro ao cadastrar');
+      console.error("Erro na promessa:", error);
+      Alert.alert('Erro', 'Ocorreu um erro ao realizar o cadastro.');
     }
   };
+  
 
   return (
     <KeyboardAvoidingView
@@ -72,22 +132,22 @@ export function Quilombo() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={styles.contentContainer}>
-        <TouchableOpacity onPress={() => navigation.navigate('Account')}>
+        <TouchableOpacity onPress={() => navigation.navigate('Account', { personalData, addressData })}>
           <Image source={require('./../../../assets/return.png')} style={styles.returnButton} />
         </TouchableOpacity>
+
         <View style={styles.containerLogo}>
           <Image source={require('./../../../assets/quilon.png')} style={styles.backgroundText} />
         </View>
 
         <Text style={styles.title}>Dados do Quilombo</Text>
-        <Text style={styles.userType}>{userType}</Text>
 
         <Text style={styles.subTitle}>Nome da comunidade</Text>
         <View style={styles.orangeBorder}>
           <TextInput 
             style={styles.input} 
             value={quilomboData.name}
-            onChangeText={(text) => setQuilomboData({ ...quilomboData, name: text })}
+            onChangeText={text => setQuilomboData({...quilomboData, name: text})}
           />
         </View>
 
@@ -96,7 +156,7 @@ export function Quilombo() {
           <TextInput 
             style={styles.input} 
             value={quilomboData.certificationNumber}
-            onChangeText={(text) => setQuilomboData({ ...quilomboData, certificationNumber: text })}
+            onChangeText={text => setQuilomboData({...quilomboData, certificationNumber: text})}
           />
         </View>
 
@@ -105,7 +165,7 @@ export function Quilombo() {
           <TextInput 
             style={styles.input} 
             value={quilomboData.latAndLng}
-            onChangeText={(text) => setQuilomboData({ ...quilomboData, latAndLng: text })}
+            onChangeText={text => setQuilomboData({...quilomboData, latAndLng: text})}
           />
         </View>
 
@@ -114,17 +174,19 @@ export function Quilombo() {
           <TextInput 
             style={styles.input} 
             value={quilomboData.kmAndComplement}
-            onChangeText={(text) => setQuilomboData({ ...quilomboData, kmAndComplement: text })}
+            onChangeText={text => setQuilomboData({...quilomboData, kmAndComplement: text})}
           />
         </View>
 
       </ScrollView>
 
-      <View style={styles.bottomContainer}>
-        <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
-          <Text style={styles.ButtonText}>Próximo</Text>
-        </TouchableOpacity>
-      </View>
+      {!keyboardIsVisible && (
+        <View style={styles.bottomContainer}>
+          <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
+            <Text style={styles.ButtonText}>Próximo</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </KeyboardAvoidingView>
   );
 }
