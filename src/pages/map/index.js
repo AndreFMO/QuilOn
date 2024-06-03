@@ -35,7 +35,6 @@ export function Map() {
       })
       .catch(error => console.warn(error));
   };
-  
 
   const handleSearch = () => {
     fetch(`https://nominatim.openstreetmap.org/search?q=${searchQuery}&format=json`)
@@ -72,9 +71,16 @@ export function Map() {
             key={quilombo.id}
             coordinate={{latitude: quilombo.latitude, longitude: quilombo.longitude}}
             title={quilombo.name}
+            description={quilombo.description}
+            pinColor="#D86626" // Custom color for quilombo markers
           />
         ))}
-        {markerCoordinate && <Marker coordinate={markerCoordinate} />}
+        {markerCoordinate && (
+          <Marker
+            coordinate={markerCoordinate}
+            title="New Marker"
+          />
+        )}
       </MapView>
 
       <View style={styles.overlay}>
