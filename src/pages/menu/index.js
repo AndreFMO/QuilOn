@@ -7,7 +7,7 @@ const Menu = ({ visible, onClose, navigation }) => {
   if (!visible) return null;
 
   const myProducts = () => {
-    navigation.navigate('User');
+    navigation.navigate('MyProducts');
   };
 
   const handleOverlayClick = (event) => {

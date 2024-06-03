@@ -5,11 +5,12 @@ import { API_BASE_URL } from './../../config';
 import { UserContext } from '../../UserContext';
 
 export function Home() {
-  const {userId, username, usersex, setUsername, setUserSex } = useContext(UserContext);
+  const { userId, username, usersex, setUsername, setUserSex } = useContext(UserContext);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState('Diversos');
   const [products, setProducts] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [recommendedProducts, setRecommendedProducts] = useState([]);
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -17,12 +18,16 @@ export function Home() {
     fetchProducts();
   }, [selectedCategory]);
 
+  useEffect(() => {
+    fetchRecommendedProducts();
+  }, []);
+
   const fetchUserDetails = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/user/${userId}`);//${userId}
+      const response = await fetch(`${API_BASE_URL}/user/${userId}`);
       const data = await response.json();
       if (response.ok) {
-        const firstName = data.nome.split(' ')[0]; // Pega apenas o primeiro nome
+        const firstName = data.nome.split(' ')[0];
         setUsername(firstName);
         setUserSex(data.sexo);
       } else {
@@ -37,11 +42,13 @@ export function Home() {
     try {
       const response = await fetch(`${API_BASE_URL}/products`);
       const data = await response.json();
-      let filteredProducts = data.products;
+      const allProducts = data.products;
+
+      let filteredProducts = allProducts;
   
       if (searchQuery) {
         const searchTerm = searchQuery.toLowerCase();
-        filteredProducts = data.products.filter(product => {
+        filteredProducts = allProducts.filter(product => {
           const productName = product[1].toLowerCase();
           const productCategory = product[2].toLowerCase();
           const productDescription = product[3].toLowerCase();
@@ -55,11 +62,27 @@ export function Home() {
 
       if (selectedCategory === 'Diversos') {
         setProducts(filteredProducts);
+      } else if (selectedCategory === 'Recomendados') {
+        setProducts(recommendedProducts);
       } else {
         setProducts(filteredProducts.filter(product => product[2] === selectedCategory));
       }
     } catch (error) {
       console.error('Erro ao obter produtos:', error);
+    }
+  };
+
+  const fetchRecommendedProducts = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/recommendations/${userId}`);
+      const data = await response.json();
+      if (response.ok) {
+        setRecommendedProducts(data.recommended_products);
+      } else {
+        console.error('Erro ao obter produtos recomendados:', response.status);
+      }
+    } catch (error) {
+      console.error('Erro ao obter produtos recomendados:', error);
     }
   };
 
@@ -73,29 +96,35 @@ export function Home() {
   };
 
   const handleSearch = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/search`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          idUsuario: userId,
-          conteudoBuscado: searchQuery,
-        }),
-      });
-      
-      if (response.ok) {
-        console.log('Busca cadastrada com sucesso!');
-      } else {
-        console.error('Erro ao cadastrar busca:', response.status);
+    if (searchQuery.trim() !== "") {
+      try {
+        const response = await fetch(`${API_BASE_URL}/search`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            idUsuario: userId,
+            conteudoBuscado: searchQuery,
+          }),
+        });
+        
+        if (response.ok) {
+          console.log('Busca cadastrada com sucesso!');
+        } else {
+          console.error('Erro ao cadastrar busca:', response.status);
+        }
+    
+        fetchProducts();
+      } catch (error) {
+        console.error('Erro ao cadastrar busca:', error);
       }
-  
+    } else {
+      console.log('A barra de busca está vazia.');
       fetchProducts();
-    } catch (error) {
-      console.error('Erro ao cadastrar busca:', error);
     }
   };
+  
   
   const handleCategoryPress = (category) => {
     if (selectedCategory === category) {
@@ -106,12 +135,13 @@ export function Home() {
   };
 
   return (
-    <View style={styles.tela}>
-      <ScrollView contentContainerStyle={styles.container}
+    <View style={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.scrollViewContent}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
-            onRefresh={onRefresh}/>
+            onRefresh={onRefresh} />
         }
       >
         <Text style={styles.title}>
@@ -131,28 +161,38 @@ export function Home() {
         </View>
         <Text style={styles.title}>Categorias</Text>
         <View style={styles.categoryArea}>
-          <TouchableOpacity 
-            style={[styles.categoryButton, selectedCategory === 'Diversos' && styles.selectedCategoryButton]}
-            onPress={() => handleCategoryPress('Diversos')}>
-            <Text style={[styles.categoryText, selectedCategory === 'Diversos' && styles.selectedCategoryText]}>Diversos</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.categoryButton, selectedCategory === 'Acessórios' && styles.selectedCategoryButton]}
-            onPress={() => handleCategoryPress('Acessórios')}>
-            <Text style={[styles.categoryText, selectedCategory === 'Acessórios' && styles.selectedCategoryText]}>Acessórios</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.categoryButton, selectedCategory === 'Cestaria' && styles.selectedCategoryButton]}
-            onPress={() => handleCategoryPress('Cestaria')}>
-            <Text style={[styles.categoryText, selectedCategory === 'Cestaria' && styles.selectedCategoryText]}>Cestaria</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.categoryButton, selectedCategory === 'Cerâmica' && styles.selectedCategoryButton]}
-            onPress={() => handleCategoryPress('Cerâmica')}>
-            <Text style={[styles.categoryText, selectedCategory === 'Cerâmica' && styles.selectedCategoryText]}>Cerâmica</Text>
-          </TouchableOpacity>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <TouchableOpacity 
+              style={[styles.categoryButton, selectedCategory === 'Diversos' && styles.selectedCategoryButton]}
+              onPress={() => handleCategoryPress('Diversos')}>
+              <Text style={[styles.categoryText, selectedCategory === 'Diversos' && styles.selectedCategoryText]}>Diversos</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.categoryButton, selectedCategory === 'Acessórios' && styles.selectedCategoryButton]}
+              onPress={() => handleCategoryPress('Acessórios')}>
+              <Text style={[styles.categoryText, selectedCategory === 'Acessórios' && styles.selectedCategoryText]}>Acessórios</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.categoryButton, selectedCategory === 'Cestaria' && styles.selectedCategoryButton]}
+              onPress={() => handleCategoryPress('Cestaria')}>
+              <Text style={[styles.categoryText, selectedCategory === 'Cestaria' && styles.selectedCategoryText]}>Cestaria</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.categoryButton, selectedCategory === 'Cerâmica' && styles.selectedCategoryButton]}
+              onPress={() => handleCategoryPress('Cerâmica')}>
+              <Text style={[styles.categoryText, selectedCategory === 'Cerâmica' && styles.selectedCategoryText]}>Cerâmica</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.categoryButton, selectedCategory === 'Recomendados' && styles.selectedCategoryButton]}
+              onPress={() => handleCategoryPress('Recomendados')}>
+              <Text style={[styles.categoryText, selectedCategory === 'Recomendados' &&styles.selectedCategoryText]}>Recomendados</Text>
+            </TouchableOpacity>
+          </ScrollView>
         </View>
-        <Text style={styles.title}>Produtos Diversos</Text>
+        <Text style={styles.title}>
+          {selectedCategory === 'Diversos' || selectedCategory === 'Recomendados' ? `Produtos ${selectedCategory}` : `Produtos de "${selectedCategory}"`}
+        </Text>
+
         <View style={styles.productArea}>
           {products.length === 0 ? (
             <Text style={styles.noProductText}>Nenhum produto{"\n"}encontrado</Text>
@@ -178,13 +218,11 @@ export function Home() {
 
 
 const styles = StyleSheet.create({
-  tela: {
+  container: {
     flex: 1,
     backgroundColor: "#FFF",
-    justifyContent: 'center',
-    alignItems: 'center',
   },
-  container: {
+  scrollViewContent: {
     flexGrow: 1,
     marginTop: "20%",
     paddingHorizontal: "5%",
@@ -226,11 +264,11 @@ const styles = StyleSheet.create({
   categoryArea: {
     flexDirection: 'row',
     justifyContent: "center",
-    marginVertical: 20
+    marginVertical: 20,
   },
   categoryButton:{
-    width: "24.5%",
     margin: 2,
+    paddingHorizontal: 12,
     height: 38,
     alignItems: 'center',
     justifyContent: 'center',
@@ -257,31 +295,30 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   noProductText: {
-  fontSize: 19,
-  fontFamily: 'Poppins_400Regular',
-  textAlign: 'center',
-  marginTop: 60,
-},
+    fontSize: 19,
+    fontFamily: 'Poppins_400Regular',
+    textAlign: 'center',
+    marginTop: 60,
+  },
   produtosList:{
     flexDirection: "row",
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-
   },
   produto:{
-  width: "47.5%",
-  height: "auto",
-  minHeight: 260,
-  backgroundColor: "#FFF",
-  alignItems: 'center',
-  borderTopStartRadius: 5,
-  borderTopEndRadius: 5,
-  borderRadius: 10,
-  borderWidth: 1,
-  borderColor: "#6666",
-  elevation: 5,
-  marginLeft: "0.5%",
-  marginBottom: 15,
+    width: "47.5%",
+    height: "auto",
+    minHeight: 260,
+    backgroundColor: "#FFF",
+    alignItems: 'center',
+    borderTopStartRadius: 5,
+    borderTopEndRadius: 5,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#6666",
+    elevation: 5,
+    marginLeft: "0.5%",
+    marginBottom: 15,
   },
   productImage:{
     width: "100%",

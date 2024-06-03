@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView, RefreshControl } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { API_BASE_URL } from './../../config';
+import { UserContext } from '../../UserContext';
 
 export function MyProducts() {
+  const {userId, username } = useContext(UserContext);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState('Diversos');
   const [products, setProducts] = useState([]);
@@ -43,10 +45,6 @@ export function MyProducts() {
       // console.error('Erro ao obter produtos:', error);
     }
   };
-  
-  
-  
-
 
   const handleProductPress = (product) => {
     navigation.navigate('MyProductDetail', { product });
@@ -78,7 +76,6 @@ export function MyProducts() {
             onRefresh={onRefresh}/>
         }
       >
-
         <Text style={styles.title}>Meus Produtos</Text>
 
         <View style={styles.searchArea}>
@@ -91,38 +88,36 @@ export function MyProducts() {
               returnKeyType="search"
               onSubmitEditing={handleSearch}
             />
-
           </View>
         </View>
-
         <Text style={styles.title}>Categorias</Text>
-
         <View style={styles.categoryArea}>
-
-          <TouchableOpacity 
-            style={[styles.categoryButton, selectedCategory === 'Diversos' && styles.selectedCategoryButton]}
-            onPress={() => handleCategoryPress('Diversos')}>
-            <Text style={[styles.categoryText, selectedCategory === 'Diversos' && styles.selectedCategoryText]}>Diversos</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.categoryButton, selectedCategory === 'Acessórios' && styles.selectedCategoryButton]}
-            onPress={() => handleCategoryPress('Acessórios')}>
-            <Text style={[styles.categoryText, selectedCategory === 'Acessórios' && styles.selectedCategoryText]}>Acessórios</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.categoryButton, selectedCategory === 'Cestaria' && styles.selectedCategoryButton]}
-            onPress={() => handleCategoryPress('Cestaria')}>
-            <Text style={[styles.categoryText, selectedCategory === 'Cestaria' && styles.selectedCategoryText]}>Cestaria</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.categoryButton, selectedCategory === 'Cerâmica' && styles.selectedCategoryButton]}
-            onPress={() => handleCategoryPress('Cerâmica')}>
-            <Text style={[styles.categoryText, selectedCategory === 'Cerâmica' && styles.selectedCategoryText]}>Cerâmica</Text>
-          </TouchableOpacity>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <TouchableOpacity 
+              style={[styles.categoryButton, selectedCategory === 'Diversos' && styles.selectedCategoryButton]}
+              onPress={() => handleCategoryPress('Diversos')}>
+              <Text style={[styles.categoryText, selectedCategory === 'Diversos' && styles.selectedCategoryText]}>Diversos</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.categoryButton, selectedCategory === 'Acessórios' && styles.selectedCategoryButton]}
+              onPress={() => handleCategoryPress('Acessórios')}>
+              <Text style={[styles.categoryText, selectedCategory === 'Acessórios' && styles.selectedCategoryText]}>Acessórios</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.categoryButton, selectedCategory === 'Cestaria' && styles.selectedCategoryButton]}
+              onPress={() => handleCategoryPress('Cestaria')}>
+              <Text style={[styles.categoryText, selectedCategory === 'Cestaria' && styles.selectedCategoryText]}>Cestaria</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.categoryButton, selectedCategory === 'Cerâmica' && styles.selectedCategoryButton]}
+              onPress={() => handleCategoryPress('Cerâmica')}>
+              <Text style={[styles.categoryText, selectedCategory === 'Cerâmica' && styles.selectedCategoryText]}>Cerâmica</Text>
+            </TouchableOpacity>
+          </ScrollView>
         </View>
-
-        <Text style={styles.title}>Produtos Diversos</Text>
-        
+        <Text style={styles.title}>
+          {selectedCategory === 'Diversos' ? `Produtos ${selectedCategory}` : `Produtos de "${selectedCategory}"`}
+        </Text>
         <View style={styles.productArea}>
           {products.length === 0 ? (
             <Text style={styles.noProductText}>Nenhum produto{"\n"}encontrado</Text>
@@ -194,11 +189,11 @@ const styles = StyleSheet.create({
   categoryArea: {
     flexDirection: 'row',
     justifyContent: "center",
-    marginVertical: 20
+    marginVertical: 20,
   },
   categoryButton:{
-    width: "24.5%",
     margin: 2,
+    paddingHorizontal: 12,
     height: 38,
     alignItems: 'center',
     justifyContent: 'center',
