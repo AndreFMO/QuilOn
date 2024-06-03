@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView, RefreshControl } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { API_BASE_URL } from './../../config';
+import { UserContext } from '../../UserContext';
 
 export function Home() {
-  const [idUsuario, setIdUsuario] = useState(0);
-  const [username, setUsername] = useState("Eliana");
+  const {userId, username, usersex, setUsername, setUserSex } = useContext(UserContext);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState('Diversos');
   const [products, setProducts] = useState([]);
@@ -13,8 +13,25 @@ export function Home() {
   const navigation = useNavigation();
 
   useEffect(() => {
+    fetchUserDetails();
     fetchProducts();
   }, [selectedCategory]);
+
+  const fetchUserDetails = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/user/${userId}`);//${userId}
+      const data = await response.json();
+      if (response.ok) {
+        const firstName = data.nome.split(' ')[0]; // Pega apenas o primeiro nome
+        setUsername(firstName);
+        setUserSex(data.sexo);
+      } else {
+        console.error('Erro ao obter detalhes do usuário:', response.status);
+      }
+    } catch (error) {
+      console.error('Erro ao obter detalhes do usuário:', error);
+    }
+  };
 
   const fetchProducts = async () => {
     try {
@@ -42,7 +59,7 @@ export function Home() {
         setProducts(filteredProducts.filter(product => product[2] === selectedCategory));
       }
     } catch (error) {
-      // console.error('Erro ao obter produtos:', error);
+      console.error('Erro ao obter produtos:', error);
     }
   };
 
@@ -63,7 +80,7 @@ export function Home() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          idUsuario: idUsuario,
+          idUsuario: userId,
           conteudoBuscado: searchQuery,
         }),
       });
@@ -71,17 +88,15 @@ export function Home() {
       if (response.ok) {
         console.log('Busca cadastrada com sucesso!');
       } else {
-        // console.error('Erro ao cadastrar busca:', response.status);
+        console.error('Erro ao cadastrar busca:', response.status);
       }
   
       fetchProducts();
     } catch (error) {
-      // console.error('Erro ao cadastrar busca:', error);
+      console.error('Erro ao cadastrar busca:', error);
     }
   };
   
-  
-
   const handleCategoryPress = (category) => {
     if (selectedCategory === category) {
       return;
@@ -99,7 +114,9 @@ export function Home() {
             onRefresh={onRefresh}/>
         }
       >
-        <Text style={styles.title}>Bem-vinda, {username}!</Text>
+        <Text style={styles.title}>
+          {usersex === 'Feminino' ? 'Bem-vinda' : 'Bem-vindo'}, {username}!
+        </Text>
         <View style={styles.searchArea}>
           <View style={styles.searchContainer}>
             <Image source={require('./../../assets/search-icon.png')} style={styles.searchIcon}/> 
@@ -158,6 +175,7 @@ export function Home() {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   tela: {

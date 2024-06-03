@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'; // Importando a biblioteca de ícones
+import { UserContext } from '../../UserContext';
 
 const Menu = ({ visible, onClose, navigation }) => {
   if (!visible) return null;
@@ -14,8 +15,7 @@ const Menu = ({ visible, onClose, navigation }) => {
       onClose();
     }
   };
-
-  const [username, setUsername] = useState("Eliana Alves");
+  const {userId, username} = useContext(UserContext);
 
   return (
     <View style={styles.overlay} onTouchEnd={handleOverlayClick}>

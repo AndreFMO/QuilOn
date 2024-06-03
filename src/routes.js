@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { BackHandler } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { Home } from './pages/home';
 import { Map } from './pages/map';
-import { User } from './pages/myProducts';
+import { MyProducts } from './pages/myProducts';
 import { Start } from './pages/start';
 import { Login } from './pages/login';
 import { Personal } from './pages/register/personal';
@@ -13,6 +14,7 @@ import { Account } from './pages/register/account';
 import { Quilombo } from './pages/register/quilombo';
 import { Concluded } from './pages/register/concluded';
 import { ProductDetail } from './pages/home/productDetail';
+import { MyProductDetail } from './pages/myProducts/myProductDetail';
 import Menu from './pages/menu'; 
 import { View } from 'react-native';
 
@@ -43,6 +45,16 @@ function MainTabNavigator({ navigation }) {
   const toggleMenu = () => {
     setMenuVisible(!isMenuVisible);
   };
+
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      // Navigate to Home screen when back button is pressed
+      navigation.navigate('HomeStack');
+      return true; // Prevent default behavior (exit app)
+    });
+
+    return () => backHandler.remove();
+  }, [navigation]);
 
   return (
     <View style={{ flex: 1 }}>
@@ -150,8 +162,13 @@ export function Routes() {
         options={{ headerShown: false }}
       />
       <Stack.Screen
-        name="User"
-        component={User}
+        name="MyProducts"
+        component={MyProducts}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="MyProductDetail"
+        component={MyProductDetail}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

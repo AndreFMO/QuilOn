@@ -1,12 +1,46 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
+import React, { useState, useEffect, useContext } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform, Keyboard, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { UserContext } from './../../UserContext';
+import { API_BASE_URL } from './../../config';
 
 export function Login() {
   const navigation = useNavigation();
-
-  const [userType, setUserType] = useState("Dados da conta");
+  const { setUserId } = useContext(UserContext);
   const [keyboardIsVisible, setKeyboardIsVisible] = useState(false);
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = () => {
+    // Enviar os dados de login para a rota de login da API
+    fetch(`${API_BASE_URL}/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: email.toLowerCase(), // Convertendo para minúsculas
+        password: password,
+      }),
+    })
+    .then(response => {
+      if (response.ok) {
+        // Se o login for bem-sucedido, obtenha o ID do usuário e salve-o no contexto
+        response.json().then(data => {
+          const userId = data.idUsuario;
+          setUserId(userId);
+          navigation.navigate('MainTabNavigator');
+        });
+      } else {
+        // Se o login falhar, exiba uma mensagem de erro
+        Alert.alert('Erro', 'Credenciais inválidas');
+      }
+    })
+    .catch(error => {
+      console.error('Erro ao fazer login:', error);
+    });
+  };
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -47,16 +81,26 @@ export function Login() {
         </View>
 
         <Text style={styles.title}>Faça seu login</Text>
-        <Text style={styles.userType}>{userType}</Text>
+        <Text style={styles.userType}>Dados da conta</Text>
 
         <Text style={styles.subTitle}>Email</Text>
         <View style={styles.orangeBorder}>
-          <TextInput style={styles.input} />
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={text => setEmail(text)}
+            autoCapitalize="none" // Desativando a capitalização automática
+          />
         </View>
 
         <Text style={styles.subTitle}>Senha</Text>
         <View style={styles.orangeBorder}>
-          <TextInput style={styles.input} />
+          <TextInput
+            style={styles.input}
+            value={password}
+            onChangeText={text => setPassword(text)}
+            secureTextEntry={true}
+          />
         </View>
 
         <TouchableOpacity>
@@ -66,29 +110,29 @@ export function Login() {
         <View style={styles.signupContainer}>
           <Text style={styles.newHereText}>Novo por aqui?</Text>
           <TouchableOpacity style={styles.signupButton}>
-            <Text style={styles.signupButtonText}>Crie sua conta!</Text>
+            <Text style={styles.signupButtonText} onPress={() => navigation.navigate('Personal')}>Crie sua conta!</Text>
           </TouchableOpacity>
         </View>
 
       </ScrollView>
 
       {!keyboardIsVisible && (
-        <View style={styles.bottomContainer}>
-          <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
-            <Text style={styles.ButtonText}>Entrar</Text>
-          </TouchableOpacity>
+      <View style={styles.bottomContainer}>
+        <TouchableOpacity style={styles.nextButton} onPress={handleLogin}>
+          <Text style={styles.ButtonText}>Entrar</Text>
+        </TouchableOpacity>
 
-          <View style={styles.orContainer}>
-            <View style={styles.divider} />
-            <Text style={styles.orText}>ou</Text>
-            <View style={styles.divider} />
-          </View>
-
-          <TouchableOpacity style={styles.googleButton}>
-            <Image source={require('./../../assets/google.png')} style={styles.googleIcon} />
-            <Text style={styles.googleButtonText}>Continue com Google</Text>
-          </TouchableOpacity>
+        <View style={styles.orContainer}>
+          <View style={styles.divider} />
+          <Text style={styles.orText}>ou</Text>
+          <View style={styles.divider} />
         </View>
+
+        <TouchableOpacity style={styles.googleButton}>
+          <Image source={require('./../../assets/google.png')} style={styles.googleIcon} />
+          <Text style={styles.googleButtonText}>Continue com Google</Text>
+        </TouchableOpacity>
+      </View>
       )}
     </KeyboardAvoidingView>
   );

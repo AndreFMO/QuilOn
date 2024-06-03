@@ -9,10 +9,6 @@ export function Quilombo() {
 
   const { personalData, addressData } = route.params || {};
 
-  useEffect(() => {
-    console.log("Dados recebidos:", personalData, addressData);
-  }, []);
-
   const [quilomboData, setQuilomboData] = useState({
     name: '',
     certificationNumber: '',

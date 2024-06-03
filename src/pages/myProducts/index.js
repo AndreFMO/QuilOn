@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView,
 import { useNavigation } from '@react-navigation/native';
 import { API_BASE_URL } from './../../config';
 
-export function User() {
+export function MyProducts() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState('Diversos');
   const [products, setProducts] = useState([]);
@@ -49,7 +49,7 @@ export function User() {
 
 
   const handleProductPress = (product) => {
-    navigation.navigate('ProductDetail', { product });
+    navigation.navigate('MyProductDetail', { product });
   };
 
   const onRefresh = () => {
