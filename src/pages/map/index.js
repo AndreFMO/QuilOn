@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
-import { useFonts, Poppins_400Regular, Poppins_700Bold } from '@expo-google-fonts/poppins';
 
 export function Map() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -12,6 +11,31 @@ export function Map() {
     longitudeDelta: 1.5,
   });
   const [markerCoordinate, setMarkerCoordinate] = useState(null);
+  const [quilombos, setQuilombos] = useState([]);
+
+  useEffect(() => {
+    fetchQuilombos();
+  }, []);
+
+  const fetchQuilombos = () => {
+    fetch("http://192.168.0.105:5000/quilombos")
+      .then(response => response.json())
+      .then(data => {
+        console.log("Quilombos data:", data); // Adicionando log para verificar os dados
+        if (Array.isArray(data.quilombos)) { // Verifica se os dados são um array
+          const formattedQuilombos = data.quilombos.map(quilombo => ({
+            id: quilombo[0],
+            name: quilombo[2],
+            latitude: parseFloat(quilombo[4].split(',')[0]),
+            longitude: parseFloat(quilombo[4].split(',')[1]),
+            description: quilombo[5]
+          }));
+          setQuilombos(formattedQuilombos);
+        }
+      })
+      .catch(error => console.warn(error));
+  };
+  
 
   const handleSearch = () => {
     fetch(`https://nominatim.openstreetmap.org/search?q=${searchQuery}&format=json`)
@@ -43,6 +67,13 @@ export function Map() {
         region={region}
         onPress={handleMapPress}
       >
+        {quilombos && quilombos.map(quilombo => (
+          <Marker
+            key={quilombo.id}
+            coordinate={{latitude: quilombo.latitude, longitude: quilombo.longitude}}
+            title={quilombo.name}
+          />
+        ))}
         {markerCoordinate && <Marker coordinate={markerCoordinate} />}
       </MapView>
 
@@ -111,7 +142,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 10,
     fontSize: 18,
-    fontFamily: 'Poppins_400Regular',
     marginBottom: -3,
   },
   userIcon: {
