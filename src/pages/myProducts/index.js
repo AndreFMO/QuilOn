@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView, RefreshControl } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import { API_BASE_URL } from './../../config';
 import { UserContext } from '../../UserContext';
 
 export function MyProducts() {
-  const {userId, username } = useContext(UserContext);
+  const { userId, username } = useContext(UserContext);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState('Diversos');
   const [products, setProducts] = useState([]);
@@ -21,7 +22,7 @@ export function MyProducts() {
       const response = await fetch(`${API_BASE_URL}/products`);
       const data = await response.json();
       let filteredProducts = data.products;
-  
+
       if (searchQuery) {
         const searchTerm = searchQuery.toLowerCase();
         filteredProducts = data.products.filter(product => {
@@ -69,73 +70,78 @@ export function MyProducts() {
 
   return (
     <View style={styles.tela}>
-      <ScrollView contentContainerStyle={styles.container}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}/>
-        }
-      >
-        <Text style={styles.title}>Meus Produtos</Text>
+      <View style={styles.contentContainer}>
+        <ScrollView contentContainerStyle={styles.container}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh} />
+          }
+        >
+          <Text style={styles.title}>Meus Produtos</Text>
 
-        <View style={styles.searchArea}>
-          <View style={styles.searchContainer}>
-            <Image source={require('./../../assets/search-icon.png')} style={styles.searchIcon}/> 
-            <TextInput
-              style={styles.input}
-              onChangeText={setSearchQuery}
-              value={searchQuery}
-              returnKeyType="search"
-              onSubmitEditing={handleSearch}
-            />
-          </View>
-        </View>
-        <Text style={styles.title}>Categorias</Text>
-        <View style={styles.categoryArea}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <TouchableOpacity 
-              style={[styles.categoryButton, selectedCategory === 'Diversos' && styles.selectedCategoryButton]}
-              onPress={() => handleCategoryPress('Diversos')}>
-              <Text style={[styles.categoryText, selectedCategory === 'Diversos' && styles.selectedCategoryText]}>Diversos</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.categoryButton, selectedCategory === 'Acessórios' && styles.selectedCategoryButton]}
-              onPress={() => handleCategoryPress('Acessórios')}>
-              <Text style={[styles.categoryText, selectedCategory === 'Acessórios' && styles.selectedCategoryText]}>Acessórios</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.categoryButton, selectedCategory === 'Cestaria' && styles.selectedCategoryButton]}
-              onPress={() => handleCategoryPress('Cestaria')}>
-              <Text style={[styles.categoryText, selectedCategory === 'Cestaria' && styles.selectedCategoryText]}>Cestaria</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.categoryButton, selectedCategory === 'Cerâmica' && styles.selectedCategoryButton]}
-              onPress={() => handleCategoryPress('Cerâmica')}>
-              <Text style={[styles.categoryText, selectedCategory === 'Cerâmica' && styles.selectedCategoryText]}>Cerâmica</Text>
-            </TouchableOpacity>
-          </ScrollView>
-        </View>
-        <Text style={styles.title}>
-          {selectedCategory === 'Diversos' ? `Produtos ${selectedCategory}` : `Produtos de "${selectedCategory}"`}
-        </Text>
-        <View style={styles.productArea}>
-          {products.length === 0 ? (
-            <Text style={styles.noProductText}>Nenhum produto{"\n"}encontrado</Text>
-          ) : (
-            <View style={styles.produtosList}>
-              {products.map(product => (
-                <TouchableOpacity key={product[0]} style={styles.produto} onPress={() => handleProductPress(product)}>
-                  <Image source={{ uri: `${API_BASE_URL}/upload/${product[0]}/1` }} style={styles.productImage}/>
-                  <View style={styles.produtosInfo}>
-                    <Text style={styles.productText1}>{product[1]}</Text>
-                    <Text style={styles.productText2}>{product[2]}</Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
+          <View style={styles.searchArea}>
+            <View style={styles.searchContainer}>
+              <Image source={require('./../../assets/search-icon.png')} style={styles.searchIcon} />
+              <TextInput
+                style={styles.input}
+                onChangeText={setSearchQuery}
+                value={searchQuery}
+                returnKeyType="search"
+                onSubmitEditing={handleSearch}
+              />
             </View>
-          )}
-        </View>
-      </ScrollView>
+          </View>
+          <Text style={styles.title}>Categorias</Text>
+          <View style={styles.categoryArea}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <TouchableOpacity
+                style={[styles.categoryButton, selectedCategory === 'Diversos' && styles.selectedCategoryButton]}
+                onPress={() => handleCategoryPress('Diversos')}>
+                <Text style={[styles.categoryText, selectedCategory === 'Diversos' && styles.selectedCategoryText]}>Diversos</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.categoryButton, selectedCategory === 'Acessórios' && styles.selectedCategoryButton]}
+                onPress={() => handleCategoryPress('Acessórios')}>
+                <Text style={[styles.categoryText, selectedCategory === 'Acessórios' && styles.selectedCategoryText]}>Acessórios</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.categoryButton, selectedCategory === 'Cestaria' && styles.selectedCategoryButton]}
+                onPress={() => handleCategoryPress('Cestaria')}>
+                <Text style={[styles.categoryText, selectedCategory === 'Cestaria' && styles.selectedCategoryText]}>Cestaria</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.categoryButton, selectedCategory === 'Cerâmica' && styles.selectedCategoryButton]}
+                onPress={() => handleCategoryPress('Cerâmica')}>
+                <Text style={[styles.categoryText, selectedCategory === 'Cerâmica' && styles.selectedCategoryText]}>Cerâmica</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+          <Text style={styles.title}>
+            {selectedCategory === 'Diversos' ? `Produtos ${selectedCategory}` : `Produtos de "${selectedCategory}"`}
+          </Text>
+          <View style={styles.productArea}>
+            {products.length === 0 ? (
+              <Text style={styles.noProductText}>Nenhum produto{"\n"}encontrado</Text>
+            ) : (
+              <View style={styles.produtosList}>
+                {products.map(product => (
+                  <TouchableOpacity key={product[0]} style={styles.produto} onPress={() => handleProductPress(product)}>
+                    <Image source={{ uri: `${API_BASE_URL}/upload/${product[0]}/1` }} style={styles.productImage} />
+                    <View style={styles.produtosInfo}>
+                      <Text style={styles.productText1}>{product[1]}</Text>
+                      <Text style={styles.productText2}>{product[2]}</Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          </View>
+        </ScrollView>
+        <TouchableOpacity style={styles.plusIcon} onPress={() => navigation.navigate('ProductData')}>
+          <Icon name="plus" size={34} color="#FFF" />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -146,6 +152,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF",
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  contentContainer: {
+    flex: 1,
+    width: '100%',
   },
   container: {
     flexGrow: 1,
@@ -166,7 +176,7 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    width:"100%",
+    width: "100%",
     height: "70%",
     marginBottom: 10,
     paddingHorizontal: 25,
@@ -191,7 +201,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginVertical: 20,
   },
-  categoryButton:{
+  categoryButton: {
     margin: 2,
     paddingHorizontal: 12,
     height: 38,
@@ -207,7 +217,7 @@ const styles = StyleSheet.create({
   selectedCategoryButton: {
     backgroundColor: "#D86626",
   },
-  categoryText:{
+  categoryText: {
     fontSize: 13.5,
     marginBottom: -3,
     fontFamily: 'Poppins_700Bold'
@@ -215,43 +225,52 @@ const styles = StyleSheet.create({
   selectedCategoryText: {
     color: 'white',
   },
-  productArea:{
+  plusIcon: {
+    position: 'absolute',
+    bottom: 40,
+    right: 30,
+    backgroundColor: "#D86626",
+    paddingTop: 2,
+    width: 70,
+    height: 70,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 35,
+    borderWidth: 2,
+    borderColor: "#6666",
+    elevation: 5,
+  },
+  productArea: {
     marginBottom: 90,
     marginTop: 15,
   },
   noProductText: {
-  fontSize: 19,
-  fontFamily: 'Poppins_400Regular',
-  textAlign: 'center',
-  marginTop: 60,
-},
-  produtosList:{
-    flexDirection: "row",
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-
+    fontSize: 19,
+    fontFamily: 'Poppins_400Regular',
+    textAlign: 'center',
+    marginTop: 60,
   },
-  produtosList:{
+  produtosList: {
     flexDirection: "row",
     flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
-  produto:{
-  width: "47.5%",
-  height: 200,
-  backgroundColor: "#FFF",
-  alignItems: 'center',
-  borderRadius: 14,
-  elevation: 5,
-  marginLeft: "0.5%",
-  marginBottom: 25,
+  produto: {
+    width: "47.5%",
+    height: 200,
+    backgroundColor: "#FFF",
+    alignItems: 'center',
+    borderRadius: 14,
+    elevation: 5,
+    marginLeft: "0.5%",
+    marginBottom: 25,
   },
-  productImage:{
+  productImage: {
     width: "100%",
     height: 200,
     borderRadius: 14,
   },
-  produtosInfo:{
+  produtosInfo: {
     flex: 1,
     width: "100%",
     flexDirection: "column",
@@ -263,19 +282,19 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 14,
     borderBottomLeftRadius: 14,
   },
-  productText1:{
+  productText1: {
     fontSize: 14,
     fontFamily: 'Poppins_700Bold',
     textAlign: 'center',
     marginBottom: -3,
   },
-  productText2:{
+  productText2: {
     fontSize: 14,
     fontFamily: 'Poppins_400Regular',
     textAlign: 'center',
     marginBottom: -3,
   },
-  productText3:{
+  productText3: {
     fontSize: 16,
     fontFamily: 'Poppins_700Bold',
     textAlign: 'center',

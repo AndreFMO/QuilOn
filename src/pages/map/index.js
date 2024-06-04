@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
+import { API_BASE_URL } from './../../config';
+import { UserContext } from '../../UserContext';
 
 export function Map() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -18,7 +20,7 @@ export function Map() {
   }, []);
 
   const fetchQuilombos = () => {
-    fetch("http://192.168.0.105:5000/quilombos")
+    fetch(`${API_BASE_URL}/quilombos`)
       .then(response => response.json())
       .then(data => {
         console.log("Quilombos data:", data); // Adicionando log para verificar os dados
@@ -33,7 +35,7 @@ export function Map() {
           setQuilombos(formattedQuilombos);
         }
       })
-      .catch(error => console.warn(error));
+      //.catch(error => console.warn(error));
   };
 
   const handleSearch = () => {
@@ -51,7 +53,7 @@ export function Map() {
           setMarkerCoordinate({latitude: parseFloat(location.lat), longitude: parseFloat(location.lon)});
         }
       })
-      .catch(error => console.warn(error));
+      //.catch(error => console.warn(error));
   };
 
   const handleMapPress = (event) => {

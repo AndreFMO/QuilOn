@@ -15,6 +15,8 @@ import { Quilombo } from './pages/register/quilombo';
 import { Concluded } from './pages/register/concluded';
 import { ProductDetail } from './pages/home/productDetail';
 import { MyProductDetail } from './pages/myProducts/myProductDetail';
+import { ProductData } from './pages/myProducts/registerProduct/productData';
+import { ConcludedProduct } from './pages/myProducts/registerProduct/concludedProduct';
 import Menu from './pages/menu'; 
 import { View } from 'react-native';
 
@@ -169,6 +171,16 @@ export function Routes() {
       <Stack.Screen
         name="MyProductDetail"
         component={MyProductDetail}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ProductData"
+        component={ProductData}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ConcludedProduct"
+        component={ConcludedProduct}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
