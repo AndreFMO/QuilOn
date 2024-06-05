@@ -13,3 +13,9 @@ Este repositório é dedicado ao E-commerce QuilOn desenvolvido em react-native.
     ```bash
     git clone https://github.com/AndreFMO/QuilOn.git
     ```
+    
+2. Para iniciar o projeto execute no terminal do projeto o comando:
+
+    ```bash
+    npx expo start
+    ```
