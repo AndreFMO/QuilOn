@@ -1,25 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useFonts, Poppins_400Regular, Poppins_700Bold } from '@expo-google-fonts/poppins';
 import * as ImagePicker from 'expo-image-picker';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { API_BASE_URL } from '../../../../config';
+import { UserContext } from '../../../../UserContext';
 
 export function ProductPreview({ route }) {
+  const { userId } = useContext(UserContext);
   const navigation = useNavigation();
   const { myProductData } = route.params;
-  const [image, setImage] = useState(null);
-
-  useEffect(() => {
-    console.log("Dados recebidos:", myProductData);
-  }, []);
+  const [images, setImages] = useState([]);
 
   const categories = ['Acessórios', 'Cestarias', 'Cerâmicas', 'Outros'];
 
   // Reordenar as categorias para que a recebida seja a primeira
   const reorderedCategories = [myProductData.categoria, ...categories.filter(category => category !== myProductData.categoria)];
 
-  // Função para selecionar uma imagem da galeria
   // Função para selecionar uma imagem da galeria
   const pickImage = async () => {
     try {
@@ -38,7 +35,7 @@ export function ProductPreview({ route }) {
       });
 
       if (!result.cancelled) {
-        setImage(result.assets[0].uri);
+        setImages([...images, result.assets[0].uri]);
       }
     } catch (error) {
       //console.error('Erro ao solicitar permissão:', error);
@@ -46,6 +43,63 @@ export function ProductPreview({ route }) {
     }
   };
 
+  const handleSubmit = async () => {
+    try {
+      // Enviar dados do produto para a API
+      const productResponse = await fetch(`${API_BASE_URL}/product`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          title: myProductData.title,
+          category: myProductData.categoria,
+          description: myProductData.descricao,
+          production_time: myProductData.pdtTime,
+          price: myProductData.price,
+          stock: myProductData.amount,
+          idUsuario: userId,
+        })
+      });
+
+      if (!productResponse.ok) {
+        //throw new Error(`Erro HTTP! Status: ${productResponse.status}`);
+      }
+
+      const productData = await productResponse.json();
+      const productId = productData.id; // Supondo que a resposta contenha o ID do produto criado
+
+      // Enviar imagens para a API
+      for (let i = 0; i < images.length; i++) {
+        let localUri = images[i];
+        let filename = localUri.split('/').pop();
+
+        let formData = new FormData();
+        formData.append('image', {
+          uri: localUri,
+          name: `${i + 1}.png`,
+          type: 'image/png',
+        });
+
+        const imageResponse = await fetch(`${API_BASE_URL}/upload/${productId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          body: formData,
+        });
+
+        if (!imageResponse.ok) {
+          throw new Error(`Erro HTTP ao enviar imagem! Status: ${imageResponse.status}`);
+        }
+      }
+
+      navigation.navigate('ConcludedProduct');
+    } catch (error) {
+      Alert.alert('Erro', 'Houve um erro ao cadastrar o produto.');
+      //console.error(error);
+    }
+  };
 
   return (
     <ScrollView style={styles.tela}>
@@ -58,15 +112,12 @@ export function ProductPreview({ route }) {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollViewContainer}
       >
+        {images.map((image, index) => (
+          <Image key={index} source={{ uri: image }} style={styles.productImage} />
+        ))}
         <TouchableOpacity style={styles.productImage} onPress={pickImage}>
-          {image ? (
-            <Image source={{ uri: image }} style={{ width: '100%', height: '100%' }} />
-          ) : (
-            <>
-              <Icon name="upload" size={22} />
-              <Text style={styles.productPhoto}>Adicione uma foto!</Text>
-            </>
-          )}
+          <Icon name="upload" size={22} />
+          <Text style={styles.productPhoto}>Adicione fotos aqui!</Text>
         </TouchableOpacity>
       </ScrollView>
       <View style={styles.container}>
@@ -96,11 +147,10 @@ export function ProductPreview({ route }) {
             <Text style={styles.productDescription}>Valor:</Text>
             <Text style={styles.productPrice}>R$ {myProductData.price}</Text>
           </View>
-          <TouchableOpacity style={styles.nextButton}>
+          <TouchableOpacity style={styles.nextButton} onPress={handleSubmit}>
             <Text style={styles.ButtonText}>Finalizar</Text>
           </TouchableOpacity>
         </View>
-
       </View>
     </ScrollView>
   );
@@ -109,6 +159,7 @@ export function ProductPreview({ route }) {
 const styles = StyleSheet.create({
   tela: {
     flex: 1,
+    marginTop: -10,
   },
   returnButtonContainer: {
     position: 'absolute',
@@ -125,7 +176,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: "#FFF",
     height: 400,
-    width: '100%',
+    width: 'auto',
   },
   productPhoto: {
     marginLeft: 6,
@@ -135,8 +186,8 @@ const styles = StyleSheet.create({
   },
   productImage: {
     flexDirection: 'row',
-    width: '100%',
-    height: '100%',
+    width: 376.5,
+    height: 376.5,
     backgroundColor: '#D2C6BF',
     alignItems: 'center',
     justifyContent: 'center',

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { useFonts, Poppins_400Regular, Poppins_700Bold } from '@expo-google-fonts/poppins';
+import { useNavigation } from '@react-navigation/native';
 import { API_BASE_URL } from './../../../config';
 
 export function ProductDetail({ route }) {
   const { product } = route.params;
+  const navigation = useNavigation();
   const [totalImages, setTotalImages] = useState(0);
 
   const categories = ['Acessórios', 'Cestarias', 'Cerâmicas', 'Outros'];
@@ -45,6 +47,9 @@ export function ProductDetail({ route }) {
 
   return (
     <ScrollView style={styles.tela}>
+      <TouchableOpacity onPress={() => navigation.navigate('Home')} style={styles.returnButtonContainer}>
+        <Image source={require('./../../../assets/return.png')} style={styles.returnButton} />
+      </TouchableOpacity>
 
       <ScrollView
         horizontal={true}
@@ -96,6 +101,16 @@ export function ProductDetail({ route }) {
 const styles = StyleSheet.create({
   tela: {
     flex: 1,
+  },
+  returnButtonContainer: {
+    position: 'absolute',
+    top: 50,
+    left: 15,
+    zIndex: 1,
+  },
+  returnButton: {
+    height: 25,
+    width: 30,
   },
   scrollViewContainer: {
     flexDirection: 'row',

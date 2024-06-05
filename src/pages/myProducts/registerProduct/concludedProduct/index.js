@@ -7,13 +7,6 @@ import { UserContext } from '../../../../UserContext';
 export function ConcludedProduct() {
   const navigation = useNavigation();
   const route = useRoute();
-  const { userId } = route.params;
-  const { setUserId } = useContext(UserContext);
-
-  useEffect(() => {
-    setUserId(userId);
-    console.log("Novo usuário cadastrado! ID:", userId);
-  }, [userId, setUserId]);
 
   const handleNextPress = () => {
     navigation.navigate('MyProducts');

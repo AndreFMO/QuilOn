@@ -6,7 +6,7 @@ import { API_BASE_URL } from './../../config';
 import { UserContext } from '../../UserContext';
 
 export function MyProducts() {
-  const { userId, username } = useContext(UserContext);
+  const { userId } = useContext(UserContext);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState('Diversos');
   const [products, setProducts] = useState([]);
@@ -19,7 +19,7 @@ export function MyProducts() {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/products`);
+      const response = await fetch(`${API_BASE_URL}/products/${userId}`);
       const data = await response.json();
       let filteredProducts = data.products;
 
@@ -78,6 +78,9 @@ export function MyProducts() {
               onRefresh={onRefresh} />
           }
         >
+          <TouchableOpacity onPress={() => navigation.navigate('Home')} style={styles.returnButtonContainer}>
+            <Image source={require('./../../assets/return.png')} style={styles.returnButton} />
+          </TouchableOpacity>
           <Text style={styles.title}>Meus Produtos</Text>
 
           <View style={styles.searchArea}>
@@ -157,9 +160,16 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
   },
+  returnButtonContainer: {
+    marginBottom: 20,
+  },
+  returnButton: {
+    height: 25,
+    width: 30,
+  },
   container: {
     flexGrow: 1,
-    marginTop: "20%",
+    marginTop: "15%",
     paddingHorizontal: "5%",
     paddingBottom: 20,
   },
