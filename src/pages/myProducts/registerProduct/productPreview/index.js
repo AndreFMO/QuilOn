@@ -1,68 +1,93 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { useFonts, Poppins_400Regular, Poppins_700Bold } from '@expo-google-fonts/poppins';
-import { API_BASE_URL } from './../../../config';
+import { launchImageLibraryAsync } from 'expo-image-picker';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
-export function MyProductDetail({ route }) {
-  const { product } = route.params;
-  const [totalImages, setTotalImages] = useState(0);
+export function ProductPreview({ route }) {
+  const navigation = useNavigation();
+  const { myProductData } = route.params;
+  const [image, setImage] = useState(null);
 
   useEffect(() => {
-    fetchTotalImages();
+    console.log("Dados recebidos:", myProductData);
   }, []);
 
-  const fetchTotalImages = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/upload/${product[0]}/total`);
-      const data = await response.json();
-      setTotalImages(data.total_images);
-    } catch (error) {
-      // console.error('Erro ao obter o número total de imagens:', error);
-    }
-  };
-  const renderProductImages = () => {
-    const images = [];
-    for (let i = 1; i <= totalImages; i++) {
-      const imageUrl = `${API_BASE_URL}/upload/${product[0]}/${i}?timestamp=${new Date().getTime()}`;
-      images.push(
-        <Image key={i} source={{ uri: imageUrl }} style={styles.productImage} />
-      );
-    }
+  const categories = ['Acessórios', 'Cestarias', 'Cerâmicas', 'Outros'];
 
-    let [fontsLoaded, fontError] = useFonts({
-      Poppins_700Bold, Poppins_400Regular,
+  // Reordenar as categorias para que a recebida seja a primeira
+  const reorderedCategories = [myProductData.categoria, ...categories.filter(category => category !== myProductData.categoria)];
+
+  // Função para selecionar uma imagem da galeria
+  const pickImage = async () => {
+    let result = await launchImageLibraryAsync({
+      mediaTypes: 'Images',
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
     });
-  
-    if (!fontsLoaded && !fontError) {
-      return null;
-    }
 
-    return images;
+    if (!result.cancelled) {
+      setImage(result.uri);
+    }
   };
 
   return (
     <ScrollView style={styles.tela}>
-
+      <TouchableOpacity onPress={() => navigation.navigate('ProductData')} style={styles.returnButtonContainer}>
+        <Image source={require('./../../../../assets/return.png')} style={styles.returnButton} />
+      </TouchableOpacity>
       <ScrollView
         horizontal={true}
         pagingEnabled={true}
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollViewContainer}
       >
-        {renderProductImages()}
+        <TouchableOpacity style={styles.productImage} onPress={pickImage}>
+          {image ? (
+            <Image source={{ uri: image }} style={{ width: '100%', height: '100%' }} />
+          ) : (
+            <>
+              <Icon name="upload" size={22} />
+              <Text style={styles.productPhoto}>Adicione uma foto!</Text>
+            </>
+          )}
+        </TouchableOpacity>
       </ScrollView>
-
-
       <View style={styles.container}>
-        <Text style={styles.productName}>{product[1]}</Text>
-        <Text style={styles.productCategory}>{product[2]}</Text>
-        <Text style={styles.productDescTitle}>Descrição</Text>
-        <Text style={styles.productDescription}>{product[3]}</Text>
-        <Text style={styles.productTimeTitle}>Tempo de Produção:  <Text style={styles.productDescription}>{product[4]}</Text></Text>
-        <Text style={styles.productTimeTitle}>Estoque:  <Text style={styles.productDescription}>{product[6]}</Text></Text>
-        <Text style={styles.productPrice}>R$ {product[5].toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
+        <Text style={styles.productName}>{myProductData.title}</Text>
+        <Text style={styles.productTitles}>Tempo de Produção:</Text>
+        <Text style={styles.productDescription}>{myProductData.pdtTime}</Text>
+        <Text style={styles.productTitles}>Categoria:</Text>
+
+        <View style={styles.categoryArea}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {reorderedCategories.map((category) => (
+              <View key={category} style={[styles.categoryButton, myProductData.categoria === category && styles.selectedCategoryButton]}>
+                <Text style={[styles.categoryText, myProductData.categoria === category && styles.selectedCategoryText]}>
+                  {category}
+                </Text>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+
+        <Text style={styles.productTitles}>Descrição do Produto</Text>
+        <Text style={styles.productDescription}>{myProductData.descricao}</Text>
+        <Text style={styles.productQtd}>Quantidade: <Text style={styles.productDescription}>{myProductData.amount}</Text></Text>
+
+        <View style={styles.priceArea}>
+          <View>
+            <Text style={styles.productDescription}>Valor:</Text>
+            <Text style={styles.productPrice}>R$ {myProductData.price}</Text>
+          </View>
+          <TouchableOpacity style={styles.nextButton}>
+            <Text style={styles.ButtonText}>Finalizar</Text>
+          </TouchableOpacity>
+        </View>
+
       </View>
-  
     </ScrollView>
   );
 }
@@ -71,55 +96,133 @@ const styles = StyleSheet.create({
   tela: {
     flex: 1,
   },
+  returnButtonContainer: {
+    position: 'absolute',
+    top: 50,
+    left: 15,
+    zIndex: 1,
+  },
+  returnButton: {
+    height: 25,
+    width: 30,
+  },
   scrollViewContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: "#FFF",
-    height: 450,
-    width: 'auto'
+    height: 400,
+    width: '100%',
+  },
+  productPhoto: {
+    marginLeft: 6,
+    marginTop: 3,
+    fontSize: 17,
+    fontFamily: 'Poppins_700Bold',
   },
   productImage: {
-    width: 377,
+    flexDirection: 'row',
+    width: '100%',
     height: '100%',
+    backgroundColor: '#D2C6BF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  productImage2: {
+    width: '100%',
+    height: 300,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   container: {
-   backgroundColor: "#FFF",
-   borderTopStartRadius: 30,
-   borderTopEndRadius: 30,
-   width: '100%',
-   padding: 20,
-   paddingLeft: 30,
-   marginTop: -30,
-   elevation: 20,
+    backgroundColor: "#FFF",
+    borderTopStartRadius: 30,
+    borderTopEndRadius: 30,
+    width: '100%',
+    padding: 20,
+    paddingLeft: 30,
+    marginTop: -30,
+    elevation: 20,
   },
   productName: {
     fontSize: 22,
     fontFamily: 'Poppins_700Bold',
-    marginTop: 20,
+    marginTop: 10,
+    marginBottom: -5,
   },
   productCategory: {
     fontSize: 15,
     fontFamily: 'Poppins_400Regular',
   },
-  productDescTitle: {
-    fontSize: 18,
-    fontFamily: 'Poppins_700Bold',
-    marginTop: 20,
-  },
-  productDescription: {
+  productTitles: {
     fontSize: 16,
     marginTop: 10,
-    marginBottom: 20,
+    fontFamily: 'Poppins_700Bold',
+  },
+  categoryArea: {
+    flexDirection: 'row',
+    marginTop: 5,
+    marginBottom: 2,
+  },
+  categoryButton: {
+    margin: 2,
+    paddingHorizontal: 12,
+    height: 38,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 40,
+    borderWidth: 1,
+    borderColor: "#6666",
+    elevation: 2,
+    backgroundColor: "#FFF",
+  },
+  categoryText: {
+    fontSize: 13.5,
+    marginBottom: -3,
+    fontFamily: 'Poppins_700Bold',
+    color: 'grey',
+  },
+  selectedCategoryButton: {
+    borderColor: '#D86626',
+  },
+  selectedCategoryText: {
+    color: '#D86626',
+  },
+  productDescription: {
+    fontSize: 14,
+    color: 'gray',
     fontFamily: 'Poppins_400Regular',
   },
-  productTimeTitle: {
-    fontSize: 16,
+  productQtd: {
+    fontSize:  16,
+    marginVertical: 10,
     fontFamily: 'Poppins_700Bold',
+  },
+  priceArea: {
+    flexDirection: 'row',
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   productPrice: {
     fontSize: 20,
-    color: 'green',
     fontFamily: 'Poppins_700Bold',
-    marginTop: 20,
+  },
+  nextButton: {
+    backgroundColor: "#D86626",
+    height: 60,
+    width: '60%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: "#6666",
+    elevation: 5,
+  },
+  ButtonText: {
+    color: "#FFF",
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
+
+export default ProductPreview;

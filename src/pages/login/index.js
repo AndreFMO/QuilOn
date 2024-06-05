@@ -38,7 +38,7 @@ export function Login() {
       }
     })
     .catch(error => {
-      console.error('Erro ao fazer login:', error);
+      //console.error('Erro ao fazer login:', error);
     });
   };
 

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform, Alert, Keyboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import RNPickerSelect from 'react-native-picker-select';
 import DotIndicator from './../../../../assets/components/DotIndicator';
 
@@ -38,7 +37,6 @@ export function ProductData({ route }) {
     };
   }, []);
 
-
   const handleNextPress = () => {
     if (!title || !categoria || !descricao || !pdtTime || !price || !amount) {
       Alert.alert('Erro', 'Por favor, preencha todos os campos obrigatórios marcados por: *');
@@ -54,9 +52,8 @@ export function ProductData({ route }) {
       amount: amount,
     };
     
-    navigation.navigate('ConcludedProduct', { myProductData: dataToPass });
+    navigation.navigate('ProductPreview', { myProductData: dataToPass });
   };
-  
 
   return (
     <KeyboardAvoidingView
@@ -92,9 +89,9 @@ export function ProductData({ route }) {
               value: null,
             }}
             items={[
-              { label: 'Acessórios', value: 'Acessorios' },
-              { label: 'Cestaria', value: 'Cestaria' },
-              { label: 'Cerâmica', value: 'Ceramica' },
+              { label: 'Acessórios', value: 'Acessórios' },
+              { label: 'Cestarias', value: 'Cestarias' },
+              { label: 'Cerâmicas', value: 'Cerâmicas' },
               { label: 'Outro', value: 'Outro' },
             ]}
             style={{
@@ -118,13 +115,15 @@ export function ProductData({ route }) {
             }}
           />
         </View>
-          
+
         <Text style={styles.subTitle}>Descrição<Text style={styles.required}>*</Text></Text>
-        <View style={styles.orangeBorder}>
+        <View style={[styles.orangeBorder, styles.descriptionContainer]}>
           <TextInput
-            style={styles.input}
+            style={[styles.input, styles.textArea]}
             value={myProductData ? myProductData.descricao : descricao}
             onChangeText={setDescricao}
+            multiline={true}
+            numberOfLines={4}
           />
         </View>
 
@@ -137,12 +136,12 @@ export function ProductData({ route }) {
               value: null,
             }}
             items={[
-              { label: 'Menos de 1 dia', value: '-1dia' },
-              { label: 'De 1 a 5 dias', value: '1-5dias' },
-              { label: 'De 6 a 10 dias', value: '6-10dias' },
-              { label: 'De 11 a 20 dias', value: '11-20dias' },
-              { label: 'Mais de 20 dias', value: '+20dias' },
-              { label: 'Não se aplica', value: 'NaoAplica' },
+              { label: 'Menos de 1 dia', value: 'Menos de 1 dia' },
+              { label: 'De 1 a 5 dias', value: 'De 1 a 5 dias' },
+              { label: 'De 6 a 10 dias', value: 'De 6 a 10 dias' },
+              { label: 'De 11 a 20 dias', value: 'De 11 a 20 dias' },
+              { label: 'Mais de 20 dias', value: 'Mais de 20 dias' },
+              { label: 'Não se aplica', value: 'Não se aplica' },
             ]}
             style={{
               inputIOS: {
@@ -204,21 +203,22 @@ export function ProductData({ route }) {
   );
 }
 
-// Estilos
 const styles = StyleSheet.create({
   container: {
-    marginTop: 50,
     flex: 1,
+    marginTop: 30,
   },
   contentContainer: {
     paddingHorizontal: "5%",
     paddingBottom: 10,
   },
   returnButton: {
+    marginTop: 20,
     height: 25,
     width: 30,
   },
   containerLogo: {
+    marginTop: -20,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -247,6 +247,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#BF8B6E',
   },
+  descriptionContainer: {
+    flex: 1,
+  },
   horizontalArea: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -256,10 +259,14 @@ const styles = StyleSheet.create({
     width: "48%",
   },
   input: {
-    height: 30,
     fontSize: 16,
     fontFamily: 'Poppins_400Regular',
     marginBottom: -3,
+  },
+  textArea: {
+    minHeight: 80,
+    maxHeight: 80,
+    textAlignVertical: 'top',
   },
   bottomContainer: {
     paddingHorizontal: "5%",
