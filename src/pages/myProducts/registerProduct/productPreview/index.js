@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useFonts, Poppins_400Regular, Poppins_700Bold } from '@expo-google-fonts/poppins';
-import { launchImageLibraryAsync } from 'expo-image-picker';
+import * as ImagePicker from 'expo-image-picker';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 export function ProductPreview({ route }) {
@@ -20,18 +20,32 @@ export function ProductPreview({ route }) {
   const reorderedCategories = [myProductData.categoria, ...categories.filter(category => category !== myProductData.categoria)];
 
   // Função para selecionar uma imagem da galeria
+  // Função para selecionar uma imagem da galeria
   const pickImage = async () => {
-    let result = await launchImageLibraryAsync({
-      mediaTypes: 'Images',
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
+    try {
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-    if (!result.cancelled) {
-      setImage(result.uri);
+      if (permissionResult.granted === false) {
+        Alert.alert('Permissão necessária', 'Permissão para acessar a galeria é necessária!');
+        return;
+      }
+
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [3, 3],
+        quality: 1,
+      });
+
+      if (!result.cancelled) {
+        setImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      //console.error('Erro ao solicitar permissão:', error);
+      // Trate o erro adequadamente, como exibindo uma mensagem de erro para o usuário
     }
   };
+
 
   return (
     <ScrollView style={styles.tela}>
@@ -124,12 +138,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     backgroundColor: '#D2C6BF',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  productImage2: {
-    width: '100%',
-    height: 300,
     alignItems: 'center',
     justifyContent: 'center',
   },

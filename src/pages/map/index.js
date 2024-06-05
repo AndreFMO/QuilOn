@@ -112,6 +112,7 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+    marginTop: '7%',
   },
   overlay: {
     position: 'absolute',
