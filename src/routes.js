@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Home } from './pages/home';
 import { Map } from './pages/map';
 import { MyProducts } from './pages/myProducts';
+import { MyCart } from './pages/home/myCart';
 import { Start } from './pages/start';
 import { Login } from './pages/login';
 import { Personal } from './pages/register/personal';
@@ -34,8 +35,8 @@ function HomeStack() {
         options={{ headerShown: false }}
       />
       <Stack.Screen
-        name="ProductDetail"
-        component={ProductDetail}
+        name="MyProducts"
+        component={MyProducts}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
@@ -135,6 +136,11 @@ export function Routes() {
         options={{ headerShown: false }}
       />
       <Stack.Screen
+        name="ProductDetail"
+        component={ProductDetail}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
         name="Personal"
         component={Personal}
         options={{ headerShown: false }}
@@ -165,8 +171,8 @@ export function Routes() {
         options={{ headerShown: false }}
       />
       <Stack.Screen
-        name="MyProducts"
-        component={MyProducts}
+        name="MyCart"
+        component={MyCart}
         options={{ headerShown: false }}
       />
       <Stack.Screen

@@ -1,12 +1,13 @@
 import React, { useState, useContext } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome'; // Importando a biblioteca de ícones
+import Icon from 'react-native-vector-icons/FontAwesome';
 import { UserContext } from '../../UserContext';
 
 const Menu = ({ visible, onClose, navigation }) => {
   if (!visible) return null;
 
   const myProducts = () => {
+    onClose();
     navigation.navigate('MyProducts');
   };
 
@@ -15,7 +16,8 @@ const Menu = ({ visible, onClose, navigation }) => {
       onClose();
     }
   };
-  const {userId, username} = useContext(UserContext);
+
+  const { userId, username } = useContext(UserContext);
 
   return (
     <View style={styles.overlay} onTouchEnd={handleOverlayClick}>
@@ -57,7 +59,10 @@ const Menu = ({ visible, onClose, navigation }) => {
           <Text style={styles.menuItem}>Ajuda</Text>
         </TouchableOpacity>
         <View style={styles.divider} />
-        <TouchableOpacity style={styles.buttons} onPress={() => navigation.navigate('Start')}>
+        <TouchableOpacity style={styles.buttons} onPress={() => {
+          onClose(); // Fecha o menu
+          navigation.navigate('Start');
+        }}>
           <Icon name="sign-out" size={24} color="#fff" style={styles.icon} />
           <Text style={styles.menuItem}>Logout</Text>
         </TouchableOpacity>

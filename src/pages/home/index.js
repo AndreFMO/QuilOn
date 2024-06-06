@@ -68,7 +68,7 @@ export function Home() {
         setProducts(filteredProducts.filter(product => product[2] === selectedCategory));
       }
     } catch (error) {
-      console.error('Erro ao obter produtos:', error);
+      //console.error('Erro ao obter produtos:', error);
     }
   };
 
@@ -79,10 +79,10 @@ export function Home() {
       if (response.ok) {
         setRecommendedProducts(data.recommended_products);
       } else {
-        console.error('Erro ao obter produtos recomendados:', response.status);
+        //console.error('Erro ao obter produtos recomendados:', response.status);
       }
     } catch (error) {
-      console.error('Erro ao obter produtos recomendados:', error);
+      //console.error('Erro ao obter produtos recomendados:', error);
     }
   };
 
@@ -112,15 +112,15 @@ export function Home() {
         if (response.ok) {
           console.log('Busca cadastrada com sucesso!');
         } else {
-          console.error('Erro ao cadastrar busca:', response.status);
+          //console.error('Erro ao cadastrar busca:', response.status);
         }
     
         fetchProducts();
       } catch (error) {
-        console.error('Erro ao cadastrar busca:', error);
+        //console.error('Erro ao cadastrar busca:', error);
       }
     } else {
-      console.log('A barra de busca está vazia.');
+      //console.log('A barra de busca está vazia.');
       fetchProducts();
     }
   };

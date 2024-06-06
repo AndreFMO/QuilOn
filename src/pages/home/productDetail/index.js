@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { useFonts, Poppins_400Regular, Poppins_700Bold } from '@expo-google-fonts/poppins';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 import { API_BASE_URL } from './../../../config';
 
@@ -8,6 +9,7 @@ export function ProductDetail({ route }) {
   const { product } = route.params;
   const navigation = useNavigation();
   const [totalImages, setTotalImages] = useState(0);
+  const [quantity, setQuantity] = useState(1);
 
   const categories = ['Acessórios', 'Cestarias', 'Cerâmicas', 'Outros'];
   const reorderedCategories = [product[2], ...categories.filter(category => category !== product[2])];
@@ -25,24 +27,40 @@ export function ProductDetail({ route }) {
       // console.error('Erro ao obter o número total de imagens:', error);
     }
   };
-  const renderProductImages = () => {
-    const images = [];
+
+  const images = useMemo(() => {
+    const imgs = [];
     for (let i = 1; i <= totalImages; i++) {
       const imageUrl = `${API_BASE_URL}/upload/${product[0]}/${i}?timestamp=${new Date().getTime()}`;
-      images.push(
+      imgs.push(
         <Image key={i} source={{ uri: imageUrl }} style={styles.productImage} />
       );
     }
+    return imgs;
+  }, [totalImages]);
 
-    let [fontsLoaded, fontError] = useFonts({
-      Poppins_700Bold, Poppins_400Regular,
-    });
-  
-    if (!fontsLoaded && !fontError) {
-      return null;
+  const [fontsLoaded, fontError] = useFonts({
+    Poppins_700Bold, Poppins_400Regular,
+  });
+
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
+
+  const incrementQuantity = () => {
+    if (quantity < product[6]) {
+      setQuantity(quantity + 1);
     }
+  };
 
-    return images;
+  const decrementQuantity = () => {
+    if (quantity > 1) {
+      setQuantity(quantity - 1);
+    }
+  };
+
+  const BuyPress = () => {
+    navigation.navigate('MyCart');
   };
 
   return (
@@ -57,50 +75,56 @@ export function ProductDetail({ route }) {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollViewContainer}
       >
-        {renderProductImages()}
+        {images}
       </ScrollView>
 
       <View style={styles.container}>
         <Text style={styles.productName}>{product[1]}</Text>
-        <Text style={styles.productTitles}>Tempo de Produção:</Text>
-        <Text style={styles.productDescription}>{product[4]}</Text>
-        <Text style={styles.productTitles}>Categoria:</Text>
-
-        <View style={styles.categoryArea}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {reorderedCategories.map((category) => (
-              <View key={category} style={[styles.categoryButton, product[2] === category && styles.selectedCategoryButton]}>
-                <Text style={[styles.categoryText, product[2] === category && styles.selectedCategoryText]}>
-                  {category}
-                </Text>
-              </View>
-            ))}
-          </ScrollView>
+        <View style={styles.priceArea}>
+          <View>
+            <Text style={styles.productQtd}>Disponível: <Text style={styles.productDescription}>{product[6]} unidades</Text></Text>
+            <Text style={styles.productPriceUnity}>R$ {product[5]}</Text>
+            <Text style={styles.productTitles}>Tempo de Produção:</Text>
+            <Text style={styles.productDescription}>{product[4]}</Text>
+          </View>
+          <View>
+            <View style={styles.qtdButton}>
+              <TouchableOpacity onPress={decrementQuantity} style={styles.qtdButtonTouchable}>
+                <Text style={styles.qtdButtonText}>-</Text>
+              </TouchableOpacity>
+              <Text style={styles.qtdButtonText}>{quantity}</Text>
+              <TouchableOpacity onPress={incrementQuantity} style={styles.qtdButtonTouchable}>
+                <Text style={styles.qtdButtonText}>+</Text>
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity style={styles.cartPlusButton}>
+              <Icon name="cart-plus" size={24} color="#FFF" />
+            </TouchableOpacity>
+          </View>
         </View>
 
         <Text style={styles.productTitles}>Descrição do Produto</Text>
         <Text style={styles.productDescription}>{product[3]}</Text>
-        <Text style={styles.productQtd}>Quantidade: <Text style={styles.productDescription}>{product[6]}</Text></Text>
 
         <View style={styles.priceArea}>
           <View>
-            <Text style={styles.productDescription}>Valor:</Text>
-            <Text style={styles.productPrice}>R$ {product[5]}</Text>
+            <Text style={styles.productDescription}>Valor Total:</Text>
+            <Text style={styles.productPrice}>R$ {(product[5] * quantity).toFixed(2)}</Text>
           </View>
           <TouchableOpacity style={styles.nextButton}>
-            <Text style={styles.ButtonText}>Comprar</Text>
+            <Text style={styles.ButtonText} onPress={BuyPress}>Comprar</Text>
           </TouchableOpacity>
         </View>
-
       </View>
-  
     </ScrollView>
   );
 }
 
+
 const styles = StyleSheet.create({
   tela: {
     flex: 1,
+    backgroundColor: "#FFF",
   },
   returnButtonContainer: {
     position: 'absolute',
@@ -117,7 +141,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: "#FFF",
     height: 380,
-    width: 'auto'
+    width: 'auto',
   },
   productImage: {
     width: 394,
@@ -138,6 +162,45 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_700Bold',
     marginTop: 10,
     marginBottom: -5,
+  },
+  productPriceUnity: {
+    color: '#D86626',
+    fontSize: 18,
+    fontFamily: 'Poppins_700Bold',
+  },
+  qtdButton: {
+    backgroundColor: "#D86626",
+    height: 38,
+    width: 86,
+    marginBottom: 10,
+    alignItems: 'center',
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: "#6666",
+    elevation: 5,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 10,
+  },
+  qtdButtonTouchable: {
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+  },
+  qtdButtonText: {
+    color: "#FFF",
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  cartPlusButton: {
+    backgroundColor: "#D86626",
+    height: 38,
+    width: 85,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: "#6666",
+    elevation: 5,
   },
   productCategory: {
     fontSize: 15,
@@ -183,14 +246,14 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_400Regular',
   },
   productQtd: {
-    fontSize:  16,
-    marginVertical: 10,
+    fontSize: 15,
     fontFamily: 'Poppins_700Bold',
+    marginBottom: 10,
   },
   priceArea: {
-    flexDirection: 'row',
+    marginTop: 15,
     width: '100%',
-    alignItems: 'center',
+    flexDirection: 'row',
     justifyContent: 'space-between',
   },
   productPrice: {
@@ -214,5 +277,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
-

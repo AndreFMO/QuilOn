@@ -63,10 +63,6 @@ export function Login() {
     };
   }, []);
 
-  const handleNextPress = () => {
-    navigation.navigate('MainTabNavigator');
-  };
-
   return (
     <KeyboardAvoidingView
       style={styles.container}
