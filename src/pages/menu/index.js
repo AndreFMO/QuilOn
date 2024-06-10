@@ -6,6 +6,11 @@ import { UserContext } from '../../UserContext';
 const Menu = ({ visible, onClose, navigation }) => {
   if (!visible) return null;
 
+  const home = () => {
+    onClose();
+    navigation.navigate('Home');
+  };
+
   const myProducts = () => {
     onClose();
     navigation.navigate('MyProducts');
@@ -29,12 +34,12 @@ const Menu = ({ visible, onClose, navigation }) => {
           <Text style={styles.menuItem}>{username}</Text>
         </TouchableOpacity>
         <View style={styles.divider} />
-        <TouchableOpacity style={styles.buttons}>
-          <Icon name="home" size={25} color="#fff" style={[styles.icon, styles.homeIcon]} /> 
+        <TouchableOpacity style={styles.buttons} onPress={home}>
+          <Icon name="home" size={25} color="#fff" style={[styles.icon, styles.homeIcon]}/> 
           <Text style={styles.menuItem}>Home</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.buttons}>
-          <Icon name="user" size={24} color="#fff" style={[styles.icon, styles.profileIcon]} /> 
+          <Icon name="user" size={24} color="#fff" style={[styles.icon, styles.profileIcon]}/> 
           <Text style={styles.menuItem}>Perfil</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.buttons}>
