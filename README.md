@@ -20,13 +20,16 @@ Este repositório é dedicado ao E-commerce QuilOn desenvolvido em react-native.
     git clone https://github.com/AndreFMO/QuilOn.git
     ```
 
+
 2. Instale as dependências necessárias, executando no terminal os comandos:
     ```sh
     npm install expo@latest
-    ``
+    ```
+    
      ```sh
     npx expo install --fix
     ```
+     
     
 3. Inicie o projeto, utilizando o seguinte comando:
     ```sh
