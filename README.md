@@ -24,7 +24,6 @@ Este repositório é dedicado ao E-commerce QuilOn desenvolvido em react-native.
     ```sh
     npm install expo@latest
     ```
-
      ```sh
     npx expo install --fix
     ```
