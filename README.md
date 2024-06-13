@@ -32,6 +32,6 @@ Este repositório é dedicado ao E-commerce QuilOn desenvolvido em react-native.
     
 3. Inicie o projeto, utilizando o seguinte comando:
     ```sh
-    npx expo start
+    npx expo start -c
      ```
 
