@@ -128,7 +128,7 @@ export function Quilombo() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={styles.contentContainer}>
-        <TouchableOpacity onPress={() => navigation.navigate('Account', { personalData, addressData })}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <Image source={require('./../../../assets/return.png')} style={styles.returnButton} />
         </TouchableOpacity>
 

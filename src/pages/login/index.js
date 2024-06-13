@@ -69,7 +69,7 @@ export function Login() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={styles.contentContainer}>
-        <TouchableOpacity onPress={() => navigation.navigate('Start')}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <Image source={require('./../../assets/return.png')} style={styles.returnButton} />
         </TouchableOpacity>
         <View style={styles.containerLogo}>

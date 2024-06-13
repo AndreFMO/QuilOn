@@ -38,6 +38,11 @@ export function Account() {
   }, []);
 
   const handleNextPress = async () => {
+    // Verificar se as senhas coincidem
+    if (password !== confirmPassword) {
+      Alert.alert('Erro', 'As senhas não coincidem.');
+      return;
+    }
     // Verificar se a opção de entrar como representante quilombola está marcada
    if (isChecked) {
      // Adicionar email e senha aos dados pessoais
@@ -79,13 +84,6 @@ export function Account() {
         Alert.alert('Erro', `O campo ${key} está vazio.`);
         return;
       }
-    }
-    
-  
-    // Verificar se as senhas coincidem
-    if (password !== confirmPassword) {
-      Alert.alert('Erro', 'As senhas não coincidem.');
-      return;
     }
   
     // Se todas as verificações passarem, continuar com o envio dos dados

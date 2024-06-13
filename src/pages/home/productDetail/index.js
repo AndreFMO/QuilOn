@@ -65,7 +65,7 @@ export function ProductDetail({ route }) {
 
   return (
     <ScrollView style={styles.tela}>
-      <TouchableOpacity onPress={() => navigation.navigate('Home')} style={styles.returnButtonContainer}>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.returnButtonContainer}>
         <Image source={require('./../../../assets/return.png')} style={styles.returnButton} />
       </TouchableOpacity>
 
@@ -97,7 +97,7 @@ export function ProductDetail({ route }) {
                 <Text style={styles.qtdButtonText}>+</Text>
               </TouchableOpacity>
             </View>
-            <TouchableOpacity style={styles.cartPlusButton}>
+            <TouchableOpacity style={styles.cartPlusButton} onPress={BuyPress}>
               <Icon name="cart-plus" size={24} color="#FFF" />
             </TouchableOpacity>
           </View>

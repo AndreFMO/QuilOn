@@ -53,7 +53,7 @@ export function Address({ route }) {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={styles.contentContainer}>
-        <TouchableOpacity onPress={() => navigation.navigate('Personal')}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <Image source={require('./../../../assets/return.png')} style={styles.returnButton} />
         </TouchableOpacity>
         <View style={styles.containerLogo}>
