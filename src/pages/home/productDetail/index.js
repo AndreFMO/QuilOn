@@ -1,15 +1,17 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { useFonts, Poppins_400Regular, Poppins_700Bold } from '@expo-google-fonts/poppins';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 import { API_BASE_URL } from './../../../config';
+import { CartContext } from './../../../cartContext';
 
 export function ProductDetail({ route }) {
   const { product } = route.params;
   const navigation = useNavigation();
   const [totalImages, setTotalImages] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const { addToCart } = useContext(CartContext);
 
   const categories = ['Acessórios', 'Cestarias', 'Cerâmicas', 'Outros'];
   const reorderedCategories = [product[2], ...categories.filter(category => category !== product[2])];
@@ -59,7 +61,8 @@ export function ProductDetail({ route }) {
     }
   };
 
-  const BuyPress = () => {
+  const addToCartAndNavigate = () => {
+    addToCart(product, quantity);
     navigation.navigate('MyCart');
   };
 
@@ -97,7 +100,7 @@ export function ProductDetail({ route }) {
                 <Text style={styles.qtdButtonText}>+</Text>
               </TouchableOpacity>
             </View>
-            <TouchableOpacity style={styles.cartPlusButton} onPress={BuyPress}>
+            <TouchableOpacity style={styles.cartPlusButton} onPress={addToCartAndNavigate}>
               <Icon name="cart-plus" size={24} color="#FFF" />
             </TouchableOpacity>
           </View>
@@ -112,7 +115,7 @@ export function ProductDetail({ route }) {
             <Text style={styles.productPrice}>R$ {(product[5] * quantity).toFixed(2)}</Text>
           </View>
           <TouchableOpacity style={styles.nextButton}>
-            <Text style={styles.ButtonText} onPress={BuyPress}>Comprar</Text>
+            <Text style={styles.ButtonText} onPress={addToCartAndNavigate}>Comprar</Text>
           </TouchableOpacity>
         </View>
       </View>

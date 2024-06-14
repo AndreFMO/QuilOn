@@ -1,99 +1,89 @@
-import React, { useState, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { API_BASE_URL } from './../../../config';
+import { CartContext } from './../../../cartContext';
 
 export function MyCart() {
   const navigation = useNavigation();
+  const { cart, incrementQuantity, decrementQuantity, removeFromCart } = useContext(CartContext);
 
   return (
-    <ScrollView style={styles.tela}>
+    <View style={styles.tela}>
       <View style={styles.contentContainer}>
 
-        <ScrollView contentContainerStyle={styles.container}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.returnButtonContainer}>
+          <Image source={require('./../../../assets/return.png')} style={styles.returnButton} />
+        </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.returnButtonContainer}>
-            <Image source={require('./../../../assets/return.png')} style={styles.returnButton} />
-          </TouchableOpacity>
+        <Text style={styles.title}>Meu Carrinho</Text>
 
-          <Text style={styles.title}>Meu Carrinho</Text>
-
-          <ScrollView contentContainerStyle={styles.productsArea}>
-            <TouchableOpacity style={styles.products}>
-              <Image source={require('./../../../assets/product-test.png')} style={styles.productImage} />
-              <View style={styles.productDetails}>
-                <View>
-                  <Text style={styles.productTitles}>Cestos artesanais</Text>
-                </View>
-                <View style={styles.productPrice}>
-                  <Text style={styles.productTitles}>R$ 29,99</Text>
-                  <View style={styles.qtdButton}>
-                    <TouchableOpacity style={styles.qtdButtonTouchable}>
-                      <Text style={styles.qtdButtonText}>-</Text>
-                    </TouchableOpacity>
-                    <Text style={styles.qtdButtonText}>1</Text>
-                    <TouchableOpacity style={styles.qtdButtonTouchable}>
-                      <Text style={styles.qtdButtonText}>+</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.products}>
-              <Image source={require('./../../../assets/product-test.png')} style={styles.productImage} />
-              <View style={styles.productDetails}>
-                <View>
-                  <Text style={styles.productTitles}>Cestos artesanais</Text>
-                </View>
-                <View style={styles.productPrice}>
-                  <Text style={styles.productTitles}>R$ 29,99</Text>
-                  <View style={styles.qtdButton}>
-                    <TouchableOpacity style={styles.qtdButtonTouchable}>
-                      <Text style={styles.qtdButtonText}>-</Text>
-                    </TouchableOpacity>
-                    <Text style={styles.qtdButtonText}>1</Text>
-                    <TouchableOpacity style={styles.qtdButtonTouchable}>
-                      <Text style={styles.qtdButtonText}>+</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </View>
-            </TouchableOpacity>
-          </ScrollView>
-
-          <View style={styles.searchArea}>
-            <View style={styles.searchContainer}>
-              <TextInput
-                style={styles.input}
-                returnKeyType="search"
-                placeholder="Código Promocional"
-              />
-              <TouchableOpacity style={styles.codeButton} >
-                <Text style={styles.codeButtonText}>Aplicar</Text>
-              </TouchableOpacity>
+        <View style={styles.productsArea}>
+          {cart.length === 0 ? (
+            <View style={styles.emptyCartContainer}>
+              <Text style={styles.emptyCart}>Seu carrinho está vazio.</Text>
             </View>
+          ) : (
+            <ScrollView contentContainerStyle={styles.productsList}>
+              {cart.map((item, index) => (
+                <TouchableOpacity key={index} style={styles.products}>
+                  <Image source={{ uri: `${API_BASE_URL}/upload/${item.product[0]}/1` }} style={styles.productImage} />
+                  <View style={styles.productDetails}>
+
+                    <View style={styles.productPrice}>
+                      <Text style={StyleSheet.flatten([styles.productTitles, { width: '85%' }])} numberOfLines={1} ellipsizeMode="tail">{item.product[1]}</Text>
+                      <TouchableOpacity style={styles.removeButton} onPress={() => removeFromCart(index)}>
+                        <Icon name="trash" size={24} color="#ffff" />
+                      </TouchableOpacity>
+                    </View>
+
+                    <View style={styles.productPrice}>
+                      <Text style={styles.productTitles}>R$ {item.product[5]}</Text>
+                      <View style={styles.qtdButton}>
+                        <TouchableOpacity style={styles.qtdButtonTouchable} onPress={() => decrementQuantity(index)}>
+                          <Text style={styles.qtdButtonText}>-</Text>
+                        </TouchableOpacity>
+                        <Text style={styles.qtdButtonText}>{item.quantity}</Text>
+                        <TouchableOpacity style={styles.qtdButtonTouchable} onPress={() => incrementQuantity(index)}>
+                          <Text style={styles.qtdButtonText}>+</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          )}
+        </View>
+
+        <View style={styles.searchArea}>
+          <View style={styles.searchContainer}>
+            <TextInput
+              style={styles.input}
+              returnKeyType="search"
+              placeholder="Código Promocional"
+            />
+            <TouchableOpacity style={styles.codeButton} >
+              <Text style={styles.codeButtonText}>Aplicar</Text>
+            </TouchableOpacity>
           </View>
+        </View>
 
+        <View style={styles.totalPriceArea}>
+          <Text style={styles.totalPrice}>Total ({cart.length} Itens):</Text>
+          <Text style={styles.totalPrice1}>R$ {cart.reduce((acc, item) => acc + item.product[5] * item.quantity, 0).toFixed(2)}</Text>
+        </View>
 
-          <View style={styles.totalPriceArea}>
-            <Text style={styles.totalPrice}>Total (4 Itens):</Text>
-            <Text style={styles.totalPrice1}>R$ 700,00</Text>
+        <TouchableOpacity style={styles.nextButton}>
+          <Text style={styles.ButtonText}>Processar encomenda</Text>
+          <View style={styles.processIcon}>
+            <Icon name="chevron-right" size={18} color="#D86626" />
           </View>
-
-          <TouchableOpacity style={styles.nextButton} >
-            <Text style={styles.ButtonText}>Processar encomenda</Text>
-            <View style={styles.processIcon}>
-              <Icon name="chevron-right" size={18} color="#D86626" /> 
-            </View>
-          </TouchableOpacity>
-        </ScrollView>
-
-
+        </TouchableOpacity>
 
       </View>
-    </ScrollView>
+    </View>
   );
 }
 
@@ -105,6 +95,8 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     width: '100%',
+    marginTop: 50,
+    paddingBottom: 60,
   },
   returnButtonContainer: {
     marginBottom: 20,
@@ -114,31 +106,29 @@ const styles = StyleSheet.create({
     width: 30,
     marginHorizontal: "6%",
   },
-  container: {
-    flexGrow: 1,
-    marginTop: "15%",
-    paddingBottom: 20,
-  },
   title: {
     fontSize: 22,
     fontFamily: 'Poppins_700Bold',
     marginHorizontal: "6%",
   },
   productsArea:{
-    paddingBottom: 20,
+    flex: 1,
+  },
+  productsList: {
     paddingHorizontal: "6%",
   },
   products: {
-    marginTop: 15,
+    marginVertical: 8,
     padding: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
     backgroundColor: '#FFFFFF',
-    elevation: 10,
+    elevation: 5,
     borderRadius: 10,
   },
   productDetails:{
-    width: 230,
+    width: '72%',
+    justifyContent: 'space-between',
   },
   productImage:{
     width: 80,
@@ -146,13 +136,25 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     elevation: 5,
   },
+  removeButton: {
+    marginTop: 2,
+    backgroundColor: "#D86626",
+    height: 30,
+    width: 30,
+    alignItems: 'center',
+    borderColor: "#6666",
+    elevation: 5,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    borderRadius: 10,
+  },
   productPrice: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   qtdButton: {
     backgroundColor: "#D86626",
-    height: 38,
+    height: 34,
     width: 86,
     alignItems: 'center',
     borderRadius: 30,
@@ -161,6 +163,7 @@ const styles = StyleSheet.create({
     elevation: 5,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginTop: 5,
     paddingHorizontal: 10,
   },
   qtdButtonTouchable: {
@@ -174,15 +177,29 @@ const styles = StyleSheet.create({
   },
   productTitles: {
     fontSize: 16,
-    marginTop: 10,
+    marginTop: 5,
     fontFamily: 'Poppins_700Bold',
+  },
+  emptyCartContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 50,
+  },
+  emptyCart: {
+    textAlign: 'center',
+    fontSize: 16,
+    color: 'gray',
+    fontFamily: 'Poppins_400Regular',
+    marginBottom: 50,
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     height: 50,
-    marginVertical: 25,
+    marginTop: 20,
+    marginBottom: 30,
     marginHorizontal: "6%",
     paddingHorizontal: 25,
     backgroundColor: "#F3F4F6",
@@ -213,7 +230,7 @@ const styles = StyleSheet.create({
   },
   totalPriceArea: {
     marginHorizontal: '6%',
-    marginVertical: 16,
+    marginBottom: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
