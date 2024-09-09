@@ -11,6 +11,11 @@ const Menu = ({ visible, onClose, navigation }) => {
     navigation.navigate('Home');
   };
 
+  const perfil = () => {
+    onClose();
+    navigation.navigate('Perfil');
+  };
+
   const myProducts = () => {
     onClose();
     navigation.navigate('MyProducts');
@@ -27,7 +32,7 @@ const Menu = ({ visible, onClose, navigation }) => {
   return (
     <View style={styles.overlay} onTouchEnd={handleOverlayClick}>
       <View style={styles.container}>
-        <TouchableOpacity style={styles.buttons}>
+        <TouchableOpacity style={styles.buttons} onPress={perfil}>
           <View style={styles.userIcon}>
             <Icon name="user" size={24} color="#D86626" /> 
           </View>
@@ -38,7 +43,7 @@ const Menu = ({ visible, onClose, navigation }) => {
           <Icon name="home" size={25} color="#fff" style={[styles.icon, styles.homeIcon]}/> 
           <Text style={styles.menuItem}>Home</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.buttons}>
+        <TouchableOpacity style={styles.buttons} onPress={perfil}>
           <Icon name="user" size={24} color="#fff" style={[styles.icon, styles.profileIcon]}/> 
           <Text style={styles.menuItem}>Perfil</Text>
         </TouchableOpacity>

@@ -1,13 +1,50 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, TextInput } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { API_BASE_URL } from './../../../config';
 import { CartContext } from './../../../cartContext';
+import { UserContext } from './../../../UserContext';
 
 export function MyCart() {
   const navigation = useNavigation();
   const { cart, incrementQuantity, decrementQuantity, removeFromCart } = useContext(CartContext);
+  const { userId } = useContext(UserContext);
+
+  const [address, setAddress] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchAddress = async () => {
+    if (userId) {
+      try {
+        const response = await fetch(`${API_BASE_URL}/addresses`);
+        const data = await response.json();
+        const addresses = data.addresses.map(addr => ({
+          idEndereco: addr[0],
+          idUsuario: addr[1],
+          endereco: addr[2],
+          bairro: addr[3],
+          numero: addr[4],
+          cidade: addr[5],
+          uf: addr[6],
+          complemento: addr[7]
+        }));
+        const userAddress = addresses.find(addr => addr.idUsuario === userId);
+
+        setAddress(userAddress || null);
+        setLoading(false);
+      } catch (error) {
+        console.error("Erro ao buscar o endereço:", error);
+        setLoading(false);
+      }
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchAddress();
+    }, [userId])
+  );
 
   return (
     <View style={styles.tela}>
@@ -57,18 +94,35 @@ export function MyCart() {
           )}
         </View>
 
-        <View style={styles.searchArea}>
-          <View style={styles.searchContainer}>
-            <TextInput
-              style={styles.input}
-              returnKeyType="search"
-              placeholder="Código Promocional"
-            />
-            <TouchableOpacity style={styles.codeButton} >
-              <Text style={styles.codeButtonText}>Aplicar</Text>
-            </TouchableOpacity>
-          </View>
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.input}
+            returnKeyType="search"
+            placeholder="Código Promocional"
+          />
+          <TouchableOpacity style={styles.codeButton} >
+            <Text style={styles.codeButtonText}>Aplicar</Text>
+          </TouchableOpacity>
         </View>
+
+        <TouchableOpacity style={styles.address} onPress={() => navigation.navigate('UpdAddress', { address, idEndereco: address.idEndereco })}>
+          <View>
+            <Text style={StyleSheet.flatten([styles.productTitles])}>Endereço de Entrega</Text>
+            {loading ? (
+              <Text style={StyleSheet.flatten([styles.addressDescription])}>Carregando...</Text>
+            ) : address ? (
+              <>
+                <Text style={StyleSheet.flatten([styles.addressDescription])}>{address.endereco}, nº {address.numero}, {address.bairro}</Text>
+                <Text style={StyleSheet.flatten([styles.addressDescription])}>{address.cidade}-{address.uf}</Text>
+                {address.complemento && <Text style={StyleSheet.flatten([styles.addressDescription])}>{address.complemento}</Text>}
+              </>
+            ) : (
+              <Text style={StyleSheet.flatten([styles.addressDescription])}>Endereço não encontrado</Text>
+            )}
+          </View>
+          <Icon name="chevron-right" size={20} color="black" />
+        </TouchableOpacity>
+
 
         <View style={styles.totalPriceArea}>
           <Text style={styles.totalPrice}>Total ({cart.length} Itens):</Text>
@@ -96,7 +150,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     marginTop: 50,
-    paddingBottom: 60,
+    paddingBottom: 30,
   },
   returnButtonContainer: {
     marginBottom: 20,
@@ -193,13 +247,32 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_400Regular',
     marginBottom: 50,
   },
+  address: {
+    marginTop: 8,
+    marginHorizontal: "6%",
+    paddingHorizontal: "6%",
+    padding: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    backgroundColor: '#FFFFFF',
+    elevation: 5,
+    borderRadius: 10,
+    marginBottom: 15,
+  },
+  
+  addressDescription: {
+    fontSize: 14,
+    color: 'gray',
+    fontFamily: 'Poppins_400Regular',
+  },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     height: 50,
-    marginTop: 20,
-    marginBottom: 30,
+    marginTop: 15,
+    marginBottom: 15,
     marginHorizontal: "6%",
     paddingHorizontal: 25,
     backgroundColor: "#F3F4F6",

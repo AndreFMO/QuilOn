@@ -19,6 +19,8 @@ import { MyProductDetail } from './pages/myProducts/myProductDetail';
 import { ProductData } from './pages/myProducts/registerProduct/productData';
 import { ProductPreview } from './pages/myProducts/registerProduct/productPreview';
 import { ConcludedProduct } from './pages/myProducts/registerProduct/concludedProduct';
+import { Perfil } from './pages/perfil';
+import { UpdAddress } from './pages/update/updAddress';
 import Menu from './pages/menu'; 
 import { View } from 'react-native';
 
@@ -193,6 +195,16 @@ export function Routes() {
       <Stack.Screen
         name="ConcludedProduct"
         component={ConcludedProduct}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Perfil"
+        component={Perfil}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="UpdAddress"
+        component={UpdAddress}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
