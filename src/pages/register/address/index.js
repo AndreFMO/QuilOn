@@ -148,7 +148,8 @@ export function Address({ route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 50,
+    paddingTop: 25,
+    backgroundColor: "#FFF",
   },
   contentContainer: {
     paddingHorizontal: "5%",

@@ -1,15 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform, Alert, Keyboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import DotIndicator from './../../../assets/components/DotIndicator'; 
 import { API_BASE_URL } from './../../../config';
-import { CartContext } from './../../../cartContext';
-import { UserContext } from './../../../UserContext'; // Importa o UserContext
+import { UserContext } from './../../../UserContext';
 
 export function UpdAddress({ route }) {
   const navigation = useNavigation();
   const { userId } = useContext(UserContext)
-  const [userType, setUserType] = useState("Atualizar Endereço");
   const [address, setAddress] = useState({
     street: '',
     neighborhood: '',
@@ -80,11 +77,10 @@ export function UpdAddress({ route }) {
       });
   
       const textResponse = await response.text();
-      console.log('Resposta da API como texto:', textResponse);
   
       if (textResponse.includes('Endereço atualizado com sucesso')) {
         Alert.alert('Sucesso', 'Endereço atualizado com sucesso');
-        navigation.navigate('MyCart');
+        navigation.goBack();
       } else {
         Alert.alert('Erro', 'Não foi possível atualizar o endereço. Tente novamente mais tarde.');
       }
@@ -110,7 +106,8 @@ export function UpdAddress({ route }) {
           <Image source={require('./../../../assets/quilon.png')} style={styles.backgroundText} />
         </View>
 
-        <Text style={styles.userType}>{userType}</Text>
+        <Text style={styles.title}>Alteração de dados</Text>
+        <Text style={styles.userType}>Endereço do Usuário</Text>
 
         <Text style={styles.subTitle}>Endereço<Text style={styles.required}>*</Text></Text>
         <View style={styles.orangeBorder}>
@@ -194,7 +191,8 @@ export function UpdAddress({ route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 50,
+    paddingTop: 25,
+    backgroundColor: "#FFF",
   },
   contentContainer: {
     paddingHorizontal: "5%",
@@ -213,11 +211,15 @@ const styles = StyleSheet.create({
     width: 230,
     height: 50,
   },
+  title: {
+    fontSize: 22,
+    fontFamily: 'Poppins_700Bold',
+    marginTop: 40,
+  },
   userType: {
     fontSize: 16,
     fontFamily: 'Poppins_400Regular',
     color: "grey",
-    marginTop: 40,
   },
   subTitle: {
     fontSize: 16,

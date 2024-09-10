@@ -23,8 +23,7 @@ export function Map() {
     fetch(`${API_BASE_URL}/quilombos`)
       .then(response => response.json())
       .then(data => {
-        console.log("Quilombos data:", data); // Adicionando log para verificar os dados
-        if (Array.isArray(data.quilombos)) { // Verifica se os dados são um array
+        if (Array.isArray(data.quilombos)) {
           const formattedQuilombos = data.quilombos.map(quilombo => ({
             id: quilombo[0],
             name: quilombo[2],
@@ -112,11 +111,10 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
-    marginTop: '7%',
   },
   overlay: {
     position: 'absolute',
-    top: '8%',
+    top: '4%',
     left: '5%',
     right: '5%',
     bottom: 20,

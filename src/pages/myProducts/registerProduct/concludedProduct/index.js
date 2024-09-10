@@ -31,10 +31,11 @@ export function ConcludedProduct() {
 const styles = StyleSheet.create({
   tela: {
     flexGrow: 1,
+    paddingTop: 25,
+    backgroundColor: "#FFF",
   },
   container: {
     flex: 1,
-    marginTop: 40,
     paddingHorizontal: "5%",
     paddingBottom: 60,
     paddingTop: 100,

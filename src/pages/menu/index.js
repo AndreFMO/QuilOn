@@ -1,7 +1,8 @@
-import React, { useState, useContext } from 'react';
+import React, { useContext } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { UserContext } from '../../UserContext';
+import { CartContext } from '../../cartContext';
 
 const Menu = ({ visible, onClose, navigation }) => {
   if (!visible) return null;
@@ -27,7 +28,15 @@ const Menu = ({ visible, onClose, navigation }) => {
     }
   };
 
-  const { userId, username } = useContext(UserContext);
+  const { setUserId, username } = useContext(UserContext);
+  const { clearCart } = useContext(CartContext); // Utilize o CartContext
+
+  const handleLogout = () => {
+    clearCart(); // Limpa o carrinho
+    setUserId(0);
+    onClose(); // Fecha o menu
+    navigation.navigate('Start');
+  };
 
   return (
     <View style={styles.overlay} onTouchEnd={handleOverlayClick}>
@@ -69,10 +78,7 @@ const Menu = ({ visible, onClose, navigation }) => {
           <Text style={styles.menuItem}>Ajuda</Text>
         </TouchableOpacity>
         <View style={styles.divider} />
-        <TouchableOpacity style={styles.buttons} onPress={() => {
-          onClose(); // Fecha o menu
-          navigation.navigate('Start');
-        }}>
+        <TouchableOpacity style={styles.buttons} onPress={handleLogout}>
           <Icon name="sign-out" size={24} color="#fff" style={styles.icon} />
           <Text style={styles.menuItem}>Logout</Text>
         </TouchableOpacity>
@@ -97,7 +103,7 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: '#D86626',
     padding: 20,
-    paddingTop: 60,
+    paddingTop: 40,
   },
   menuItem: {
     fontSize: 16,

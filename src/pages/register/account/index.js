@@ -206,7 +206,8 @@ export function Account() {
 const styles = StyleSheet.create({
   tela: {
     flex: 1,
-    marginTop: 50,
+    paddingTop: 25,
+    backgroundColor: "#FFF",
   },
   container: {
     paddingHorizontal: "5%",

@@ -160,18 +160,18 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
   },
+  container: {
+    flexGrow: 1,
+    marginTop: 25,
+    paddingHorizontal: "5%",
+    paddingBottom: 20,
+  },
   returnButtonContainer: {
     marginBottom: 20,
   },
   returnButton: {
     height: 25,
     width: 30,
-  },
-  container: {
-    flexGrow: 1,
-    marginTop: "15%",
-    paddingHorizontal: "5%",
-    paddingBottom: 20,
   },
   title: {
     fontSize: 22,

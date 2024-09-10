@@ -190,7 +190,8 @@ export function Quilombo() {
 // Estilos
 const styles = StyleSheet.create({
   container: {
-    marginTop: 50,
+    paddingTop: 25,
+    backgroundColor: "#FFF",
     flex: 1,
   },
   contentContainer: {

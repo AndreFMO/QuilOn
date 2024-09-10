@@ -20,7 +20,9 @@ import { ProductData } from './pages/myProducts/registerProduct/productData';
 import { ProductPreview } from './pages/myProducts/registerProduct/productPreview';
 import { ConcludedProduct } from './pages/myProducts/registerProduct/concludedProduct';
 import { Perfil } from './pages/perfil';
+import { UpdPersonal } from './pages/update/updPersonal';
 import { UpdAddress } from './pages/update/updAddress';
+import { UpdAccount } from './pages/update/updAccount';
 import Menu from './pages/menu'; 
 import { View } from 'react-native';
 
@@ -203,8 +205,18 @@ export function Routes() {
         options={{ headerShown: false }}
       />
       <Stack.Screen
+        name="UpdPersonal"
+        component={UpdPersonal}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
         name="UpdAddress"
         component={UpdAddress}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="UpdAccount"
+        component={UpdAccount}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

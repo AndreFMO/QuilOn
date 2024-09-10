@@ -206,7 +206,8 @@ export function ProductData({ route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 30,
+    paddingTop: 5,
+    backgroundColor: "#FFF",
   },
   contentContainer: {
     paddingHorizontal: "5%",

@@ -1,5 +1,6 @@
 // App.js
 import React from 'react';
+import { StatusBar } from 'react-native';  // Import StatusBar
 import { useFonts, Poppins_400Regular, Poppins_700Bold } from '@expo-google-fonts/poppins';
 import { NavigationContainer } from '@react-navigation/native';
 import { Routes } from './src/routes';
@@ -19,6 +20,7 @@ export default function App() {
     <UserProvider>
       <CartProvider>
         <NavigationContainer>
+          <StatusBar barStyle="dark-content" backgroundColor="#fff" />
           <Routes />
         </NavigationContainer>
       </CartProvider>

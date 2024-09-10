@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     width: '100%',
-    marginTop: 50,
+    marginTop: 25,
     paddingBottom: 30,
   },
   returnButtonContainer: {

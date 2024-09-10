@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform, Alert, Keyboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import RNPickerSelect from 'react-native-picker-select';
-import DotIndicator from './../../../assets/components/DotIndicator';
+import { API_BASE_URL } from './../../../config';
+import { UserContext } from './../../../UserContext';
 
-export function UpdPersonal({ route }) {
+export function UpdPersonal() {
   const navigation = useNavigation();
+  const { userId, } = useContext(UserContext);
 
   const [name, setName] = useState('');
   const [birthDate, setBirthDate] = useState(new Date());
@@ -15,12 +17,40 @@ export function UpdPersonal({ route }) {
   const [rg, setRg] = useState('');
   const [cellphone, setCellphone] = useState('');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [keyboardIsVisible, setKeyboardIsVisible] = useState(false);
 
-  const { personalData } = route.params || {};
-
   useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/user/${userId}`);
+        const data = await response.json();
+
+        if (response.ok) {
+          setName(data.nome || '');
+          setCpf(data.cpf || '');
+          setRg(data.rg || '');
+          setCellphone(data.celular || '');
+          setPhone(data.telefone || '');
+          setSex(data.sexo || '');
+          setEmail(data.email || '');
+          setSenha(data.senha || '');
+
+          const birthDateArray = data.dataNasc.split('/');
+          setBirthDate(new Date(birthDateArray[2], birthDateArray[1] - 1, birthDateArray[0]));
+        } else {
+          Alert.alert('Erro', 'Não foi possível carregar os dados do usuário.');
+        }
+      } catch (error) {
+        console.error('Erro ao buscar os dados do usuário:', error);
+        Alert.alert('Erro', 'Não foi possível carregar os dados do usuário.');
+      }
+    };
+
+    fetchUserData();
+
     const keyboardDidShowListener = Keyboard.addListener(
       'keyboardDidShow',
       () => {
@@ -38,7 +68,7 @@ export function UpdPersonal({ route }) {
       keyboardDidShowListener.remove();
       keyboardDidHideListener.remove();
     };
-  }, []);
+  }, [userId]);
 
   const handleDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || birthDate;
@@ -46,24 +76,48 @@ export function UpdPersonal({ route }) {
     setBirthDate(currentDate);
   };
 
-  const handleNextPress = () => {
+  const handleUpdatePress = async () => {
     if (!name || !birthDate || !sex || !cpf || !rg || !cellphone) {
       Alert.alert('Erro', 'Por favor, preencha todos os campos obrigatórios marcados por: *');
       return;
     }
   
-    const dataToPass = {
-      name: name,
-      birthDate: birthDate.toLocaleDateString(),
-      sex: sex,
-      cpf: cpf,
-      rg: rg,
-      cellphone: cellphone,
-      phone: phone,
+    const updatedData = {
+      nome: name,
+      dataNasc: birthDate.toLocaleDateString('pt-BR'), // Formato: DD/MM/YYYY
+      sexo: sex,
+      cpf,
+      rg,
+      celular: cellphone,
+      telefone: phone,
+      email, // Adiciona o email
+      senha, // Adiciona a senha
+      idUsuario: userId, // Adiciona o idUsuario
     };
-    
-    navigation.navigate('Address', { personalData: dataToPass });
+  
+    try {
+      const response = await fetch(`${API_BASE_URL}/user/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedData),
+      });
+  
+      const jsonResponse = await response.json();
+  
+      if (response.ok && jsonResponse.message === 'Usuário atualizado com sucesso') {
+        Alert.alert('Sucesso', 'Dados atualizados com sucesso');
+        navigation.goBack();
+      } else {
+        Alert.alert('Erro', 'Não foi possível atualizar os dados. Tente novamente mais tarde.');
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar os dados do usuário:', error);
+      Alert.alert('Erro', `Ocorreu um erro ao tentar atualizar os dados: ${error.message}`);
+    }
   };
+  
   
 
   return (
@@ -79,13 +133,14 @@ export function UpdPersonal({ route }) {
           <Image source={require('./../../../assets/quilon.png')} style={styles.backgroundText} />
         </View>
 
-        <Text style={styles.title}>Cadastre-se</Text>
+        <Text style={styles.title}>Alteração de dados</Text>
         <Text style={styles.userType}>Dados do Usuário</Text>
+
         <Text style={styles.subTitle}>Nome<Text style={styles.required}>*</Text></Text>
         <View style={styles.orangeBorder}>
           <TextInput
             style={styles.input}
-            value={personalData ? personalData.name : name}
+            value={name}
             onChangeText={setName}
           />
         </View>
@@ -95,11 +150,11 @@ export function UpdPersonal({ route }) {
             <Text style={styles.subTitle}>Data de Nascimento<Text style={styles.required}>*</Text></Text>
             <View style={styles.orangeBorder}>
               <TouchableOpacity onPress={() => setShowDatePicker(true)}>
-                <Text style={styles.input}>{personalData ? personalData.birthDate : birthDate.toLocaleDateString()}</Text>
+                <Text style={styles.input}>{birthDate.toLocaleDateString('pt-BR')}</Text>
               </TouchableOpacity>
               {showDatePicker && (
                 <DateTimePicker
-                  value={personalData ? new Date(personalData.birthDate) : birthDate}
+                  value={birthDate}
                   mode="date"
                   display="spinner"
                   onChange={handleDateChange}
@@ -112,6 +167,7 @@ export function UpdPersonal({ route }) {
             <View style={styles.orangeBorder}>
               <RNPickerSelect
                 onValueChange={(value) => setSex(value)}
+                value={sex}
                 placeholder={{
                   label: 'Selecione o sexo',
                   value: null,
@@ -149,7 +205,7 @@ export function UpdPersonal({ route }) {
         <View style={styles.orangeBorder}>
           <TextInput
             style={styles.input}
-            value={personalData ? personalData.cpf : cpf}
+            value={cpf}
             onChangeText={setCpf}
             keyboardType="numeric"
           />
@@ -159,7 +215,7 @@ export function UpdPersonal({ route }) {
         <View style={styles.orangeBorder}>
           <TextInput
             style={styles.input}
-            value={personalData ? personalData.rg : rg}
+            value={rg}
             onChangeText={setRg}
             keyboardType="numeric"
           />
@@ -171,7 +227,7 @@ export function UpdPersonal({ route }) {
             <View style={styles.orangeBorder}>
               <TextInput
                 style={styles.input}
-                value={personalData ? personalData.cellphone : cellphone}
+                value={cellphone}
                 onChangeText={setCellphone}
                 keyboardType="numeric"
               />
@@ -182,7 +238,7 @@ export function UpdPersonal({ route }) {
             <View style={styles.orangeBorder}>
               <TextInput
                 style={styles.input}
-                value={personalData ? personalData.phone : phone}
+                value={phone}
                 onChangeText={setPhone}
                 keyboardType="numeric"
               />
@@ -193,9 +249,8 @@ export function UpdPersonal({ route }) {
 
       {!keyboardIsVisible && (
         <View style={styles.bottomContainer}>
-          <DotIndicator totalSteps={3} currentStep={0} />
-          <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
-            <Text style={styles.ButtonText}>Próximo</Text>
+          <TouchableOpacity style={styles.nextButton} onPress={handleUpdatePress}>
+            <Text style={styles.ButtonText}>Atualizar</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -203,11 +258,13 @@ export function UpdPersonal({ route }) {
   );
 }
 
+
 // Estilos
 const styles = StyleSheet.create({
   container: {
-    marginTop: 50,
     flex: 1,
+    paddingTop: 25,
+    backgroundColor: "#FFF",
   },
   contentContainer: {
     paddingHorizontal: "5%",

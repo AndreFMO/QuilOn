@@ -137,8 +137,9 @@ export function Login() {
 // Estilos
 const styles = StyleSheet.create({
   container: {
-    marginTop: 50,
     flex: 1,
+    paddingTop: 25,
+    backgroundColor: "#FFF",
   },
   contentContainer: {
     paddingHorizontal: "5%",
