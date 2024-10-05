@@ -103,7 +103,7 @@ export function ProductPreview({ route }) {
 
   return (
     <ScrollView style={styles.tela}>
-      <TouchableOpacity onPress={() => navigation.navigate('ProductData')} style={styles.returnButtonContainer}>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.returnButtonContainer}>
         <Image source={require('./../../../../assets/return.png')} style={styles.returnButton} />
       </TouchableOpacity>
       <ScrollView

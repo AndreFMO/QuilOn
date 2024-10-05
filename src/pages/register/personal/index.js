@@ -3,7 +3,7 @@ import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image,
 import { useNavigation } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import RNPickerSelect from 'react-native-picker-select';
-import DotIndicator from './../../../assets/components/DotIndicator';
+import DotIndicator from '../../../assets/components/DotIndicator';
 
 export function Personal({ route }) {
   const navigation = useNavigation();

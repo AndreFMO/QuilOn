@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform, Switch, Alert, Keyboard } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import DotIndicator from './../../../assets/components/DotIndicator';
+import DotIndicator from '../../../assets/components/DotIndicator';
 import { API_BASE_URL } from './../../../config';
 
 export function Account() {
@@ -95,7 +95,7 @@ export function Account() {
       rg: personalData.rg,
       celular: personalData.cellphone,
       telefone: personalData.phone || '',
-      email: email,
+      email: email.toLowerCase(),
       senha: password,
     };
   

@@ -4,6 +4,8 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { UserContext } from './../../UserContext';
 import { API_BASE_URL } from './../../config';
+import { LineChart } from 'react-native-chart-kit';
+import { Dimensions } from 'react-native';
 
 export function Perfil() {
   const navigation = useNavigation();
@@ -17,6 +19,8 @@ export function Perfil() {
   const [address, setAddress] = useState(null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [quilombo, setQuilombo] = useState(null);
+  const [loadingQuilombo, setLoadingQuilombo] = useState(true);
 
   const fetchAddress = async () => {
     if (userId) {
@@ -53,11 +57,43 @@ export function Perfil() {
     }
   };
 
+  const fetchQuilomboData = async () => {
+    if (userId) {
+      try {
+        const response = await fetch(`${API_BASE_URL}/quilombouser/${userId}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.quilombo) {
+            const [id, userId, name, certificacao, latitudeLongitude, complemento] = data.quilombo;
+            const [latitude, longitude] = latitudeLongitude.split(",");
+            setQuilombo({
+              id,
+              userId,
+              name,
+              certificacao,
+              latitude,
+              longitude,
+              complemento,
+            });
+          } else {
+            console.error("Quilombo não encontrado");
+            setQuilombo(null);
+          }
+        }
+      } catch (error) {
+        console.error("Erro ao buscar dados do quilombo:", error);
+      } finally {
+        setLoadingQuilombo(false);
+      }
+    }
+  };
+
   useFocusEffect(
     useCallback(() => {
       setLoading(true);
       fetchAddress();
       fetchUserData();
+      fetchQuilomboData();
       setLoading(false);
     }, [userId])
   );
@@ -86,6 +122,215 @@ export function Perfil() {
       : '';
   };
 
+  const renderUserInfo = () => (
+    <View style={styles.perfil2}>
+      <TouchableOpacity
+        style={styles.infoButton}
+        onPress={() => setIsDropdownOpenPersonal(!isDropdownOpenPersonal)}
+      >
+        <Text style={styles.tabText}>Dados Pessoais</Text>
+        <Icon name={isDropdownOpenPersonal ? 'caret-down' : 'caret-right'} size={20} color="black" />
+      </TouchableOpacity> 
+  
+      {isDropdownOpenPersonal && (
+        <TouchableOpacity style={styles.dropdownContent} onPress={() => navigation.navigate('UpdPersonal', { user })}>
+          <View>
+            <View style={styles.separation}>
+              <View style={styles.username}>
+                <Text style={styles.dropdownText}>{user?.nome || 'Nome'}</Text>
+                <Text style={styles.dropdownText}>{user?.dataNasc ? `${calculateAge(user.dataNasc)} anos` : 'Data de nascimento não disponível'}</Text>
+              </View>
+              <Text style={styles.dropdownText}>Sexo: {user?.sexo}</Text>
+            </View>
+            <View style={styles.separation}>
+              <Text style={styles.dropdownText}>CPF: {user?.cpf ? formatCPF(user.cpf) : 'Não disponível'}</Text>
+              <Text style={styles.dropdownText}>RG: {user?.rg ? formatRG(user.rg) : 'Não disponível'}</Text>
+            </View>
+            <View style={styles.separation}>
+              <Text style={styles.dropdownText}>Celular: {user?.celular || 'Não disponível'}</Text>
+              <Text style={styles.dropdownText}>Telefone: {user?.telefone || 'Não disponível'}</Text>
+            </View>
+          </View>
+          <Icon name="angle-right" size={30} color="gray" />
+        </TouchableOpacity> 
+      )}
+    </View>
+  );
+  
+  const renderUserAddress = () => (
+    <View style={styles.perfil2}>
+      <TouchableOpacity
+        style={styles.infoButton}
+        onPress={() => setIsDropdownOpenAddress(!isDropdownOpenAddress)}
+      >
+        <Text style={styles.tabText}>Endereço do Usuário</Text>
+        <Icon name={isDropdownOpenAddress ? 'caret-down' : 'caret-right'} size={20} color="black" />
+      </TouchableOpacity> 
+  
+      {isDropdownOpenAddress && (
+        <TouchableOpacity style={styles.dropdownContent} onPress={() => navigation.navigate('UpdAddress', { address, idEndereco: address?.idEndereco })}>
+          <View style={styles.separation}>
+            {loading ? (
+              <Text style={styles.dropdownText}>Carregando...</Text>
+            ) : address ? (
+              <>
+                <Text style={styles.dropdownText}>{address.endereco}, nº {address.numero}, {address.bairro}</Text>
+                <Text style={styles.dropdownText}>{address.cidade}-{address.uf}</Text>
+                {address.complemento && <Text style={styles.dropdownText}>{address.complemento}</Text>}
+              </>
+            ) : (
+              <Text style={styles.dropdownText}>Endereço não encontrado</Text>
+            )}
+          </View>
+          <Icon name="angle-right" size={30} color="gray" />
+        </TouchableOpacity> 
+      )}
+    </View>
+  );
+  
+  const renderUserAccount = () => (
+    <View style={styles.perfil2}>
+      <TouchableOpacity
+        style={styles.infoButton}
+        onPress={() => setIsDropdownOpenAccount(!isDropdownOpenAccount)}
+      >
+        <Text style={styles.tabText}>Conta</Text>
+        <Icon name={isDropdownOpenAccount ? 'caret-down' : 'caret-right'} size={20} color="black" />
+      </TouchableOpacity> 
+  
+      {isDropdownOpenAccount && (
+        <TouchableOpacity style={styles.dropdownContent} onPress={() => navigation.navigate('UpdAccount', { user })}>
+          <View style={styles.separation}>
+            <Text style={styles.dropdownText}>{user?.email || 'Email'}</Text>
+            <Text style={styles.dropdownText}>{user?.senha ? '********' : 'Senha'}</Text>
+          </View>
+          <Icon name="angle-right" size={30} color="gray" />
+        </TouchableOpacity> 
+      )}
+    </View>
+  );
+  
+  const renderCommunityInfo = () => (
+    <View style={styles.perfil2}>
+      <TouchableOpacity
+        style={styles.infoButton}
+        onPress={() => setIsDropdownOpenPersonal(!isDropdownOpenPersonal)}
+      >
+        <Text style={styles.tabText}>Dados da Comunidade</Text>
+        <Icon name={isDropdownOpenPersonal ? 'caret-down' : 'caret-right'} size={20} color="black" />
+      </TouchableOpacity> 
+  
+      {isDropdownOpenPersonal && (
+        <TouchableOpacity style={styles.dropdownContent} onPress={() => navigation.navigate('UpdQuilombo', { quilombo })}>
+          <View>
+            <View style={styles.separation}>
+              <Text style={styles.dropdownText}>Nome da Comunidade: {quilombo?.name || 'Nome não disponível'}</Text>
+              <Text style={styles.dropdownText}>Certificação Quilombola: {quilombo?.certificacao || 'Não disponível'}</Text>
+            </View>
+            <View style={styles.separation}>
+              <Text style={styles.dropdownText}>Latitude: {quilombo?.latitude || 'Não disponível'}</Text>
+              <Text style={styles.dropdownText}>Longitude: {quilombo?.longitude || 'Não disponível'}</Text>
+            </View>
+            <View style={styles.separation}>
+              <Text style={styles.dropdownText}>Complemento: {quilombo?.complemento || 'Não disponível'}</Text>
+            </View>
+          </View>
+          <Icon name="angle-right" size={30} color="gray" />
+        </TouchableOpacity> 
+      )}
+    </View>
+  );
+  
+  const renderCommunityInformative = () => (
+    <View style={styles.perfil2}>
+      <TouchableOpacity
+        style={styles.infoButton}
+        onPress={() => setIsDropdownOpenAddress(!isDropdownOpenAddress)}
+      >
+        <Text style={styles.tabText}>Informativo do Quilombo</Text>
+        <Icon name={isDropdownOpenAddress ? 'caret-down' : 'caret-right'} size={20} color="black" />
+      </TouchableOpacity> 
+  
+      {isDropdownOpenAddress && (
+        <TouchableOpacity style={styles.dropdownContent} onPress={() => navigation.navigate('UpdCommunityInformative', { address, idEndereco: address?.idEndereco })}>
+          <View style={styles.separation}>
+   
+          </View>
+          <Icon name="angle-right" size={30} color="gray" />
+        </TouchableOpacity> 
+      )}
+    </View>
+  );
+  
+  const screenWidth = Dimensions.get("window").width;
+
+  const renderCommunityPerformance = () => {
+    // Simulação de dados de vendas (substitua isso pelos dados reais que você vai buscar da API)
+    const salesData = {
+      labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+      datasets: [
+        {
+          data: [450, 560, 780, 900, 850, 990],
+          strokeWidth: 2, // grossura da linha
+        },
+      ],
+    };
+
+    return (
+      <View style={styles.perfil2}>
+        <TouchableOpacity
+          style={styles.infoButton}
+          onPress={() => setIsDropdownOpenAccount(!isDropdownOpenAccount)}
+        >
+          <Text style={styles.tabText}>Performance da Comunidade</Text>
+          <Icon name={isDropdownOpenAccount ? 'caret-down' : 'caret-right'} size={20} color="black" />
+        </TouchableOpacity>
+
+        {isDropdownOpenAccount && (
+          <TouchableOpacity style={styles.dropdownContent}>
+            <View style={styles.chartContainer}>
+              <Text style={styles.dropdownText}>Gráfico de Vendas</Text>
+              <LineChart
+                data={salesData}
+                width={screenWidth * 0.80} // largura do gráfico
+                height={220}
+                yAxisLabel="R$"
+                chartConfig={{
+                  backgroundColor: '#fff',
+                  backgroundGradientFrom: '#f3f3f3',
+                  backgroundGradientTo: '#fff',
+                  decimalPlaces: 2,
+                  color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
+                  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                  style: {
+                    borderRadius: 16,
+                  },
+                  propsForDots: {
+                    r: '6',
+                    strokeWidth: '2',
+                    stroke: '#ffa726',
+                  },
+                }}
+                bezier
+                style={{
+                  marginVertical: 8,
+                  borderRadius: 16,
+                }}
+              />
+              <Icon
+                name="angle-right"
+                size={30}
+                color="gray"
+                style={styles.overlayIcon} // Adiciona estilo ao ícone
+              />
+            </View>
+          </TouchableOpacity>
+        
+        )}
+      </View>
+    );
+  };
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -95,7 +340,7 @@ export function Perfil() {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Image source={require('./../../assets/return.png')} style={styles.returnButton} />
         </TouchableOpacity>
-
+  
         <View style={styles.tabContainer}>
           <TouchableOpacity 
             style={[styles.tabButton, selectedTab === 'perfil' && styles.activeTab]}
@@ -110,10 +355,9 @@ export function Perfil() {
             <Text style={[styles.tabText, selectedTab === 'comunidade' && styles.activeTabText]}>Comunidade</Text>
           </TouchableOpacity>
         </View>
-
-        {selectedTab === 'perfil' && ( // Perfil
+  
+        {selectedTab === 'perfil' && ( // Renderizando a aba de Perfil
           <View style={styles.tabContent}>
-            
             <View style={styles.perfil1}>
               <TouchableOpacity style={styles.userIcon}>
                 <Icon name="user" size={50} color="#D86626" /> 
@@ -122,103 +366,33 @@ export function Perfil() {
               <Text style={styles.title}>{user?.nome || 'Nome de Usuario'}</Text>
               <Text style={styles.userType}>{userType}</Text>
             </View>
-
-            <View style={styles.perfil2}>
-              <TouchableOpacity
-                style={styles.infoButton}
-                onPress={() => setIsDropdownOpenPersonal(!isDropdownOpenPersonal)}
-              >
-                <Text style={styles.tabText}>Dados Pessoais</Text>
-                <Icon name={isDropdownOpenPersonal ? 'caret-down' : 'caret-right'} size={20} color="black" />
-              </TouchableOpacity> 
-
-              {isDropdownOpenPersonal && (
-              <TouchableOpacity style={styles.dropdownContent} onPress={() => navigation.navigate('UpdPersonal', { user })}>
-                <View>
-                  <View style={styles.separation}>
-                    <View style={styles.username}>
-                      <Text style={styles.dropdownText}>{user?.nome || 'Nome'}</Text>
-                      <Text style={styles.dropdownText}>{user?.dataNasc ? `${calculateAge(user.dataNasc)} anos` : 'Data de nascimento não disponível'}</Text>
-                    </View>
-                    <Text style={styles.dropdownText}>Sexo {user?.sexo}</Text>
-                  </View>
-                  <View style={styles.separation}>
-                    <Text style={styles.dropdownText}>CPF: {user?.cpf ? formatCPF(user.cpf) : 'Não disponível'}</Text>
-                    <Text style={styles.dropdownText}>RG: {user?.rg ? formatRG(user.rg) : 'Não disponível'}</Text>
-                  </View>
-                  <View style={styles.separation}>
-                    <Text style={styles.dropdownText}>Celular: {user?.celular || 'Não disponível'}</Text>
-                    <Text style={styles.dropdownText}>Telefone: {user?.telefone || 'Não disponível'}</Text>
-                  </View>
-                </View>
-                <Icon name="angle-right" size={30} color="gray" />
-              </TouchableOpacity> 
-              )}
-            </View>
-
-            <View style={styles.perfil2}>
-              <TouchableOpacity
-                style={styles.infoButton}
-                onPress={() => setIsDropdownOpenAddress(!isDropdownOpenAddress)}
-              >
-                <Text style={styles.tabText}>Endereço do Usuário</Text>
-                <Icon name={isDropdownOpenAddress ? 'caret-down' : 'caret-right'} size={20} color="black" />
-              </TouchableOpacity> 
-
-              {isDropdownOpenAddress && (
-              <TouchableOpacity style={styles.dropdownContent} onPress={() => navigation.navigate('UpdAddress', { address, idEndereco: address?.idEndereco })}>
-                <View style={styles.separation}>
-                  {loading ? (
-                    <Text style={StyleSheet.flatten([styles.dropdownText])}>Carregando...</Text>
-                  ) : address ? (
-                    <>
-                      <Text style={StyleSheet.flatten([styles.dropdownText])}>{address.endereco}, nº {address.numero}, {address.bairro}</Text>
-                      <Text style={StyleSheet.flatten([styles.dropdownText])}>{address.cidade}-{address.uf}</Text>
-                      {address.complemento && <Text style={StyleSheet.flatten([styles.dropdownText])}>{address?.complemento || ''}</Text>}
-                    </>
-                  ) : (
-                    <Text style={StyleSheet.flatten([styles.dropdownText])}>Endereço não encontrado</Text>
-                  )}
-                </View>
-                <Icon name="angle-right" size={30} color="gray" />
-              </TouchableOpacity> 
-              )}
-            </View>
-
-            <View style={styles.perfil2}>
-              <TouchableOpacity
-                style={styles.infoButton}
-                onPress={() => setIsDropdownOpenAccount(!isDropdownOpenAccount)}
-              >
-                <Text style={styles.tabText}>Conta</Text>
-                <Icon name={isDropdownOpenAccount ? 'caret-down' : 'caret-right'} size={20} color="black" />
-              </TouchableOpacity> 
-
-              {isDropdownOpenAccount && (
-              <TouchableOpacity style={styles.dropdownContent} onPress={() => navigation.navigate('UpdAccount', { user })}>
-                <View style={styles.separation}>
-                  <Text style={StyleSheet.flatten([styles.dropdownText])}>{user?.email || 'Email'}</Text>
-                  <Text style={StyleSheet.flatten([styles.dropdownText])}>{user?.senha ? '********' : 'Senha'}</Text>
-                </View>
-                <Icon name="angle-right" size={30} color="gray" />
-              </TouchableOpacity> 
-              )}
-            </View>
-
+  
+            {renderUserInfo()}
+            {renderUserAddress()}
+            {renderUserAccount()}
           </View>
         )}
-
-        {selectedTab === 'comunidade' && ( // Comunidade
+  
+        {selectedTab === 'comunidade' && ( // Renderizando a aba de Comunidade
           <View style={styles.tabContent}>
             <View style={styles.perfil1}>
-              <Text style={styles.title}>Dados da Comunidade</Text>
+              <TouchableOpacity style={styles.userIconQ}>
+                <Icon name="home" size={90} color="#D86626" /> 
+                <Image source={require('./../../assets/camera.png')} style={styles.cameraIconQ} />
+              </TouchableOpacity> 
+              <Text style={styles.title}>{quilombo?.name || 'Nome da Comunidade'}</Text>
+              <Text style={styles.userType}>Comunidade Quilombola</Text>
             </View>
+  
+            {renderCommunityInfo()}
+            {renderCommunityInformative()}
+            {renderCommunityPerformance()}
           </View>
         )}
-
       </ScrollView>
     </KeyboardAvoidingView>
   );
+  
 }
 
 // Estilos
@@ -285,10 +459,28 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     elevation: 2,
   },
+  userIconQ: {
+    backgroundColor: "#fff",
+    width: '85%',
+    height: 180,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
+    marginBottom: 15,
+    elevation: 2,
+  },
   cameraIcon: {
     position: 'absolute',
     bottom: 0,
     right: 0,
+    width: 40,
+    height: 40,
+    resizeMode: 'contain',
+  },
+  cameraIconQ: {
+    position: 'absolute',
+    bottom: 5,
+    right: 10,
     width: 40,
     height: 40,
     resizeMode: 'contain',
@@ -348,5 +540,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: "6%",
     flexDirection: 'row',
     justifyContent: 'space-between', 
+  },
+  overlayIcon: {
+    position: 'absolute',
+    top: 110, 
+    right: '1%',
   },
 });

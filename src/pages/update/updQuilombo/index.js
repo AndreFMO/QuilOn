@@ -6,8 +6,7 @@ import { API_BASE_URL } from './../../../config';
 export function UpdQuilombo() {
   const navigation = useNavigation();
   const route = useRoute();
-
-  const { personalData, addressData } = route.params || {};
+  const { quilombo } = route.params || {};
 
   const [quilomboData, setQuilomboData] = useState({
     name: '',
@@ -19,6 +18,18 @@ export function UpdQuilombo() {
   const [keyboardIsVisible, setKeyboardIsVisible] = useState(false);
 
   useEffect(() => {
+    if (quilombo) {
+      console.log("Dados recebidos no prompt:", quilombo); // Exibir os dados recebidos no console
+
+      // Preencher os dados recebidos nos campos corretos
+      setQuilomboData({
+        name: quilombo.name || '', // Nome da comunidade
+        certificationNumber: quilombo.certificacao || '', // Número de certificação
+        latAndLng: `${quilombo.latitude},${quilombo.longitude}` || '', // Latitude e longitude combinados
+        kmAndComplement: quilombo.complemento || '', // Quilômetro e complemento
+      });
+    }
+
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
       setKeyboardIsVisible(true);
     });
@@ -30,7 +41,7 @@ export function UpdQuilombo() {
       keyboardDidShowListener.remove();
       keyboardDidHideListener.remove();
     };
-  }, []);
+  }, [quilombo]);
 
   const handleNextPress = async () => {
     // Verificar se todos os campos obrigatórios foram preenchidos
@@ -38,89 +49,27 @@ export function UpdQuilombo() {
       Alert.alert('Erro', 'Por favor, preencha todos os campos obrigatórios marcados por: *');
       return;
     }
-  
-    // Se todas as verificações passarem, continuar com o envio dos dados
-    const userData = {
-      nome: personalData.name,
-      dataNasc: personalData.birthDate,
-      sexo: personalData.sex,
-      cpf: personalData.cpf,
-      rg: personalData.rg,
-      celular: personalData.cellphone,
-      telefone: personalData.phone || '',
-      email: personalData.email,
-      senha: personalData.senha,
-    };
-  
-    const addressDataToSend = {
-      endereco: addressData.street,
-      bairro: addressData.neighborhood,
-      numero: addressData.number,
-      cidade: addressData.city,
-      uf: addressData.state,
-      complemento: addressData.complement || ''
-    };
-
-    const quilomboDataToSend = {
-      name: quilomboData.name,
-      certificationNumber: quilomboData.certificationNumber,
-      latAndLng: quilomboData.latAndLng,
-      kmAndComplement: quilomboData.kmAndComplement,
-    };
 
     try {
-      const userResponse = await fetch(`${API_BASE_URL}/user`, {
-        method: 'POST',
+      const quilomboResponse = await fetch(`${API_BASE_URL}/quilombo/${quilombo.id}`, { // Adicionando o ID do quilombo para atualização correta
+        method: 'PUT', // Usar 'PUT' para atualização
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(userData)
-      });
-  
-      if (!userResponse.ok) {
-        throw new Error(`HTTP error! Status: ${userResponse.status}`);
-      }
-  
-      const userResult = await userResponse.json();
-      const userId = userResult.idUsuario;
-
-      addressDataToSend.idUsuario = userId;
-      quilomboDataToSend.idUsuario = userId;
-      
-      // Envia endereço
-      const addressResponse = await fetch(`${API_BASE_URL}/address`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(addressDataToSend)
-      });
-  
-      if (!addressResponse.ok) {
-        throw new Error(`HTTP error! Status: ${addressResponse.status}`);
-      }
-
-      // Envia quilombo
-      const quilomboResponse = await fetch(`${API_BASE_URL}/quilombo`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(quilomboDataToSend)
+        body: JSON.stringify(quilomboData)
       });
   
       if (!quilomboResponse.ok) {
         throw new Error(`HTTP error! Status: ${quilomboResponse.status}`);
       }
   
-      navigation.navigate('Concluded', { userId }); // Passa o ID do usuário como parâmetro
+      navigation.goBack();
 
     } catch (error) {
       console.error("Erro na promessa:", error);
-      Alert.alert('Erro', 'Ocorreu um erro ao realizar o cadastro.');
+      Alert.alert('Erro', 'Ocorreu um erro ao atualizar os dados do quilombo.');
     }
   };
-  
 
   return (
     <KeyboardAvoidingView
@@ -136,14 +85,15 @@ export function UpdQuilombo() {
           <Image source={require('./../../../assets/quilon.png')} style={styles.backgroundText} />
         </View>
 
-        <Text style={styles.title}>Dados do Quilombo</Text>
+        <Text style={styles.title}>Alteração de dados</Text>
+        <Text style={styles.userType}>Dados do Quilombo</Text>
 
         <Text style={styles.subTitle}>Nome da comunidade</Text>
         <View style={styles.orangeBorder}>
           <TextInput 
             style={styles.input} 
             value={quilomboData.name}
-            onChangeText={text => setQuilomboData({...quilomboData, name: text})}
+            onChangeText={text => setQuilomboData({ ...quilomboData, name: text })}
           />
         </View>
 
@@ -152,7 +102,7 @@ export function UpdQuilombo() {
           <TextInput 
             style={styles.input} 
             value={quilomboData.certificationNumber}
-            onChangeText={text => setQuilomboData({...quilomboData, certificationNumber: text})}
+            onChangeText={text => setQuilomboData({ ...quilomboData, certificationNumber: text })}
           />
         </View>
 
@@ -161,7 +111,7 @@ export function UpdQuilombo() {
           <TextInput 
             style={styles.input} 
             value={quilomboData.latAndLng}
-            onChangeText={text => setQuilomboData({...quilomboData, latAndLng: text})}
+            onChangeText={text => setQuilomboData({ ...quilomboData, latAndLng: text })}
           />
         </View>
 
@@ -170,7 +120,7 @@ export function UpdQuilombo() {
           <TextInput 
             style={styles.input} 
             value={quilomboData.kmAndComplement}
-            onChangeText={text => setQuilomboData({...quilomboData, kmAndComplement: text})}
+            onChangeText={text => setQuilomboData({ ...quilomboData, kmAndComplement: text })}
           />
         </View>
 
@@ -179,7 +129,7 @@ export function UpdQuilombo() {
       {!keyboardIsVisible && (
         <View style={styles.bottomContainer}>
           <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
-            <Text style={styles.ButtonText}>Próximo</Text>
+            <Text style={styles.ButtonText}>Atualizar</Text>
           </TouchableOpacity>
         </View>
       )}

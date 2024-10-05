@@ -2,14 +2,14 @@ import React, { useContext, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, TextInput } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { API_BASE_URL } from './../../../config';
-import { CartContext } from './../../../cartContext';
-import { UserContext } from './../../../UserContext';
+import { API_BASE_URL } from './../../config';
+import { CartContext } from './../../cartContext';
+import { UserContext } from './../../UserContext';
 
 export function MyCart() {
   const navigation = useNavigation();
   const { cart, incrementQuantity, decrementQuantity, removeFromCart } = useContext(CartContext);
-  const { userId } = useContext(UserContext);
+  const { userId, setUserAddressId } = useContext(UserContext); // Adicione a função setUserAddressId
 
   const [address, setAddress] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -31,6 +31,10 @@ export function MyCart() {
         }));
         const userAddress = addresses.find(addr => addr.idUsuario === userId);
 
+        if (userAddress) {
+          setUserAddressId(userAddress.idEndereco); // Armazena o id do endereço no UserContext
+        }
+        
         setAddress(userAddress || null);
         setLoading(false);
       } catch (error) {
@@ -49,9 +53,8 @@ export function MyCart() {
   return (
     <View style={styles.tela}>
       <View style={styles.contentContainer}>
-
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.returnButtonContainer}>
-          <Image source={require('./../../../assets/return.png')} style={styles.returnButton} />
+          <Image source={require('./../../assets/return.png')} style={styles.returnButton} />
         </TouchableOpacity>
 
         <Text style={styles.title}>Meu Carrinho</Text>
@@ -67,7 +70,6 @@ export function MyCart() {
                 <TouchableOpacity key={index} style={styles.products}>
                   <Image source={{ uri: `${API_BASE_URL}/upload/${item.product[0]}/1` }} style={styles.productImage} />
                   <View style={styles.productDetails}>
-
                     <View style={styles.productPrice}>
                       <Text style={StyleSheet.flatten([styles.productTitles, { width: '85%' }])} numberOfLines={1} ellipsizeMode="tail">{item.product[1]}</Text>
                       <TouchableOpacity style={styles.removeButton} onPress={() => removeFromCart(index)}>
@@ -123,13 +125,12 @@ export function MyCart() {
           <Icon name="chevron-right" size={20} color="black" />
         </TouchableOpacity>
 
-
         <View style={styles.totalPriceArea}>
           <Text style={styles.totalPrice}>Total ({cart.length} Itens):</Text>
           <Text style={styles.totalPrice1}>R$ {cart.reduce((acc, item) => acc + item.product[5] * item.quantity, 0).toFixed(2)}</Text>
         </View>
 
-        <TouchableOpacity style={styles.nextButton}>
+        <TouchableOpacity style={styles.nextButton} onPress={() => navigation.navigate('Payment')}>
           <Text style={styles.ButtonText}>Processar encomenda</Text>
           <View style={styles.processIcon}>
             <Icon name="chevron-right" size={18} color="#D86626" />

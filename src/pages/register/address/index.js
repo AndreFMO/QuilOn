@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform, Alert, Keyboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import DotIndicator from './../../../assets/components/DotIndicator'; // Caminho para o componente de indicador de progresso
+import DotIndicator from '../../../assets/components/DotIndicator'; // Caminho para o componente de indicador de progresso
 
 export function Address({ route }) {
   const navigation = useNavigation();

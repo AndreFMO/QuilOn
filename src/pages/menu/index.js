@@ -50,7 +50,7 @@ const Menu = ({ visible, onClose, navigation }) => {
         <View style={styles.divider} />
         <TouchableOpacity style={styles.buttons} onPress={home}>
           <Icon name="home" size={25} color="#fff" style={[styles.icon, styles.homeIcon]}/> 
-          <Text style={styles.menuItem}>Home</Text>
+          <Text style={[styles.menuItem, { marginHorizontal: 15 }]}>Home</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.buttons} onPress={perfil}>
           <Icon name="user" size={24} color="#fff" style={[styles.icon, styles.profileIcon]}/> 

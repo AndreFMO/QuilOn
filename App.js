@@ -6,8 +6,11 @@ import { NavigationContainer } from '@react-navigation/native';
 import { Routes } from './src/routes';
 import { UserProvider } from './src/UserContext';
 import { CartProvider } from './src/cartContext';
+import { LogBox } from 'react-native';
 
 export default function App() {
+  LogBox.ignoreLogs(['Clipboard has been extracted from react-native core']);
+  
   let [fontsLoaded, fontError] = useFonts({
     Poppins_700Bold, Poppins_400Regular,
   });

@@ -3,9 +3,11 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView,
 import { useNavigation } from '@react-navigation/native';
 import { API_BASE_URL } from './../../config';
 import { UserContext } from '../../UserContext';
+import { CartContext } from './../../cartContext';
 
 export function Home() {
   const { userId, username, usersex, setUsername, setUserSex } = useContext(UserContext);
+  const { cart } = useContext(CartContext); 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState('Diversos');
   const [products, setProducts] = useState([]);
@@ -16,7 +18,7 @@ export function Home() {
   useEffect(() => {
     fetchUserDetails();
     fetchProducts();
-  }, [selectedCategory]);
+  }, [selectedCategory, cart, ]);
 
   useEffect(() => {
     fetchRecommendedProducts();
@@ -31,10 +33,10 @@ export function Home() {
         setUsername(firstName);
         setUserSex(data.sexo);
       } else {
-        console.error('Erro ao obter detalhes do usuário:', response.status);
+        //console.error('Erro ao obter detalhes do usuário:', response.status);
       }
     } catch (error) {
-      console.error('Erro ao obter detalhes do usuário:', error);
+      //console.error('Erro ao obter detalhes do usuário:', error);
     }
   };
 
@@ -45,7 +47,7 @@ export function Home() {
       const allProducts = data.products;
 
       let filteredProducts = allProducts;
-  
+
       if (searchQuery) {
         const searchTerm = searchQuery.toLowerCase();
         filteredProducts = allProducts.filter(product => {
@@ -108,24 +110,28 @@ export function Home() {
             conteudoBuscado: searchQuery,
           }),
         });
-        
+  
         if (response.ok) {
           console.log('Busca cadastrada com sucesso!');
+          // Atualize os produtos recomendados após a busca
+          fetchRecommendedProducts();
         } else {
-          //console.error('Erro ao cadastrar busca:', response.status);
+          console.error('Erro ao cadastrar busca:', response.status);
         }
-    
+  
         fetchProducts();
       } catch (error) {
-        //console.error('Erro ao cadastrar busca:', error);
+        console.error('Erro ao cadastrar busca:', error);
       }
     } else {
-      //console.log('A barra de busca está vazia.');
+      console.log('A barra de busca está vazia.');
       fetchProducts();
+      // Também atualize os produtos recomendados se a busca estiver vazia
+      fetchRecommendedProducts();
     }
   };
   
-  
+
   const handleCategoryPress = (category) => {
     if (selectedCategory === category) {
       return;
@@ -149,7 +155,7 @@ export function Home() {
         </Text>
         <View style={styles.searchArea}>
           <View style={styles.searchContainer}>
-            <Image source={require('./../../assets/search-icon.png')} style={styles.searchIcon}/> 
+            <Image source={require('./../../assets/search-icon.png')} style={styles.searchIcon} />
             <TextInput
               style={styles.input}
               onChangeText={setSearchQuery}
@@ -185,7 +191,7 @@ export function Home() {
             <TouchableOpacity 
               style={[styles.categoryButton, selectedCategory === 'Recomendados' && styles.selectedCategoryButton]}
               onPress={() => handleCategoryPress('Recomendados')}>
-              <Text style={[styles.categoryText, selectedCategory === 'Recomendados' &&styles.selectedCategoryText]}>Recomendados</Text>
+              <Text style={[styles.categoryText, selectedCategory === 'Recomendados' && styles.selectedCategoryText]}>Recomendados</Text>
             </TouchableOpacity>
           </ScrollView>
         </View>
@@ -200,7 +206,7 @@ export function Home() {
             <View style={styles.produtosList}>
               {products.map(product => (
                 <TouchableOpacity key={product[0]} style={styles.produto} onPress={() => handleProductPress(product)}>
-                  <Image source={{ uri: `${API_BASE_URL}/upload/${product[0]}/1` }} style={styles.productImage}/>
+                  <Image source={{ uri: `${API_BASE_URL}/upload/${product[0]}/1` }} style={styles.productImage} />
                   <View style={styles.produtosInfo}>
                     <Text style={styles.productText1}>{product[1]}</Text>
                     <Text style={styles.productText2}>{product[2]}</Text>

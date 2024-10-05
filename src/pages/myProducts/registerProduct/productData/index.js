@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform, Alert, Keyboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import RNPickerSelect from 'react-native-picker-select';
-import DotIndicator from './../../../../assets/components/DotIndicator';
+import DotIndicator from '../../../../assets/components/DotIndicator';
 
 export function ProductData({ route }) {
   const navigation = useNavigation();
@@ -61,7 +61,7 @@ export function ProductData({ route }) {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={styles.contentContainer}>
-        <TouchableOpacity onPress={() => navigation.navigate('MyProducts')}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <Image source={require('./../../../../assets/return.png')} style={styles.returnButton} />
         </TouchableOpacity>
         <View style={styles.containerLogo}>

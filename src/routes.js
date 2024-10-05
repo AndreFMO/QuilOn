@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { BackHandler } from 'react-native';
+import { BackHandler, View  } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { Home } from './pages/home';
-import { Map } from './pages/map';
-import { MyProducts } from './pages/myProducts';
-import { MyCart } from './pages/home/myCart';
+
 import { Start } from './pages/start';
 import { Login } from './pages/login';
 import { Personal } from './pages/register/personal';
@@ -14,7 +11,13 @@ import { Address } from './pages/register/address';
 import { Account } from './pages/register/account';
 import { Quilombo } from './pages/register/quilombo';
 import { Concluded } from './pages/register/concluded';
+import { Home } from './pages/home';
 import { ProductDetail } from './pages/home/productDetail';
+import { MyCart } from './pages/myCart';
+import { Payment } from './pages/payment';
+import { Pix } from './pages/payment/pix';
+import { Map } from './pages/map';
+import { MyProducts } from './pages/myProducts';
 import { MyProductDetail } from './pages/myProducts/myProductDetail';
 import { ProductData } from './pages/myProducts/registerProduct/productData';
 import { ProductPreview } from './pages/myProducts/registerProduct/productPreview';
@@ -23,8 +26,8 @@ import { Perfil } from './pages/perfil';
 import { UpdPersonal } from './pages/update/updPersonal';
 import { UpdAddress } from './pages/update/updAddress';
 import { UpdAccount } from './pages/update/updAccount';
+import { UpdQuilombo } from './pages/update/updQuilombo';
 import Menu from './pages/menu'; 
-import { View } from 'react-native';
 
 // Criação das instâncias dos navegadores
 const Tab = createBottomTabNavigator();
@@ -180,6 +183,16 @@ export function Routes() {
         options={{ headerShown: false }}
       />
       <Stack.Screen
+        name="Payment"
+        component={Payment}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Pix"
+        component={Pix}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
         name="MyProductDetail"
         component={MyProductDetail}
         options={{ headerShown: false }}
@@ -217,6 +230,11 @@ export function Routes() {
       <Stack.Screen
         name="UpdAccount"
         component={UpdAccount}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="UpdQuilombo"
+        component={UpdQuilombo}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
