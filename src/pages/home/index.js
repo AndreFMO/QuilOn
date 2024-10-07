@@ -18,11 +18,8 @@ export function Home() {
   useEffect(() => {
     fetchUserDetails();
     fetchProducts();
-  }, [selectedCategory, cart, ]);
-
-  useEffect(() => {
-    fetchRecommendedProducts();
-  }, []);
+    fetchRecommendedProducts(); // Mova isso para o useEffect principal
+  }, [selectedCategory, cart]);
 
   const fetchUserDetails = async () => {
     try {
@@ -94,7 +91,7 @@ export function Home() {
 
   const onRefresh = () => {
     setRefreshing(true);
-    fetchProducts().then(() => setRefreshing(false));
+    Promise.all([fetchProducts(), fetchRecommendedProducts()]).then(() => setRefreshing(false));
   };
 
   const handleSearch = async () => {
@@ -126,12 +123,10 @@ export function Home() {
     } else {
       console.log('A barra de busca está vazia.');
       fetchProducts();
-      // Também atualize os produtos recomendados se a busca estiver vazia
-      fetchRecommendedProducts();
+      fetchRecommendedProducts(); // Atualize os produtos recomendados se a busca estiver vazia
     }
   };
   
-
   const handleCategoryPress = (category) => {
     if (selectedCategory === category) {
       return;
@@ -221,7 +216,6 @@ export function Home() {
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {

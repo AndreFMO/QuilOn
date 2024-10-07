@@ -23,6 +23,8 @@ import { ProductData } from './pages/myProducts/registerProduct/productData';
 import { ProductPreview } from './pages/myProducts/registerProduct/productPreview';
 import { ConcludedProduct } from './pages/myProducts/registerProduct/concludedProduct';
 import { Perfil } from './pages/perfil';
+import { UpdCommunityInformative } from './pages/update/updCommunityInformative';
+import { CommunityPerformance } from './pages/perfil/communityPerformance';
 import { UpdPersonal } from './pages/update/updPersonal';
 import { UpdAddress } from './pages/update/updAddress';
 import { UpdAccount } from './pages/update/updAccount';
@@ -215,6 +217,16 @@ export function Routes() {
       <Stack.Screen
         name="Perfil"
         component={Perfil}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="UpdCommunityInformative"
+        component={UpdCommunityInformative}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="CommunityPerformance"
+        component={CommunityPerformance}
         options={{ headerShown: false }}
       />
       <Stack.Screen

@@ -6,26 +6,43 @@ export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
 
   const addToCart = useCallback((product, quantity) => {
-    if (quantity <= 0) return; // Validação de quantidade
+    if (quantity <= 0) return;
+  
     setCart(prevCart => {
       const existingProductIndex = prevCart.findIndex(item => item.product[0] === product[0]);
+      const totalQuantity = existingProductIndex > -1 ? prevCart[existingProductIndex].quantity + quantity : quantity;
+  
+      if (totalQuantity > product[6]) {
+        return prevCart; // Retorna o carrinho sem modificações se a quantidade total exceder a disponível
+      }
+  
       if (existingProductIndex > -1) {
-        const updatedCart = [...prevCart];
-        updatedCart[existingProductIndex].quantity += quantity;
-        return updatedCart;
+        alert(`O produto "${product[1]}" já está no seu carrinho!`);
+        return prevCart; // Retorna o carrinho sem modificações
       } else {
         return [...prevCart, { product, quantity }];
       }
     });
   }, []);
+  
+  
 
   const incrementQuantity = useCallback((index) => {
     setCart(prevCart => {
       const updatedCart = [...prevCart];
-      updatedCart[index].quantity += 1;
+      const productAvailableQuantity = updatedCart[index].product[6];
+      const currentQuantity = updatedCart[index].quantity;
+  
+      if (currentQuantity < productAvailableQuantity) {
+        updatedCart[index].quantity += 1;
+      } else {
+
+      }
+  
       return updatedCart;
     });
   }, []);
+  
 
   const decrementQuantity = useCallback((index) => {
     setCart(prevCart => {

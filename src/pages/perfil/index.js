@@ -15,12 +15,14 @@ export function Perfil() {
   const [isDropdownOpenPersonal, setIsDropdownOpenPersonal] = useState(false);
   const [isDropdownOpenAddress, setIsDropdownOpenAddress] = useState(false);
   const [isDropdownOpenAccount, setIsDropdownOpenAccount] = useState(false);
-
   const [address, setAddress] = useState(null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [quilombo, setQuilombo] = useState(null);
   const [loadingQuilombo, setLoadingQuilombo] = useState(true);
+  const [salesData, setSalesData] = useState(null);
+  const [monthlySalesData, setMonthlySalesData] = useState(null);
+  const screenWidth = Dimensions.get("window").width;
 
   const fetchAddress = async () => {
     if (userId) {
@@ -88,8 +90,6 @@ export function Perfil() {
     }
   };
 
-  const [salesData, setSalesData] = useState(null);
-
   const fetchSalesData = async () => {
     if (userId) {
       try {
@@ -97,6 +97,7 @@ export function Perfil() {
         if (response.ok) {
           const data = await response.json();
           processSalesData(data);
+          processMonthlySalesData(data);
         } else {
           console.error("Erro ao buscar dados de vendas:", response.status);
         }
@@ -132,65 +133,39 @@ export function Perfil() {
     });
   };
 
-  const renderCommunityPerformance = () => {
-    if (!salesData) {
-      return <Text>Carregando dados de vendas...</Text>;
-    }
+  const processMonthlySalesData = (data) => {
+    const monthlyData = {};
+    const monthlyQuantity = {};
+    const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-    return (
-      <View style={styles.perfil2}>
-        <TouchableOpacity
-          style={styles.infoButton}
-          onPress={() => setIsDropdownOpenAccount(!isDropdownOpenAccount)}
-        >
-          <Text style={styles.tabText}>Performance da Comunidade</Text>
-          <Icon name={isDropdownOpenAccount ? 'caret-down' : 'caret-right'} size={20} color="black" />
-        </TouchableOpacity>
+    data.forEach(item => {
+      const purchaseDate = new Date(item.purchaseDate);
+      const month = monthNames[purchaseDate.getMonth()]; // Nome do mês em português
 
-        {isDropdownOpenAccount && (
-          <TouchableOpacity style={styles.dropdownContent}>
-            <View style={styles.chartContainer}>
-              <Text style={styles.dropdownText}>Gráfico de Vendas</Text>
-              <LineChart
-                data={salesData}
-                width={screenWidth * 0.80} // largura do gráfico
-                height={220}
-                yAxisLabel="R$"
-                chartConfig={{
-                  backgroundColor: '#fff',
-                  backgroundGradientFrom: '#f3f3f3',
-                  backgroundGradientTo: '#fff',
-                  decimalPlaces: 2,
-                  color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
-                  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                  style: {
-                    borderRadius: 16,
-                  },
-                  propsForDots: {
-                    r: '6',
-                    strokeWidth: '2',
-                    stroke: '#ffa726',
-                  },
-                }}
-                bezier
-                style={{
-                  marginVertical: 8,
-                  borderRadius: 16,
-                }}
-              />
-              <Icon
-                name="angle-right"
-                size={30}
-                color="gray"
-                style={styles.overlayIcon} // Adiciona estilo ao ícone
-              />
-            </View>
-          </TouchableOpacity>
-        )}
-      </View>
-    );
+      if (!monthlyData[month]) {
+        monthlyData[month] = 0;
+        monthlyQuantity[month] = 0;
+      }
+
+      monthlyData[month] += item.totalSaleValue;
+      monthlyQuantity[month] += item.quantity;
+    });
+
+    const labels = monthNames; // Ordena os meses em ordem cronológica
+    const salesValues = labels.map(label => monthlyData[label] || 0);
+    const quantityValues = labels.map(label => monthlyQuantity[label] || 0);
+
+    setMonthlySalesData({
+      salesData: {
+        labels,
+        datasets: [{ data: salesValues }]
+      },
+      quantityData: {
+        labels,
+        datasets: [{ data: quantityValues }]
+      }
+    });
   };
-
 
   useFocusEffect(
     useCallback(() => {
@@ -203,7 +178,6 @@ export function Perfil() {
     }, [userId])
   );
   
-
   const calculateAge = (birthDateStr) => {
     const [day, month, year] = birthDateStr.split('/').map(Number);
     const birthDate = new Date(year, month - 1, day);
@@ -367,11 +341,66 @@ export function Perfil() {
       )}
     </View>
   );
-  
-  const screenWidth = Dimensions.get("window").width;
 
+  const renderCommunityPerformance = () => {
+    if (!salesData) {
+      return <Text>Carregando dados de vendas...</Text>;
+    }
 
-  
+    return (
+      <View style={styles.perfil2}>
+        <TouchableOpacity
+          style={styles.infoButton}
+          onPress={() => setIsDropdownOpenAccount(!isDropdownOpenAccount)}
+        >
+          <Text style={styles.tabText}>Performance da Comunidade</Text>
+          <Icon name={isDropdownOpenAccount ? 'caret-down' : 'caret-right'} size={20} color="black" />
+        </TouchableOpacity>
+
+        {isDropdownOpenAccount && (
+          <TouchableOpacity style={styles.dropdownContent} onPress={() => navigation.navigate('CommunityPerformance')}>
+            <View style={styles.chartContainer}>
+            <Text style={[styles.dropdownText, { textAlign: 'center' }]}>Lucro Mensal</Text>
+              <LineChart
+                data={monthlySalesData.salesData}
+                width={screenWidth * 0.87}
+                height={220}
+                yAxisLabel="R$"
+                chartConfig={{
+                  backgroundColor: '#fff',
+                  backgroundGradientFrom: '#f3f3f3',
+                  backgroundGradientTo: '#fff',
+                  decimalPlaces: 0,
+                  color: (opacity = 1) => `grey`, 
+                  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                  style: {
+                    borderRadius: 16,
+                  },
+                  propsForDots: {
+                    r: '4',
+                    strokeWidth: '2',
+                    stroke: '#ffa726',
+                  },
+                  strokeWidth: 1, // Linha mais suave
+                }}
+                bezier
+                style={{
+                  marginVertical: 8,
+                  borderRadius: 16,
+                }}
+              />
+              <Icon
+                name="angle-right"
+                size={30}
+                color="gray"
+                style={styles.overlayIcon} // Adiciona estilo ao ícone
+              />
+            </View>
+          </TouchableOpacity>
+        )}
+      </View>
+    );
+  };
 
   return (
     <KeyboardAvoidingView
@@ -587,5 +616,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 110, 
     right: '1%',
+  },
+  chartContainer: {
+    marginHorizontal: -15,
   },
 });

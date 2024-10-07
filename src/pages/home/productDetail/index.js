@@ -62,6 +62,10 @@ export function ProductDetail({ route }) {
   };
 
   const addToCartAndNavigate = () => {
+    if (quantity > product[6]) {
+      alert(`Não é possível adicionar mais do que ${product[6]} unidades deste produto.`);
+      return;
+    }
     addToCart(product, quantity);
     navigation.navigate('MyCart');
   };
