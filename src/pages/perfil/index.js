@@ -88,15 +88,121 @@ export function Perfil() {
     }
   };
 
+  const [salesData, setSalesData] = useState(null);
+
+  const fetchSalesData = async () => {
+    if (userId) {
+      try {
+        const response = await fetch(`${API_BASE_URL}/vendas/${userId}`);
+        if (response.ok) {
+          const data = await response.json();
+          processSalesData(data);
+        } else {
+          console.error("Erro ao buscar dados de vendas:", response.status);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar dados de vendas:", error);
+      }
+    }
+  };
+
+  const processSalesData = (data) => {
+    const salesByCategory = {};
+
+    data.forEach(item => {
+      const { category, quantity, totalSaleValue } = item;
+
+      if (!salesByCategory[category]) {
+        salesByCategory[category] = { totalQuantity: 0, totalValue: 0 };
+      }
+
+      salesByCategory[category].totalQuantity += quantity;
+      salesByCategory[category].totalValue += totalSaleValue;
+    });
+
+    const labels = Object.keys(salesByCategory);
+    const values = labels.map(label => salesByCategory[label].totalValue);
+
+    setSalesData({
+      labels,
+      datasets: [{
+        data: values,
+        strokeWidth: 2,
+      }]
+    });
+  };
+
+  const renderCommunityPerformance = () => {
+    if (!salesData) {
+      return <Text>Carregando dados de vendas...</Text>;
+    }
+
+    return (
+      <View style={styles.perfil2}>
+        <TouchableOpacity
+          style={styles.infoButton}
+          onPress={() => setIsDropdownOpenAccount(!isDropdownOpenAccount)}
+        >
+          <Text style={styles.tabText}>Performance da Comunidade</Text>
+          <Icon name={isDropdownOpenAccount ? 'caret-down' : 'caret-right'} size={20} color="black" />
+        </TouchableOpacity>
+
+        {isDropdownOpenAccount && (
+          <TouchableOpacity style={styles.dropdownContent}>
+            <View style={styles.chartContainer}>
+              <Text style={styles.dropdownText}>Gráfico de Vendas</Text>
+              <LineChart
+                data={salesData}
+                width={screenWidth * 0.80} // largura do gráfico
+                height={220}
+                yAxisLabel="R$"
+                chartConfig={{
+                  backgroundColor: '#fff',
+                  backgroundGradientFrom: '#f3f3f3',
+                  backgroundGradientTo: '#fff',
+                  decimalPlaces: 2,
+                  color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
+                  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                  style: {
+                    borderRadius: 16,
+                  },
+                  propsForDots: {
+                    r: '6',
+                    strokeWidth: '2',
+                    stroke: '#ffa726',
+                  },
+                }}
+                bezier
+                style={{
+                  marginVertical: 8,
+                  borderRadius: 16,
+                }}
+              />
+              <Icon
+                name="angle-right"
+                size={30}
+                color="gray"
+                style={styles.overlayIcon} // Adiciona estilo ao ícone
+              />
+            </View>
+          </TouchableOpacity>
+        )}
+      </View>
+    );
+  };
+
+
   useFocusEffect(
     useCallback(() => {
       setLoading(true);
       fetchAddress();
       fetchUserData();
       fetchQuilomboData();
+      fetchSalesData();
       setLoading(false);
     }, [userId])
   );
+  
 
   const calculateAge = (birthDateStr) => {
     const [day, month, year] = birthDateStr.split('/').map(Number);
@@ -264,72 +370,8 @@ export function Perfil() {
   
   const screenWidth = Dimensions.get("window").width;
 
-  const renderCommunityPerformance = () => {
-    // Simulação de dados de vendas (substitua isso pelos dados reais que você vai buscar da API)
-    const salesData = {
-      labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
-      datasets: [
-        {
-          data: [450, 560, 780, 900, 850, 990],
-          strokeWidth: 2, // grossura da linha
-        },
-      ],
-    };
 
-    return (
-      <View style={styles.perfil2}>
-        <TouchableOpacity
-          style={styles.infoButton}
-          onPress={() => setIsDropdownOpenAccount(!isDropdownOpenAccount)}
-        >
-          <Text style={styles.tabText}>Performance da Comunidade</Text>
-          <Icon name={isDropdownOpenAccount ? 'caret-down' : 'caret-right'} size={20} color="black" />
-        </TouchableOpacity>
-
-        {isDropdownOpenAccount && (
-          <TouchableOpacity style={styles.dropdownContent}>
-            <View style={styles.chartContainer}>
-              <Text style={styles.dropdownText}>Gráfico de Vendas</Text>
-              <LineChart
-                data={salesData}
-                width={screenWidth * 0.80} // largura do gráfico
-                height={220}
-                yAxisLabel="R$"
-                chartConfig={{
-                  backgroundColor: '#fff',
-                  backgroundGradientFrom: '#f3f3f3',
-                  backgroundGradientTo: '#fff',
-                  decimalPlaces: 2,
-                  color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
-                  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                  style: {
-                    borderRadius: 16,
-                  },
-                  propsForDots: {
-                    r: '6',
-                    strokeWidth: '2',
-                    stroke: '#ffa726',
-                  },
-                }}
-                bezier
-                style={{
-                  marginVertical: 8,
-                  borderRadius: 16,
-                }}
-              />
-              <Icon
-                name="angle-right"
-                size={30}
-                color="gray"
-                style={styles.overlayIcon} // Adiciona estilo ao ícone
-              />
-            </View>
-          </TouchableOpacity>
-        
-        )}
-      </View>
-    );
-  };
+  
 
   return (
     <KeyboardAvoidingView
