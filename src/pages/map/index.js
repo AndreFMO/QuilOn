@@ -37,7 +37,7 @@ export function Map() {
             latitude: parseFloat(quilombo[4].split(',')[0]),
             longitude: parseFloat(quilombo[4].split(',')[1]),
             description: quilombo[5],
-            imageUrl: `${API_BASE_URL}/quilomboImage/${quilombo[0]}`
+            imageUrl: `${API_BASE_URL}/quilomboImage/${quilombo[0]}?t=${new Date().getTime()}`
           }));
           setQuilombos(formattedQuilombos);
         }
