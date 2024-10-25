@@ -1,28 +1,35 @@
 import React, { useContext, useState, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Text, Image, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text, Image, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { UserContext } from './../../UserContext';
 import { API_BASE_URL } from './../../config';
 import { LineChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import axios from 'axios';
 
 export function Perfil() {
   const navigation = useNavigation();
-  const { userId } = useContext(UserContext);
+  const {userId, representante, setQuilomboId} = useContext(UserContext);
   const [userType, setUserType] = useState("Representante Quilombola");
   const [selectedTab, setSelectedTab] = useState('perfil');
   const [isDropdownOpenPersonal, setIsDropdownOpenPersonal] = useState(false);
   const [isDropdownOpenAddress, setIsDropdownOpenAddress] = useState(false);
   const [isDropdownOpenAccount, setIsDropdownOpenAccount] = useState(false);
+  const [isDropdownOpenCommunityInfo, setIsDropdownOpenCommunityInfo] = useState(false);
+  const [isDropdownOpenCommunityInformative, setIsDropdownOpenCommunityInformative] = useState(false);
+  const [isDropdownOpenCommunityPerformance, setIsDropdownOpenCommunityPerformance] = useState(false);
   const [address, setAddress] = useState(null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [quilombo, setQuilombo] = useState(null);
-  const [loadingQuilombo, setLoadingQuilombo] = useState(true);
   const [salesData, setSalesData] = useState(null);
+  const [noSalesAvailable, setNoSalesAvailable] = useState(false);
   const [monthlySalesData, setMonthlySalesData] = useState(null);
   const screenWidth = Dimensions.get("window").width;
+  const [quilomboImage, setQuilomboImage] = useState(null);
+  const [profileImage, setProfileImage] = useState(null);
 
   const fetchAddress = async () => {
     if (userId) {
@@ -59,50 +66,24 @@ export function Perfil() {
     }
   };
 
-  const fetchQuilomboData = async () => {
-    if (userId) {
-      try {
-        const response = await fetch(`${API_BASE_URL}/quilombouser/${userId}`);
-        if (response.ok) {
-          const data = await response.json();
-          if (data && data.quilombo) {
-            const [id, userId, name, certificacao, latitudeLongitude, complemento] = data.quilombo;
-            const [latitude, longitude] = latitudeLongitude.split(",");
-            setQuilombo({
-              id,
-              userId,
-              name,
-              certificacao,
-              latitude,
-              longitude,
-              complemento,
-            });
-          } else {
-            console.error("Quilombo não encontrado");
-            setQuilombo(null);
-          }
-        }
-      } catch (error) {
-        console.error("Erro ao buscar dados do quilombo:", error);
-      } finally {
-        setLoadingQuilombo(false);
-      }
-    }
-  };
-
   const fetchSalesData = async () => {
     if (userId) {
       try {
         const response = await fetch(`${API_BASE_URL}/vendas/${userId}`);
         if (response.ok) {
           const data = await response.json();
-          processSalesData(data);
-          processMonthlySalesData(data);
+          if (data && data.length > 0) {
+            processSalesData(data);
+            processMonthlySalesData(data);
+            setNoSalesAvailable(false);
+          } else {
+            setNoSalesAvailable(true);
+          }
         } else {
-          console.error("Erro ao buscar dados de vendas:", response.status);
+          setNoSalesAvailable(true);
         }
       } catch (error) {
-        console.error("Erro ao buscar dados de vendas:", error);
+        setNoSalesAvailable(true);
       }
     }
   };
@@ -140,7 +121,7 @@ export function Perfil() {
 
     data.forEach(item => {
       const purchaseDate = new Date(item.purchaseDate);
-      const month = monthNames[purchaseDate.getMonth()]; // Nome do mês em português
+      const month = monthNames[purchaseDate.getMonth()]; 
 
       if (!monthlyData[month]) {
         monthlyData[month] = 0;
@@ -151,7 +132,7 @@ export function Perfil() {
       monthlyQuantity[month] += item.quantity;
     });
 
-    const labels = monthNames; // Ordena os meses em ordem cronológica
+    const labels = monthNames; 
     const salesValues = labels.map(label => monthlyData[label] || 0);
     const quantityValues = labels.map(label => monthlyQuantity[label] || 0);
 
@@ -167,15 +148,68 @@ export function Perfil() {
     });
   };
 
+  const fetchUserImage = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/userImage/${userId}`);
+      if (response.ok) {
+        setProfileImage(`${API_BASE_URL}/userImage/${userId}?t=${new Date().getTime()}`);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar a imagem do usuário:', error);
+    }
+  };
+
+  const fetchQuilomboImage = async (quilomboId) => {
+    if (representante === 1) { // Verificação adicional
+      try {
+        const response = await fetch(`${API_BASE_URL}/quilomboImage/${quilomboId}`);
+        if (response.ok) {
+          setQuilomboImage(`${API_BASE_URL}/quilomboImage/${quilomboId}?t=${new Date().getTime()}`);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar a imagem do quilombo:', error);
+      }
+    }
+  };
+
+  const fetchQuilomboData = async () => {
+    if (userId && representante === 1) {
+      try {
+        const response = await fetch(`${API_BASE_URL}/quilombouser/${userId}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.quilombo) {
+            const [id, userId, name, certificacao, latitudeLongitude, complemento] = data.quilombo;
+            const [latitude, longitude] = latitudeLongitude.split(",");
+            setQuilombo({ id, userId, name, certificacao, latitude, longitude, complemento });
+            setQuilomboId(id)        
+            fetchQuilomboImage(id);
+          } else {
+            console.error("Quilombo não encontrado");
+            setQuilombo(null);
+          }
+        }
+      } catch (error) {
+        console.error("Erro ao buscar dados do quilombo:", error);
+      }
+    }
+  };
+
   useFocusEffect(
     useCallback(() => {
-      setLoading(true);
-      fetchAddress();
-      fetchUserData();
-      fetchQuilomboData();
-      fetchSalesData();
-      setLoading(false);
-    }, [userId])
+      const fetchData = async () => {
+        setLoading(true);
+        await fetchUserImage();
+        await fetchAddress();
+        await fetchUserData();
+        await fetchSalesData();
+        if (representante === 1) {
+          await fetchQuilomboData();
+        }
+        setLoading(false);
+      };
+      fetchData();
+    }, [userId, representante]) 
   );
   
   const calculateAge = (birthDateStr) => {
@@ -202,6 +236,52 @@ export function Perfil() {
       : '';
   };
 
+  const pickImage = async (type) => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permissionResult.granted === false) {
+      Alert.alert("Permissão necessária", "É necessário permitir o acesso à galeria para selecionar uma imagem.");
+      return;
+    }
+  
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+  
+    if (!result.canceled) {
+      const uri = result.assets[0].uri;
+      if (type === 'user') {
+        setProfileImage(uri);
+        await uploadImage('userImage', uri);
+      } else if (type === 'quilombo') {
+        setQuilomboImage(uri);
+        await uploadImage('quilomboImage', uri);
+      }
+    }
+  };
+
+  const uploadImage = async (type, uri) => {
+    const formData = new FormData();
+    formData.append('image', {
+        uri,
+        type: 'image/png',
+        name: `${type}_${userId}.png`,
+    });
+
+    try {
+        await axios.post(`${API_BASE_URL}/${type}/${type === 'userImage' ? userId : quilombo?.id}`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        //Alert.alert('Imagem enviada com sucesso');
+
+    } catch (error) {
+        console.error(error);
+        //Alert.alert(`Erro ao enviar a imagem do ${type}.`);
+    }
+};
+
   const renderUserInfo = () => (
     <View style={styles.perfil2}>
       <TouchableOpacity
@@ -210,8 +290,8 @@ export function Perfil() {
       >
         <Text style={styles.tabText}>Dados Pessoais</Text>
         <Icon name={isDropdownOpenPersonal ? 'caret-down' : 'caret-right'} size={20} color="black" />
-      </TouchableOpacity> 
-  
+      </TouchableOpacity>
+
       {isDropdownOpenPersonal && (
         <TouchableOpacity style={styles.dropdownContent} onPress={() => navigation.navigate('UpdPersonal', { user })}>
           <View>
@@ -232,7 +312,7 @@ export function Perfil() {
             </View>
           </View>
           <Icon name="angle-right" size={30} color="gray" />
-        </TouchableOpacity> 
+        </TouchableOpacity>
       )}
     </View>
   );
@@ -294,13 +374,13 @@ export function Perfil() {
     <View style={styles.perfil2}>
       <TouchableOpacity
         style={styles.infoButton}
-        onPress={() => setIsDropdownOpenPersonal(!isDropdownOpenPersonal)}
+        onPress={() => setIsDropdownOpenCommunityInfo(!isDropdownOpenCommunityInfo)}
       >
         <Text style={styles.tabText}>Dados da Comunidade</Text>
-        <Icon name={isDropdownOpenPersonal ? 'caret-down' : 'caret-right'} size={20} color="black" />
+        <Icon name={isDropdownOpenCommunityInfo ? 'caret-down' : 'caret-right'} size={20} color="black" />
       </TouchableOpacity> 
   
-      {isDropdownOpenPersonal && (
+      {isDropdownOpenCommunityInfo && (
         <TouchableOpacity style={styles.dropdownContent} onPress={() => navigation.navigate('UpdQuilombo', { quilombo })}>
           <View>
             <View style={styles.separation}>
@@ -325,42 +405,78 @@ export function Perfil() {
     <View style={styles.perfil2}>
       <TouchableOpacity
         style={styles.infoButton}
-        onPress={() => setIsDropdownOpenAddress(!isDropdownOpenAddress)}
+        onPress={() => setIsDropdownOpenCommunityInformative(!isDropdownOpenCommunityInformative)}
       >
         <Text style={styles.tabText}>Informativo do Quilombo</Text>
-        <Icon name={isDropdownOpenAddress ? 'caret-down' : 'caret-right'} size={20} color="black" />
+        <Icon name={isDropdownOpenCommunityInformative ? 'caret-down' : 'caret-right'} size={20} color="black" />
       </TouchableOpacity> 
   
-      {isDropdownOpenAddress && (
-        <TouchableOpacity style={styles.dropdownContent} onPress={() => navigation.navigate('UpdCommunityInformative', { address, idEndereco: address?.idEndereco })}>
+      {isDropdownOpenCommunityInformative && (
+        <TouchableOpacity style={styles.dropdownContent} onPress={() => {navigation.navigate('UpdCommunityInformative')}}>
           <View style={styles.separation}>
-   
+            <Text style={styles.dropdownText}>Atualizar Informativo</Text>
           </View>
           <Icon name="angle-right" size={30} color="gray" />
         </TouchableOpacity> 
       )}
     </View>
   );
-
+  
   const renderCommunityPerformance = () => {
-    if (!salesData) {
-      return <Text>Carregando dados de vendas...</Text>;
+    if (loading) {
+      return (
+        <View style={styles.perfil2}>
+          <TouchableOpacity
+            style={styles.infoButton}
+            onPress={() => setIsDropdownOpenCommunityPerformance(!isDropdownOpenCommunityPerformance)}
+          >
+            <Text style={styles.tabText}>Performance da Comunidade</Text>
+            <Icon name={isDropdownOpenCommunityPerformance ? 'caret-down' : 'caret-right'} size={20} color="black" />
+          </TouchableOpacity>
+          
+          {isDropdownOpenCommunityPerformance && (
+            <View style={styles.dropdownContent}>
+              <Text style={styles.dropdownText}>Carregando dados de vendas...</Text>
+            </View>
+          )}
+        </View>
+      );
     }
-
+  
+    if (noSalesAvailable) {
+      return (
+        <View style={styles.perfil2}>
+          <TouchableOpacity
+            style={styles.infoButton}
+            onPress={() => setIsDropdownOpenCommunityPerformance(!isDropdownOpenCommunityPerformance)}
+          >
+            <Text style={styles.tabText}>Performance da Comunidade</Text>
+            <Icon name={isDropdownOpenCommunityPerformance ? 'caret-down' : 'caret-right'} size={20} color="black" />
+          </TouchableOpacity>
+  
+          {isDropdownOpenCommunityPerformance && (
+            <View style={styles.dropdownContent}>
+              <Text style={styles.dropdownText}>Nenhuma venda efetuada.</Text>
+            </View>
+          )}
+        </View>
+      );
+    }
+  
     return (
       <View style={styles.perfil2}>
         <TouchableOpacity
           style={styles.infoButton}
-          onPress={() => setIsDropdownOpenAccount(!isDropdownOpenAccount)}
+          onPress={() => setIsDropdownOpenCommunityPerformance(!isDropdownOpenCommunityPerformance)}
         >
           <Text style={styles.tabText}>Performance da Comunidade</Text>
-          <Icon name={isDropdownOpenAccount ? 'caret-down' : 'caret-right'} size={20} color="black" />
+          <Icon name={isDropdownOpenCommunityPerformance ? 'caret-down' : 'caret-right'} size={20} color="black" />
         </TouchableOpacity>
-
-        {isDropdownOpenAccount && (
+  
+        {isDropdownOpenCommunityPerformance && (
           <TouchableOpacity style={styles.dropdownContent} onPress={() => navigation.navigate('CommunityPerformance')}>
             <View style={styles.chartContainer}>
-            <Text style={[styles.dropdownText, { textAlign: 'center' }]}>Lucro Mensal</Text>
+              <Text style={[styles.dropdownText, { textAlign: 'center' }]}>Lucro Mensal</Text>
               <LineChart
                 data={monthlySalesData.salesData}
                 width={screenWidth * 0.87}
@@ -381,7 +497,7 @@ export function Perfil() {
                     strokeWidth: '2',
                     stroke: '#ffa726',
                   },
-                  strokeWidth: 1, // Linha mais suave
+                  strokeWidth: 1, 
                 }}
                 bezier
                 style={{
@@ -393,7 +509,7 @@ export function Perfil() {
                 name="angle-right"
                 size={30}
                 color="gray"
-                style={styles.overlayIcon} // Adiciona estilo ao ícone
+                style={styles.overlayIcon} 
               />
             </View>
           </TouchableOpacity>
@@ -401,6 +517,8 @@ export function Perfil() {
       </View>
     );
   };
+  
+
 
   return (
     <KeyboardAvoidingView
@@ -411,50 +529,58 @@ export function Perfil() {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Image source={require('./../../assets/return.png')} style={styles.returnButton} />
         </TouchableOpacity>
-  
+
+        {representante === 1 && (
         <View style={styles.tabContainer}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.tabButton, selectedTab === 'perfil' && styles.activeTab]}
             onPress={() => setSelectedTab('perfil')}
           >
             <Text style={[styles.tabText, selectedTab === 'perfil' && styles.activeTabText]}>Perfil</Text>
           </TouchableOpacity>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.tabButton, selectedTab === 'comunidade' && styles.activeTab]}
             onPress={() => setSelectedTab('comunidade')}
           >
             <Text style={[styles.tabText, selectedTab === 'comunidade' && styles.activeTabText]}>Comunidade</Text>
           </TouchableOpacity>
         </View>
-  
-        {selectedTab === 'perfil' && ( // Renderizando a aba de Perfil
+        )}
+        {selectedTab === 'perfil' && (
           <View style={styles.tabContent}>
             <View style={styles.perfil1}>
-              <TouchableOpacity style={styles.userIcon}>
-                <Icon name="user" size={50} color="#D86626" /> 
-                <Image source={require('./../../assets/camera.png')} style={styles.cameraIcon} />
-              </TouchableOpacity> 
+              <TouchableOpacity style={styles.userIcon} onPress={() => pickImage('user')}>
+                {profileImage ? (
+                  <Image source={{ uri: profileImage }} style={styles.fullImage} resizeMode="cover" />
+                ) : (
+                  <Icon name="user" size={50} color="#D86626" />
+                )}
+              </TouchableOpacity>
               <Text style={styles.title}>{user?.nome || 'Nome de Usuario'}</Text>
               <Text style={styles.userType}>{userType}</Text>
             </View>
-  
+
             {renderUserInfo()}
             {renderUserAddress()}
             {renderUserAccount()}
           </View>
         )}
-  
-        {selectedTab === 'comunidade' && ( // Renderizando a aba de Comunidade
+
+        {/* Conteúdo da aba 'Comunidade' apenas se o representante for 1 */}
+        {selectedTab === 'comunidade' && representante === 1 && (
           <View style={styles.tabContent}>
             <View style={styles.perfil1}>
-              <TouchableOpacity style={styles.userIconQ}>
-                <Icon name="home" size={90} color="#D86626" /> 
-                <Image source={require('./../../assets/camera.png')} style={styles.cameraIconQ} />
-              </TouchableOpacity> 
+              <TouchableOpacity style={styles.userIconQ} onPress={() => pickImage('quilombo')}>
+                {quilomboImage ? (
+                  <Image source={{ uri: quilomboImage }} style={styles.fullImageQ} resizeMode="cover" />
+                ) : (
+                  <Icon name="home" size={90} color="#D86626" />
+                )}
+              </TouchableOpacity>
               <Text style={styles.title}>{quilombo?.name || 'Nome da Comunidade'}</Text>
               <Text style={styles.userType}>Comunidade Quilombola</Text>
             </View>
-  
+
             {renderCommunityInfo()}
             {renderCommunityInformative()}
             {renderCommunityPerformance()}
@@ -463,10 +589,8 @@ export function Perfil() {
       </ScrollView>
     </KeyboardAvoidingView>
   );
-  
 }
 
-// Estilos
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -479,13 +603,13 @@ const styles = StyleSheet.create({
   },
   returnButton: {
     marginHorizontal: '5%',
+    marginBottom: 20,
     height: 25,
     width: 30,
   },
   tabContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginTop: 20,
     backgroundColor: '#F3F4F6',
     paddingHorizontal: '5%',
   },
@@ -547,6 +671,16 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     resizeMode: 'contain',
+  },
+  fullImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 80,
+  },
+  fullImageQ: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 20,
   },
   cameraIconQ: {
     position: 'absolute',
@@ -620,4 +754,14 @@ const styles = StyleSheet.create({
   chartContainer: {
     marginHorizontal: -15,
   },
+  userImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  quilomboImage: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+  }, 
 });

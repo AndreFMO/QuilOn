@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView, RefreshControl } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { API_BASE_URL } from './../../config';
 import { UserContext } from '../../UserContext';
 import { CartContext } from './../../cartContext';
@@ -15,11 +15,13 @@ export function Home() {
   const [recommendedProducts, setRecommendedProducts] = useState([]);
   const navigation = useNavigation();
 
-  useEffect(() => {
-    fetchUserDetails();
-    fetchProducts();
-    fetchRecommendedProducts(); // Mova isso para o useEffect principal
-  }, [selectedCategory, cart]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserDetails();
+      fetchProducts();
+      fetchRecommendedProducts(); // Atualize os produtos recomendados sempre que a tela for focada
+    }, [selectedCategory, cart])
+  );
 
   const fetchUserDetails = async () => {
     try {
@@ -201,7 +203,7 @@ export function Home() {
             <View style={styles.produtosList}>
               {products.map(product => (
                 <TouchableOpacity key={product[0]} style={styles.produto} onPress={() => handleProductPress(product)}>
-                  <Image source={{ uri: `${API_BASE_URL}/upload/${product[0]}/1` }} style={styles.productImage} />
+                  <Image source={{ uri: `${API_BASE_URL}/productImage/${product[0]}/1` }} style={styles.productImage} />
                   <View style={styles.produtosInfo}>
                     <Text style={styles.productText1}>{product[1]}</Text>
                     <Text style={styles.productText2}>{product[2]}</Text>

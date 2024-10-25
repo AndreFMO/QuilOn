@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
 import { useFonts, Poppins_400Regular, Poppins_700Bold } from '@expo-google-fonts/poppins';
 import { useNavigation } from '@react-navigation/native';
 import { API_BASE_URL } from './../../../config';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 export function MyProductDetail({ route }) {
   const { product } = route.params;
@@ -18,17 +19,34 @@ export function MyProductDetail({ route }) {
 
   const fetchTotalImages = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/upload/${product[0]}/total`);
+      const response = await fetch(`${API_BASE_URL}/productImage/${product[0]}/total`);
       const data = await response.json();
       setTotalImages(data.total_images);
     } catch (error) {
       // console.error('Erro ao obter o número total de imagens:', error);
     }
   };
+
+  const handleDeleteProduct = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/product/${product[0]}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        //Alert.alert('Sucesso', 'Produto excluído com sucesso');
+        navigation.navigate('MyProducts'); // Voltar para a lista de produtos
+      } else {
+        //Alert.alert('Erro', 'Falha ao excluir o produto');
+      }
+    } catch (error) {
+      //Alert.alert('Erro', 'Ocorreu um erro ao excluir o produto');
+    }
+  };
+
   const renderProductImages = () => {
     const images = [];
     for (let i = 1; i <= totalImages; i++) {
-      const imageUrl = `${API_BASE_URL}/upload/${product[0]}/${i}?timestamp=${new Date().getTime()}`;
+      const imageUrl = `${API_BASE_URL}/productImage/${product[0]}/${i}?timestamp=${new Date().getTime()}`;
       images.push(
         <Image key={i} source={{ uri: imageUrl }} style={styles.productImage} />
       );
@@ -60,7 +78,12 @@ export function MyProductDetail({ route }) {
       </ScrollView>
 
       <View style={styles.container}>
-        <Text style={styles.productName}>{product[1]}</Text>
+        <View style={styles.categoryArea}>
+          <Text style={styles.productName}>{product[1]}</Text>
+          <TouchableOpacity style={styles.removeButton} onPress={handleDeleteProduct}>
+            <Icon name="trash" size={24} color="#fff" />
+          </TouchableOpacity>
+        </View>
         <Text style={styles.productTitles}>Tempo de Produção:</Text>
         <Text style={styles.productDescription}>{product[4]}</Text>
         <Text style={styles.productTitles}>Categoria:</Text>
@@ -128,14 +151,27 @@ const styles = StyleSheet.create({
     borderTopEndRadius: 30,
     width: '100%',
     padding: 20,
+    paddingTop: 30,
     paddingLeft: 30,
     marginTop: -30,
     elevation: 20,
   },
+  removeButton: {
+    marginTop: 2,
+    backgroundColor: "#D86626",
+    height: 40,
+    width: 40,
+    alignItems: 'center',
+    borderColor: "#6666",
+    elevation: 5,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    borderRadius: 10,
+    marginLeft: 'auto',
+  },
   productName: {
     fontSize: 22,
     fontFamily: 'Poppins_700Bold',
-    marginTop: 10,
     marginBottom: -5,
   },
   productCategory: {

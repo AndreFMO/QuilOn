@@ -1,11 +1,30 @@
-import React, { useContext } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { API_BASE_URL } from './../../config';
 import { UserContext } from '../../UserContext';
 import { CartContext } from '../../cartContext';
 
 const Menu = ({ visible, onClose, navigation }) => {
   if (!visible) return null;
+
+  const { userId, username, representante, setRepresentante, setUserId, setQuilomboId } = useContext(UserContext);
+  const { clearCart } = useContext(CartContext);
+  const [userImage, setUserImage] = useState(null);
+
+  useEffect(() => {
+    if (userId) {
+      fetch(`${API_BASE_URL}/userImage/${userId}?t=${new Date().getTime()}`)
+        .then(response => {
+          if (response.ok) {
+            return response.url; // Retorna a URL da imagem se estiver disponível
+          }
+          throw new Error('Imagem não encontrada');
+        })
+        .then(imageUrl => setUserImage(imageUrl))
+        .catch(() => setUserImage(null)); // Caso a imagem não exista, seta como null
+    }
+  }, [userId]);
 
   const home = () => {
     onClose();
@@ -22,20 +41,19 @@ const Menu = ({ visible, onClose, navigation }) => {
     navigation.navigate('MyProducts');
   };
 
+  const handleLogout = () => {
+    clearCart();
+    setUserId(0);
+    setRepresentante(0);
+    setQuilomboId(null);
+    onClose();
+    navigation.navigate('Start');
+  };
+
   const handleOverlayClick = (event) => {
     if (event.target === event.currentTarget) {
       onClose();
     }
-  };
-
-  const { setUserId, username } = useContext(UserContext);
-  const { clearCart } = useContext(CartContext); // Utilize o CartContext
-
-  const handleLogout = () => {
-    clearCart(); // Limpa o carrinho
-    setUserId(0);
-    onClose(); // Fecha o menu
-    navigation.navigate('Start');
   };
 
   return (
@@ -43,38 +61,47 @@ const Menu = ({ visible, onClose, navigation }) => {
       <View style={styles.container}>
         <TouchableOpacity style={styles.buttons} onPress={perfil}>
           <View style={styles.userIcon}>
-            <Icon name="user" size={24} color="#D86626" /> 
+            {userImage ? (
+              <Image source={{ uri: userImage }} style={styles.profileImage} />
+            ) : (
+              <Icon name="user" size={24} color="#D86626" />
+            )}
           </View>
           <Text style={styles.menuItem}>{username}</Text>
         </TouchableOpacity>
         <View style={styles.divider} />
         <TouchableOpacity style={styles.buttons} onPress={home}>
-          <Icon name="home" size={25} color="#fff" style={[styles.icon, styles.homeIcon]}/> 
+          <Icon name="home" size={25} color="#fff" style={[styles.icon, styles.homeIcon]} />
           <Text style={[styles.menuItem, { marginHorizontal: 15 }]}>Home</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.buttons} onPress={perfil}>
-          <Icon name="user" size={24} color="#fff" style={[styles.icon, styles.profileIcon]}/> 
+          <Icon name="user" size={24} color="#fff" style={[styles.icon, styles.profileIcon]} />
           <Text style={styles.menuItem}>Perfil</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.buttons}>
-          <Icon name="heart" size={20} color="#fff" style={styles.icon} /> 
+          <Icon name="heart" size={20} color="#fff" style={styles.icon} />
           <Text style={styles.menuItem}>Favoritos</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.buttons} onPress={myProducts}>
-          <Icon name="shopping-bag" size={19} color="#fff" style={styles.icon} />
-          <Text style={styles.menuItem}>Meus Produtos</Text>
-        </TouchableOpacity>
+
+        {/* Mostrar "Meus Produtos" somente se representante for 1 */}
+        {representante === 1 && (
+          <TouchableOpacity style={styles.buttons} onPress={myProducts}>
+            <Icon name="shopping-bag" size={19} color="#fff" style={styles.icon} />
+            <Text style={styles.menuItem}>Meus Produtos</Text>
+          </TouchableOpacity>
+        )}
+
         <View style={styles.divider} />
         <TouchableOpacity style={styles.buttons}>
-          <Icon name="cog" size={22} color="#fff" style={styles.icon} /> 
+          <Icon name="cog" size={22} color="#fff" style={styles.icon} />
           <Text style={styles.menuItem}>Configurações</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.buttons}>
-          <Icon name="bell" size={20} color="#fff" style={styles.icon} /> 
+          <Icon name="bell" size={20} color="#fff" style={styles.icon} />
           <Text style={styles.menuItem}>Notificação</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.buttons}>
-          <Icon name="question-circle" size={22} color="#fff" style={styles.icon} /> 
+          <Icon name="question-circle" size={22} color="#fff" style={styles.icon} />
           <Text style={styles.menuItem}>Ajuda</Text>
         </TouchableOpacity>
         <View style={styles.divider} />
@@ -143,6 +170,11 @@ const styles = StyleSheet.create({
   },
   profileIcon: {
     marginLeft: 11,
+  },
+  profileImage: {
+    width: 55,
+    height: 55,
+    borderRadius: 40,
   },
 });
 

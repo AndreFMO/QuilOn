@@ -14,7 +14,7 @@ export function Account() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [userId, setUserId] = useState(null); // Estado para armazenar o ID do usuário
+  const [userId, setUserId] = useState(null);
   const [keyboardIsVisible, setKeyboardIsVisible] = useState(false);
 
   useEffect(() => {
@@ -139,7 +139,7 @@ export function Account() {
         throw new Error(`HTTP error! Status: ${addressResponse.status}`);
       }
   
-      navigation.navigate('Concluded', { userId }); // Passa o ID do usuário como parâmetro
+      navigation.navigate('Concluded', { userId });
 
     } catch (error) {
       console.error("Erro na promessa:", error);

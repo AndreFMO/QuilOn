@@ -22,7 +22,7 @@ export function ProductDetail({ route }) {
 
   const fetchTotalImages = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/upload/${product[0]}/total`);
+      const response = await fetch(`${API_BASE_URL}/productImage/${product[0]}/total`);
       const data = await response.json();
       setTotalImages(data.total_images);
     } catch (error) {
@@ -33,7 +33,7 @@ export function ProductDetail({ route }) {
   const images = useMemo(() => {
     const imgs = [];
     for (let i = 1; i <= totalImages; i++) {
-      const imageUrl = `${API_BASE_URL}/upload/${product[0]}/${i}?timestamp=${new Date().getTime()}`;
+      const imageUrl = `${API_BASE_URL}/productImage/${product[0]}/${i}?timestamp=${new Date().getTime()}`;
       imgs.push(
         <Image key={i} source={{ uri: imageUrl }} style={styles.productImage} />
       );

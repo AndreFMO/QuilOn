@@ -81,7 +81,7 @@ export function ProductPreview({ route }) {
           type: 'image/png',
         });
 
-        const imageResponse = await fetch(`${API_BASE_URL}/upload/${productId}`, {
+        const imageResponse = await fetch(`${API_BASE_URL}/productImage/${productId}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'multipart/form-data',

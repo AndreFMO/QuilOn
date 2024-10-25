@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native';
+import React, { useState, useEffect } from 'react'; 
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Modal, ScrollView } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { API_BASE_URL } from './../../config';
-import { UserContext } from '../../UserContext';
 
 export function Map() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -14,6 +13,9 @@ export function Map() {
   });
   const [markerCoordinate, setMarkerCoordinate] = useState(null);
   const [quilombos, setQuilombos] = useState([]);
+  const [selectedQuilombo, setSelectedQuilombo] = useState(null);
+  const [informativeData, setInformativeData] = useState(null);
+  const [informativeImages, setInformativeImages] = useState([]);
 
   useEffect(() => {
     fetchQuilombos();
@@ -21,7 +23,12 @@ export function Map() {
 
   const fetchQuilombos = () => {
     fetch(`${API_BASE_URL}/quilombos`)
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Erro ao buscar quilombos: ${response.status}`);
+        }
+        return response.json();
+      })
       .then(data => {
         if (Array.isArray(data.quilombos)) {
           const formattedQuilombos = data.quilombos.map(quilombo => ({
@@ -29,17 +36,29 @@ export function Map() {
             name: quilombo[2],
             latitude: parseFloat(quilombo[4].split(',')[0]),
             longitude: parseFloat(quilombo[4].split(',')[1]),
-            description: quilombo[5]
+            description: quilombo[5],
+            imageUrl: `${API_BASE_URL}/quilomboImage/${quilombo[0]}`
           }));
           setQuilombos(formattedQuilombos);
         }
       })
-      //.catch(error => console.warn(error));
+      .catch(error => {
+        console.error("Erro ao buscar quilombos:", error);
+      });
   };
 
   const handleSearch = () => {
-    fetch(`https://nominatim.openstreetmap.org/search?q=${searchQuery}&format=json`)
-      .then(response => response.json())
+    fetch(`https://nominatim.openstreetmap.org/search?q=${searchQuery}&format=json`, {
+      headers: {
+        'User-Agent': 'SeuNomeApp/1.0'
+      }
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Erro ao buscar localização: ${response.status}`);
+        }
+        return response.json();
+      })
       .then(data => {
         if (data.length > 0) {
           const location = data[0];
@@ -49,15 +68,63 @@ export function Map() {
             latitudeDelta: 0.01,
             longitudeDelta: 0.01,
           });
-          setMarkerCoordinate({latitude: parseFloat(location.lat), longitude: parseFloat(location.lon)});
+          setMarkerCoordinate({ latitude: parseFloat(location.lat), longitude: parseFloat(location.lon) });
+        } else {
+          console.warn("Nenhuma localização encontrada.");
         }
       })
-      //.catch(error => console.warn(error));
+      .catch(error => {
+        console.error("Erro ao buscar localização:", error);
+      });
   };
 
-  const handleMapPress = (event) => {
-    const { coordinate } = event.nativeEvent;
-    setMarkerCoordinate(coordinate);
+  const clearSearch = () => {
+    setSearchQuery(""); // Limpa a barra de busca
+  };
+
+  const fetchInformativeData = (idQuilombo) => {
+    fetch(`${API_BASE_URL}/informative/${idQuilombo}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.population && data.history) {
+          setInformativeData(data);
+          fetchInformativeImages(idQuilombo);
+        } else {
+          setInformativeData(null);
+        }
+      })
+      .catch(error => {
+        setInformativeData(null);
+      });
+  };
+
+  const fetchInformativeImages = (idQuilombo) => {
+    const imagePromises = [1, 2, 3].map(imageIndex => 
+      fetch(`${API_BASE_URL}/informativeImages/${idQuilombo}/${imageIndex}?t=${new Date().getTime()}`)
+        .then(response => {
+          if (response.ok) return response.url;
+          return null;
+        })
+        .catch(error => null)
+    );
+
+    Promise.all(imagePromises)
+      .then(images => {
+        const filteredImages = images.filter(image => image !== null);
+        setInformativeImages(filteredImages);
+      })
+      .catch(error => console.error("Erro ao buscar imagens:", error));
+  };
+
+  const handleMarkerPress = (quilombo) => {
+    setSelectedQuilombo(quilombo);
+    fetchInformativeData(quilombo.id);
+  };
+
+  const closeModal = () => {
+    setSelectedQuilombo(null);
+    setInformativeData(null);
+    setInformativeImages([]);
   };
 
   return (
@@ -65,7 +132,6 @@ export function Map() {
       <MapView
         style={styles.map}
         region={region}
-        onPress={handleMapPress}
       >
         {quilombos && quilombos.map(quilombo => (
           <Marker
@@ -73,7 +139,8 @@ export function Map() {
             coordinate={{latitude: quilombo.latitude, longitude: quilombo.longitude}}
             title={quilombo.name}
             description={quilombo.description}
-            pinColor="#D86626" // Custom color for quilombo markers
+            pinColor="#D86626"
+            onPress={() => handleMarkerPress(quilombo)}
           />
         ))}
         {markerCoordinate && (
@@ -93,13 +160,62 @@ export function Map() {
               onChangeText={setSearchQuery}
               value={searchQuery}
               onSubmitEditing={handleSearch}
+              placeholder=""
             />
           </View>
-          <TouchableOpacity style={styles.userIcon} onPress={handleSearch}>
+          <TouchableOpacity style={styles.userIcon} onPress={clearSearch}>
             <Text style={styles.x}>×</Text>
           </TouchableOpacity>
         </View>
       </View>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={!!selectedQuilombo}
+        onRequestClose={closeModal}
+        onShow={fetchQuilombos}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modal}>
+            {selectedQuilombo?.imageUrl && (
+              <Image
+                source={{ uri: selectedQuilombo.imageUrl }}
+                style={styles.quilomboImage}
+              />
+            )}
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>{selectedQuilombo?.name}</Text>
+              <Text style={styles.description}>{selectedQuilombo?.description}</Text>
+              {informativeData && (
+                <>
+                  <Text style={styles.description}>População: {informativeData.population}</Text>
+                  <View style={styles.divider} />
+                  {informativeImages.length > 0 && (
+                    <View style={styles.imageRow}>
+                      {informativeImages.map((imageUrl, index) => (
+                        <Image
+                          key={index}
+                          source={{ uri: imageUrl }}
+                          style={styles.informativeImage}
+                        />
+                      ))}
+                    </View>
+                  )}
+                  <View style={styles.divider} />
+                  <Text style={styles.modalSubtitle}>História do Quilombo:</Text>
+                  <ScrollView style={styles.scrollView}>
+                    <Text style={styles.description}>{informativeData.history}</Text>
+                  </ScrollView>
+                </>
+              )}
+            </View>
+            <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
+              <Text style={styles.closeButtonText}>Fechar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -118,10 +234,6 @@ const styles = StyleSheet.create({
     left: '5%',
     right: '5%',
     bottom: 20,
-  },
-  title: {
-    fontSize: 22,
-    fontFamily: 'Poppins_700Bold'
   },
   searchArea: {
     flexDirection: 'row',
@@ -165,5 +277,75 @@ const styles = StyleSheet.create({
     fontSize: 32,
     marginTop: -2,
     textAlign: "center",
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modal: {
+    width: '90%',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    elevation: 5,
+  },
+  quilomboImage: {
+    width: '100%',
+    height: 220,
+    resizeMode: 'cover',
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    overflow: 'hidden',
+  },
+  modalContent: {
+    justifyContent: 'center',
+    margin: 25,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontFamily: 'Poppins_700Bold',
+  },
+  divider: {
+    borderBottomColor: '#D9D9D9',
+    borderBottomWidth: 1,
+    marginVertical: 10,
+    elevation: 1,
+  },
+  modalSubtitle: {
+    fontSize: 16,
+    fontFamily: 'Poppins_700Bold',
+    marginTop: 10,
+  },
+  description: {
+    fontSize: 14,
+    color: 'gray',
+    fontFamily: 'Poppins_400Regular',
+  },
+  scrollView: {
+    maxHeight: 150,
+  },
+  closeButton: {
+    backgroundColor: '#D86626',
+    padding: 8,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  closeButtonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontFamily: 'Poppins_700Bold',
+  },
+  imageRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  informativeImage: {
+    width: '28%',
+    height: 80,
+    borderRadius: 8,
+    borderWidth: 0.5,
+    borderColor: '#000',
+    overflow: 'hidden',
   },
 });

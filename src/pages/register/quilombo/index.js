@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform, Keyboard, Alert } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import * as Location from 'expo-location';
 import { API_BASE_URL } from './../../../config';
 
 export function Quilombo() {
   const navigation = useNavigation();
   const route = useRoute();
-
   const { personalData, addressData } = route.params || {};
 
   const [quilomboData, setQuilomboData] = useState({
@@ -26,6 +26,28 @@ export function Quilombo() {
       setKeyboardIsVisible(false);
     });
 
+    // Chamada para obter localização
+    const getLocation = async () => {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          Alert.alert('Erro', 'Permissão para acessar a localização não foi concedida.');
+          return;
+        }
+
+        const location = await Location.getCurrentPositionAsync({});
+        setQuilomboData({
+          ...quilomboData,
+          latAndLng: `${location.coords.latitude},${location.coords.longitude}`
+        });
+      } catch (error) {
+        Alert.alert('Erro', 'Não foi possível obter a localização.');
+        console.error(error);
+      }
+    };
+
+    getLocation();
+
     return () => {
       keyboardDidShowListener.remove();
       keyboardDidHideListener.remove();
@@ -38,7 +60,7 @@ export function Quilombo() {
       Alert.alert('Erro', 'Por favor, preencha todos os campos obrigatórios marcados por: *');
       return;
     }
-  
+
     // Se todas as verificações passarem, continuar com o envio dos dados
     const userData = {
       nome: personalData.name,
@@ -50,8 +72,9 @@ export function Quilombo() {
       telefone: personalData.phone || '',
       email: personalData.email,
       senha: personalData.senha,
+      representante: 1,
     };
-  
+
     const addressDataToSend = {
       endereco: addressData.street,
       bairro: addressData.neighborhood,
@@ -76,17 +99,17 @@ export function Quilombo() {
         },
         body: JSON.stringify(userData)
       });
-  
+
       if (!userResponse.ok) {
         throw new Error(`HTTP error! Status: ${userResponse.status}`);
       }
-  
+
       const userResult = await userResponse.json();
       const userId = userResult.idUsuario;
 
       addressDataToSend.idUsuario = userId;
       quilomboDataToSend.idUsuario = userId;
-      
+
       // Envia endereço
       const addressResponse = await fetch(`${API_BASE_URL}/address`, {
         method: 'POST',
@@ -95,7 +118,7 @@ export function Quilombo() {
         },
         body: JSON.stringify(addressDataToSend)
       });
-  
+
       if (!addressResponse.ok) {
         throw new Error(`HTTP error! Status: ${addressResponse.status}`);
       }
@@ -108,19 +131,18 @@ export function Quilombo() {
         },
         body: JSON.stringify(quilomboDataToSend)
       });
-  
+
       if (!quilomboResponse.ok) {
         throw new Error(`HTTP error! Status: ${quilomboResponse.status}`);
       }
-  
-      navigation.navigate('Concluded', { userId }); // Passa o ID do usuário como parâmetro
+
+      navigation.navigate('Concluded', { userId, representante: 1 });
 
     } catch (error) {
       console.error("Erro na promessa:", error);
       Alert.alert('Erro', 'Ocorreu um erro ao realizar o cadastro.');
     }
   };
-  
 
   return (
     <KeyboardAvoidingView
@@ -153,15 +175,7 @@ export function Quilombo() {
             style={styles.input} 
             value={quilomboData.certificationNumber}
             onChangeText={text => setQuilomboData({...quilomboData, certificationNumber: text})}
-          />
-        </View>
-
-        <Text style={styles.subTitle}>Latitude e Longitude</Text>
-        <View style={styles.orangeBorder}>
-          <TextInput 
-            style={styles.input} 
-            value={quilomboData.latAndLng}
-            onChangeText={text => setQuilomboData({...quilomboData, latAndLng: text})}
+            keyboardType="numeric"
           />
         </View>
 
@@ -173,7 +187,6 @@ export function Quilombo() {
             onChangeText={text => setQuilomboData({...quilomboData, kmAndComplement: text})}
           />
         </View>
-
       </ScrollView>
 
       {!keyboardIsVisible && (

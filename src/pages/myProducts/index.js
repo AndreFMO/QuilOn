@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView, RefreshControl } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { API_BASE_URL } from './../../config';
 import { UserContext } from '../../UserContext';
+import { useCallback } from 'react';
 
 export function MyProducts() {
   const { userId } = useContext(UserContext);
@@ -13,9 +14,17 @@ export function MyProducts() {
   const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation();
 
+  // Fetch products when the selected category changes
   useEffect(() => {
     fetchProducts();
   }, [selectedCategory]);
+
+  // Fetch products when the screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      fetchProducts();
+    }, [])
+  );
 
   const fetchProducts = async () => {
     try {
@@ -43,7 +52,7 @@ export function MyProducts() {
         setProducts(filteredProducts.filter(product => product[2] === selectedCategory));
       }
     } catch (error) {
-      // console.error('Erro ao obter produtos:', error);
+      console.error('Erro ao obter produtos:', error);
     }
   };
 
@@ -130,7 +139,7 @@ export function MyProducts() {
               <View style={styles.produtosList}>
                 {products.map(product => (
                   <TouchableOpacity key={product[0]} style={styles.produto} onPress={() => handleProductPress(product)}>
-                    <Image source={{ uri: `${API_BASE_URL}/upload/${product[0]}/1` }} style={styles.productImage} />
+                    <Image source={{ uri: `${API_BASE_URL}/productImage/${product[0]}/1` }} style={styles.productImage} />
                     <View style={styles.produtosInfo}>
                       <Text style={styles.productText1}>{product[1]}</Text>
                       <Text style={styles.productText2}>{product[2]}</Text>

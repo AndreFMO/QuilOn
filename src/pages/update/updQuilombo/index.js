@@ -11,7 +11,8 @@ export function UpdQuilombo() {
   const [quilomboData, setQuilomboData] = useState({
     name: '',
     certificationNumber: '',
-    latAndLng: '',
+    latitude: '',
+    longitude: '',
     kmAndComplement: '',
   });
 
@@ -19,14 +20,14 @@ export function UpdQuilombo() {
 
   useEffect(() => {
     if (quilombo) {
-      console.log("Dados recebidos no prompt:", quilombo); // Exibir os dados recebidos no console
-
-      // Preencher os dados recebidos nos campos corretos
+      console.log("Dados recebidos no prompt:", quilombo);
+    
       setQuilomboData({
-        name: quilombo.name || '', // Nome da comunidade
-        certificationNumber: quilombo.certificacao || '', // Número de certificação
-        latAndLng: `${quilombo.latitude},${quilombo.longitude}` || '', // Latitude e longitude combinados
-        kmAndComplement: quilombo.complemento || '', // Quilômetro e complemento
+        name: quilombo.name || '',
+        certificationNumber: quilombo.certificacao || '',
+        latitude: quilombo.latitude || '',
+        longitude: quilombo.longitude || '',
+        kmAndComplement: quilombo.complemento || '',
       });
     }
 
@@ -44,19 +45,28 @@ export function UpdQuilombo() {
   }, [quilombo]);
 
   const handleNextPress = async () => {
-    // Verificar se todos os campos obrigatórios foram preenchidos
-    if (!quilomboData.name || !quilomboData.certificationNumber || !quilomboData.latAndLng) {
+    // Verifica se todos os campos estão preenchidos
+    const { name, certificationNumber, latitude, longitude, kmAndComplement } = quilomboData;
+    if (!name || !certificationNumber || !latitude || !longitude || !kmAndComplement) {
       Alert.alert('Erro', 'Por favor, preencha todos os campos obrigatórios marcados por: *');
       return;
     }
 
+    // Cria a string de latitude e longitude no formato esperado
+    const latAndLng = `${latitude},${longitude}`;
+
     try {
-      const quilomboResponse = await fetch(`${API_BASE_URL}/quilombo/${quilombo.id}`, { // Adicionando o ID do quilombo para atualização correta
-        method: 'PUT', // Usar 'PUT' para atualização
+      const quilomboResponse = await fetch(`${API_BASE_URL}/quilombo/${quilombo.id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(quilomboData)
+        body: JSON.stringify({ 
+          name, 
+          certificationNumber, 
+          latAndLng, // Envia a latitude e longitude como uma string
+          kmAndComplement 
+        })
       });
   
       if (!quilomboResponse.ok) {
@@ -64,7 +74,6 @@ export function UpdQuilombo() {
       }
   
       navigation.goBack();
-
     } catch (error) {
       console.error("Erro na promessa:", error);
       Alert.alert('Erro', 'Ocorreu um erro ao atualizar os dados do quilombo.');
@@ -106,12 +115,23 @@ export function UpdQuilombo() {
           />
         </View>
 
-        <Text style={styles.subTitle}>Latitude e Longitude</Text>
+        <Text style={styles.subTitle}>Latitude</Text>
         <View style={styles.orangeBorder}>
           <TextInput 
             style={styles.input} 
-            value={quilomboData.latAndLng}
-            onChangeText={text => setQuilomboData({ ...quilomboData, latAndLng: text })}
+            value={quilomboData.latitude}
+            onChangeText={text => setQuilomboData({ ...quilomboData, latitude: text })}
+            keyboardType="numeric" // Permitir apenas números
+          />
+        </View>
+
+        <Text style={styles.subTitle}>Longitude</Text>
+        <View style={styles.orangeBorder}>
+          <TextInput 
+            style={styles.input} 
+            value={quilomboData.longitude}
+            onChangeText={text => setQuilomboData({ ...quilomboData, longitude: text })}
+            keyboardType="numeric" // Permitir apenas números
           />
         </View>
 
@@ -137,7 +157,6 @@ export function UpdQuilombo() {
   );
 }
 
-// Estilos
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -181,7 +200,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#BF8B6E',
   },
-
   input: {
     height: 30,
     fontSize: 16,
@@ -209,4 +227,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-

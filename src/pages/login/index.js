@@ -6,39 +6,42 @@ import { API_BASE_URL } from './../../config';
 
 export function Login() {
   const navigation = useNavigation();
-  const { setUserId } = useContext(UserContext);
+  const { setUserId, setRepresentante } = useContext(UserContext);
   const [keyboardIsVisible, setKeyboardIsVisible] = useState(false);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    // Enviar os dados de login para a rota de login da API
     fetch(`${API_BASE_URL}/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        email: email.toLowerCase(), // Convertendo para minúsculas
+        email: email,
         password: password,
       }),
     })
     .then(response => {
       if (response.ok) {
-        // Se o login for bem-sucedido, obtenha o ID do usuário e salve-o no contexto
         response.json().then(data => {
           const userId = data.idUsuario;
+          const representante = data.representante; // Recebe o valor de 'representante'
+          
+          // Seta o valor de 'representante' no contexto
+          setRepresentante(representante);
           setUserId(userId);
+          
           navigation.navigate('MainTabNavigator');
         });
       } else {
-        // Se o login falhar, exiba uma mensagem de erro
         Alert.alert('Erro', 'Credenciais inválidas');
       }
     })
     .catch(error => {
-      //console.error('Erro ao fazer login:', error);
+      console.error('Erro ao fazer login:', error);
+      Alert.alert('Erro', 'Ocorreu um erro ao tentar fazer login.');
     });
   };
 
@@ -55,8 +58,6 @@ export function Login() {
         setKeyboardIsVisible(false);
       }
     );
-
-    // Remove os listeners quando o componente for desmontado
     return () => {
       keyboardDidShowListener.remove();
       keyboardDidHideListener.remove();
@@ -85,7 +86,7 @@ export function Login() {
             style={styles.input}
             value={email}
             onChangeText={text => setEmail(text)}
-            autoCapitalize="none" // Desativando a capitalização automática
+            autoCapitalize="none"
           />
         </View>
 

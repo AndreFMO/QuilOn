@@ -1,19 +1,158 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform, Keyboard, Alert } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import React, { useState, useContext, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import * as ImagePicker from 'expo-image-picker';
+import { UserContext } from './../../../UserContext';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import { API_BASE_URL } from './../../../config';
 
 export function UpdCommunityInformative() {
+  const { quilomboId } = useContext(UserContext);
   const navigation = useNavigation();
 
   const [quilomboData, setQuilomboData] = useState({
-    name: '',
-    certificationNumber: '',
-    latAndLng: '',
-    kmAndComplement: '',
+    population: '',
+    history: '',
   });
 
-  const [keyboardIsVisible, setKeyboardIsVisible] = useState(false);
+  const [images, setImages] = useState([null, null, null]);
+
+  const fetchInformativeData = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/informative/${quilomboId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error('Erro ao buscar dados do informativo');
+      }
+  
+      const data = await response.json();
+      if (data) {
+        setQuilomboData({
+          population: data.population !== null ? String(data.population) : '', // Conversão para string
+          history: data.history || '',
+        });
+      }
+    } catch (error) {
+    }
+  };
+
+  // Função para buscar as imagens já cadastradas
+  const fetchImages = async () => {
+    const imagePromises = [1, 2, 3].map(async (index) => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/informativeImages/${quilomboId}/${index}?t=${new Date().getTime()}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          return response.url; // Se a imagem existir, retornamos o URL da imagem
+        } else {
+          return null; // Se a imagem não existir, retornamos `null`
+        }
+      } catch (error) {
+        return null; // Em caso de erro, retornamos `null`
+      }
+    });
+
+    const fetchedImages = await Promise.all(imagePromises);
+    setImages(fetchedImages);
+  };
+
+  useEffect(() => {
+    fetchInformativeData();
+    fetchImages(); // Busca as imagens ao carregar a tela
+  }, []);
+
+  // Função para selecionar uma imagem do dispositivo
+  const pickImage = async (index) => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const updatedImages = [...images];
+      updatedImages[index] = result.assets[0].uri;
+      setImages(updatedImages);
+    }
+  };
+
+  // Função para enviar as imagens
+  const uploadImages = async () => {
+    const formData = new FormData();
+
+    images.forEach((image, index) => {
+      if (image && !image.startsWith('http')) { // Verifica se a imagem foi selecionada e não é a já existente
+        const fileName = `image_${index + 1}.png`;
+        formData.append('images', {
+          uri: image,
+          name: fileName,
+          type: 'image/png',
+        });
+      }
+    });
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/informativeImages/${quilomboId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao carregar as imagens');
+      }
+
+      Alert.alert('Sucesso', 'Imagens carregadas com sucesso');
+    } catch (error) {
+      Alert.alert('Erro', 'Erro ao carregar as imagens');
+    }
+  };
+
+  // Função para enviar os dados do informativo e as imagens
+  const handleSubmit = async () => {
+    const { population, history } = quilomboData;
+
+    try {
+      // Enviar os dados do informativo
+      const response = await fetch(`${API_BASE_URL}/informative`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          idQuilombo: quilomboId,
+          population,
+          history,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Erro ao cadastrar o informativo');
+      }
+
+      // Após enviar o informativo, enviar as imagens
+      await uploadImages();
+
+      Alert.alert('Sucesso', 'Informativo atualizado com sucesso');
+      navigation.goBack();
+    } catch (error) {
+      Alert.alert('Erro', error.message || 'Erro ao cadastrar o informativo');
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -34,14 +173,30 @@ export function UpdCommunityInformative() {
 
         <Text style={styles.subTitle}>População</Text>
         <View style={styles.orangeBorder}>
-          <TextInput 
-            style={styles.input} 
+          <TextInput
+            style={styles.input}
+            value={quilomboData.population}
+            onChangeText={(text) => setQuilomboData({ ...quilomboData, population: text })}
+            keyboardType="numeric"
           />
         </View>
 
-        <Text style={styles.subTitle}>Adicione algumas imagens que repressentem o seu quilombo:</Text>
-
-        {/* Imagens */}
+        <Text style={styles.subTitle}>Adicione algumas imagens que representem o seu quilombo:</Text>
+        <View style={styles.imagesContainer}>
+          {images.map((image, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.imageButton}
+              onPress={() => pickImage(index)}
+            >
+              {image ? (
+                <Image source={{ uri: image }} style={styles.imagePreview} />
+              ) : (
+                <Icon name="upload" size={22} />
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
 
         <Text style={styles.subTitle}>História do Quilombo</Text>
         <View style={[styles.orangeBorder, styles.descriptionContainer]}>
@@ -49,22 +204,21 @@ export function UpdCommunityInformative() {
             style={[styles.input, styles.textArea]}
             multiline={true}
             numberOfLines={4}
+            value={quilomboData.history}
+            onChangeText={(text) => setQuilomboData({ ...quilomboData, history: text })}
           />
         </View>
       </ScrollView>
 
-      {!keyboardIsVisible && (
-        <View style={styles.bottomContainer}>
-          <TouchableOpacity style={styles.nextButton}>
-            <Text style={styles.ButtonText}>Proximo</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+      <View style={styles.bottomContainer}>
+        <TouchableOpacity style={styles.nextButton} onPress={handleSubmit}>
+          <Text style={styles.ButtonText}>Próximo</Text>
+        </TouchableOpacity>
+      </View>
     </KeyboardAvoidingView>
   );
 }
 
-// Estilos
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -108,7 +262,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#BF8B6E',
   },
-
   input: {
     height: 30,
     fontSize: 16,
@@ -140,5 +293,28 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontWeight: 'bold',
   },
+  imagesContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 15,
+  },
+  imageButton: {
+    width: 100,
+    height: 100,
+    backgroundColor: '#D2C6BF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+    borderWidth: 0.5,
+  },
+  imagePreview: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 10,
+  },
+  imageText: {
+    marginTop: 5,
+    fontSize: 12,
+    fontFamily: 'Poppins_400Regular',
+  },
 });
-
