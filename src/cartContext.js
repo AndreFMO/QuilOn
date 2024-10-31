@@ -13,12 +13,12 @@ export const CartProvider = ({ children }) => {
       const totalQuantity = existingProductIndex > -1 ? prevCart[existingProductIndex].quantity + quantity : quantity;
   
       if (totalQuantity > product[6]) {
-        return prevCart; // Retorna o carrinho sem modificações se a quantidade total exceder a disponível
+        return prevCart; 
       }
   
       if (existingProductIndex > -1) {
         alert(`O produto "${product[1]}" já está no seu carrinho!`);
-        return prevCart; // Retorna o carrinho sem modificações
+        return prevCart; 
       } else {
         return [...prevCart, { product, quantity }];
       }

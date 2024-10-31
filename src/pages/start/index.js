@@ -38,10 +38,10 @@ export function Start() {
         <Image source={require('./../../assets/quilon.png')} style={styles.backgroundText}></Image>
         <View style={styles.bottomContainer}>
           <TouchableOpacity style={styles.loginButton} onPress={handleLoginPress}>
-            <Text style={styles.ButtonText}>Login</Text>
+            <Text style={styles.ButtonText}>Entrar</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.signUpButton} onPress={handleSignUpPress}>
-            <Text style={styles.ButtonText}>Sign Up</Text>
+            <Text style={styles.ButtonText}>Cadastrar-se</Text>
           </TouchableOpacity>
         </View>
       </View>

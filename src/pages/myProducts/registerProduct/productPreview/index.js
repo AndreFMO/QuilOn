@@ -11,13 +11,12 @@ export function ProductPreview({ route }) {
   const navigation = useNavigation();
   const { myProductData } = route.params;
   const [images, setImages] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false); // Estado para controlar o carregamento
 
   const categories = ['Acessórios', 'Cestarias', 'Cerâmicas', 'Outros'];
 
-  // Reordenar as categorias para que a recebida seja a primeira
   const reorderedCategories = [myProductData.categoria, ...categories.filter(category => category !== myProductData.categoria)];
 
-  // Função para selecionar uma imagem da galeria
   const pickImage = async () => {
     try {
       const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -38,14 +37,16 @@ export function ProductPreview({ route }) {
         setImages([...images, result.assets[0].uri]);
       }
     } catch (error) {
-      //console.error('Erro ao solicitar permissão:', error);
-      // Trate o erro adequadamente, como exibindo uma mensagem de erro para o usuário
+      // Trate o erro adequadamente
     }
   };
 
   const handleSubmit = async () => {
+    if (isSubmitting) return; // Evitar múltiplos envios
+
+    setIsSubmitting(true); // Definir estado como carregando
+
     try {
-      // Enviar dados do produto para a API
       const productResponse = await fetch(`${API_BASE_URL}/product`, {
         method: 'POST',
         headers: {
@@ -63,13 +64,12 @@ export function ProductPreview({ route }) {
       });
 
       if (!productResponse.ok) {
-        //throw new Error(`Erro HTTP! Status: ${productResponse.status}`);
+        throw new Error(`Erro HTTP! Status: ${productResponse.status}`);
       }
 
       const productData = await productResponse.json();
-      const productId = productData.id; // Supondo que a resposta contenha o ID do produto criado
+      const productId = productData.id;
 
-      // Enviar imagens para a API
       for (let i = 0; i < images.length; i++) {
         let localUri = images[i];
         let filename = localUri.split('/').pop();
@@ -97,7 +97,8 @@ export function ProductPreview({ route }) {
       navigation.navigate('ConcludedProduct');
     } catch (error) {
       Alert.alert('Erro', 'Houve um erro ao cadastrar o produto.');
-      //console.error(error);
+    } finally {
+      setIsSubmitting(false); // Redefinir estado ao finalizar o processo
     }
   };
 
@@ -147,7 +148,11 @@ export function ProductPreview({ route }) {
             <Text style={styles.productDescription}>Valor:</Text>
             <Text style={styles.productPrice}>R$ {myProductData.price}</Text>
           </View>
-          <TouchableOpacity style={styles.nextButton} onPress={handleSubmit}>
+          <TouchableOpacity 
+            style={[styles.nextButton, isSubmitting && { opacity: 0.5 }]} 
+            onPress={handleSubmit} 
+            disabled={isSubmitting} // Desabilitar o botão enquanto está carregando
+          >
             <Text style={styles.ButtonText}>Finalizar</Text>
           </TouchableOpacity>
         </View>

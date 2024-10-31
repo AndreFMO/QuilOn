@@ -16,6 +16,7 @@ export function Account() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [userId, setUserId] = useState(null);
   const [keyboardIsVisible, setKeyboardIsVisible] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);  // Novo estado
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -38,55 +39,52 @@ export function Account() {
   }, []);
 
   const handleNextPress = async () => {
+    // Evitar envio múltiplo
+    if (isSubmitting) return;
+
     // Verificar se as senhas coincidem
     if (password !== confirmPassword) {
       Alert.alert('Erro', 'As senhas não coincidem.');
       return;
     }
+
     // Verificar se a opção de entrar como representante quilombola está marcada
-   if (isChecked) {
-     // Adicionar email e senha aos dados pessoais
-     const personalDataWithCredentials = {
-       ...personalData,
-       email,
-       senha: password
-     };
-     
-     // Passar todos os dados (incluindo email e senha) para a tela Quilombo
-     navigation.navigate('Quilombo', { personalData: personalDataWithCredentials, addressData });
-     return; // Retorna para evitar a execução do restante do código
-   }
- 
+    if (isChecked) {
+      const personalDataWithCredentials = {
+        ...personalData,
+        email,
+        senha: password
+      };
+      navigation.navigate('Quilombo', { personalData: personalDataWithCredentials, addressData });
+      return;
+    }
 
     // Verificar se todos os campos obrigatórios foram preenchidos
     if (!email || !password || !confirmPassword) {
       Alert.alert('Erro', 'Por favor, preencha todos os campos obrigatórios marcados por: *');
       return;
     }
-  
-    // Verificar se os dados pessoais foram preenchidos
+
     for (const key in personalData) {
       if (personalData.hasOwnProperty(key) && personalData[key] === '') {
-        continue; // Ignora os campos vazios
+        continue;
       }
       if (!personalData[key]) {
         Alert.alert('Erro', `O campo ${key} está vazio.`);
         return;
       }
     }
-    
-    // Verificar se os dados de endereço foram preenchidos
+
     for (const key in addressData) {
       if (addressData.hasOwnProperty(key) && addressData[key] === '') {
-        continue; // Ignora os campos vazios
+        continue;
       }
       if (!addressData[key]) {
         Alert.alert('Erro', `O campo ${key} está vazio.`);
         return;
       }
     }
-  
-    // Se todas as verificações passarem, continuar com o envio dos dados
+
     const userData = {
       nome: personalData.name,
       dataNasc: personalData.birthDate,
@@ -95,10 +93,10 @@ export function Account() {
       rg: personalData.rg,
       celular: personalData.cellphone,
       telefone: personalData.phone || '',
-      email: email.toLowerCase(),
+      email: email,
       senha: password,
     };
-  
+
     const addressDataToSend = {
       endereco: addressData.street,
       bairro: addressData.neighborhood,
@@ -107,8 +105,9 @@ export function Account() {
       uf: addressData.state,
       complemento: addressData.complement || ''
     };
-  
+
     try {
+      setIsSubmitting(true); // Bloquear enquanto envia
       const userResponse = await fetch(`${API_BASE_URL}/user`, {
         method: 'POST',
         headers: {
@@ -116,17 +115,17 @@ export function Account() {
         },
         body: JSON.stringify(userData)
       });
-  
+
       if (!userResponse.ok) {
         throw new Error(`HTTP error! Status: ${userResponse.status}`);
       }
-  
+
       const userResult = await userResponse.json();
       const userId = userResult.idUsuario;
-      setUserId(userId); // Atualiza o estado do ID do usuário
+      setUserId(userId);
 
       addressDataToSend.idUsuario = userId;
-  
+
       const addressResponse = await fetch(`${API_BASE_URL}/address`, {
         method: 'POST',
         headers: {
@@ -134,19 +133,20 @@ export function Account() {
         },
         body: JSON.stringify(addressDataToSend)
       });
-  
+
       if (!addressResponse.ok) {
         throw new Error(`HTTP error! Status: ${addressResponse.status}`);
       }
-  
+
       navigation.navigate('Concluded', { userId });
 
     } catch (error) {
       console.error("Erro na promessa:", error);
       Alert.alert('Erro', 'Ocorreu um erro ao realizar o cadastro.');
+    } finally {
+      setIsSubmitting(false); // Liberar após envio
     }
   };
-  
 
   return (
     <KeyboardAvoidingView
@@ -178,10 +178,9 @@ export function Account() {
           <TextInput style={styles.input} value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry />
         </View>
 
-
         <View style={styles.checkboxContainer}>
           <Switch
-            track            trackColor={{ false: "#6666", true: "#D86626" }}
+            trackColor={{ false: "#6666", true: "#D86626" }}
             thumbColor={isChecked ? "#ffffff" : "#ffffff"}
             ios_backgroundColor="#6666"
             onValueChange={() => setIsChecked(!isChecked)}
@@ -194,8 +193,12 @@ export function Account() {
       {!keyboardIsVisible && (
         <View style={styles.bottomContainer}>
           <DotIndicator totalSteps={3} currentStep={2} />
-          <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
-            <Text style={styles.ButtonText}>Próximo</Text>
+          <TouchableOpacity
+            style={[styles.nextButton, isSubmitting && { backgroundColor: '#ccc' }]} // Mudar cor ao submeter
+            onPress={handleNextPress}
+            disabled={isSubmitting} // Desativar botão enquanto submete
+          >
+            <Text style={styles.ButtonText}>{isSubmitting ? 'Enviando...' : 'Próximo'}</Text>
           </TouchableOpacity>
         </View>
       )}

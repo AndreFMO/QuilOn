@@ -26,7 +26,6 @@ export function Quilombo() {
       setKeyboardIsVisible(false);
     });
 
-    // Chamada para obter localização
     const getLocation = async () => {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync();
@@ -61,7 +60,7 @@ export function Quilombo() {
       return;
     }
 
-    // Se todas as verificações passarem, continuar com o envio dos dados
+    // Dados do usuário
     const userData = {
       nome: personalData.name,
       dataNasc: personalData.birthDate,
@@ -75,6 +74,7 @@ export function Quilombo() {
       representante: 1,
     };
 
+    // Dados de endereço
     const addressDataToSend = {
       endereco: addressData.street,
       bairro: addressData.neighborhood,
@@ -84,6 +84,7 @@ export function Quilombo() {
       complemento: addressData.complement || ''
     };
 
+    // Dados do Quilombo
     const quilomboDataToSend = {
       name: quilomboData.name,
       certificationNumber: quilomboData.certificationNumber,
@@ -92,16 +93,17 @@ export function Quilombo() {
     };
 
     try {
+      // Envia dados do usuário
       const userResponse = await fetch(`${API_BASE_URL}/user`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(userData)
+        body: JSON.stringify(userData),
       });
 
       if (!userResponse.ok) {
-        throw new Error(`HTTP error! Status: ${userResponse.status}`);
+        throw new Error(`Erro no cadastro de usuário! Status: ${userResponse.status}`);
       }
 
       const userResult = await userResponse.json();
@@ -110,30 +112,30 @@ export function Quilombo() {
       addressDataToSend.idUsuario = userId;
       quilomboDataToSend.idUsuario = userId;
 
-      // Envia endereço
+      // Envia dados de endereço
       const addressResponse = await fetch(`${API_BASE_URL}/address`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(addressDataToSend)
+        body: JSON.stringify(addressDataToSend),
       });
 
       if (!addressResponse.ok) {
-        throw new Error(`HTTP error! Status: ${addressResponse.status}`);
+        throw new Error(`Erro no cadastro de endereço! Status: ${addressResponse.status}`);
       }
 
-      // Envia quilombo
+      // Envia dados do quilombo
       const quilomboResponse = await fetch(`${API_BASE_URL}/quilombo`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(quilomboDataToSend)
+        body: JSON.stringify(quilomboDataToSend),
       });
 
       if (!quilomboResponse.ok) {
-        throw new Error(`HTTP error! Status: ${quilomboResponse.status}`);
+        throw new Error(`Erro no cadastro do Quilombo! Status: ${quilomboResponse.status}`);
       }
 
       navigation.navigate('Concluded', { userId, representante: 1 });
@@ -160,7 +162,7 @@ export function Quilombo() {
 
         <Text style={styles.title}>Dados do Quilombo</Text>
 
-        <Text style={styles.subTitle}>Nome da comunidade</Text>
+        <Text style={styles.subTitle}>Nome da comunidade<Text style={styles.required}>*</Text></Text>
         <View style={styles.orangeBorder}>
           <TextInput 
             style={styles.input} 
@@ -169,7 +171,7 @@ export function Quilombo() {
           />
         </View>
 
-        <Text style={styles.subTitle}>Número de certificação do Quilombo</Text>
+        <Text style={styles.subTitle}>Número de certificação do Quilombo<Text style={styles.required}>*</Text></Text>
         <View style={styles.orangeBorder}>
           <TextInput 
             style={styles.input} 
@@ -200,7 +202,6 @@ export function Quilombo() {
   );
 }
 
-// Estilos
 const styles = StyleSheet.create({
   container: {
     paddingTop: 25,
@@ -229,11 +230,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_700Bold',
     marginTop: 40,
   },
-  userType: {
-    fontSize: 16,
-    fontFamily: 'Poppins_400Regular',
-    color: "grey",
-  },
   subTitle: {
     fontSize: 16,
     fontFamily: 'Poppins_700Bold',
@@ -244,7 +240,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#BF8B6E',
   },
-
   input: {
     height: 30,
     fontSize: 16,
@@ -270,6 +265,10 @@ const styles = StyleSheet.create({
   ButtonText: {
     color: "#FFF",
     fontWeight: 'bold',
+  },
+  required: {
+    color: 'red',
+    fontSize: 16,
   },
 });
 
