@@ -1,4 +1,3 @@
-// App.js
 import React from 'react';
 import { StatusBar } from 'react-native';
 import { useFonts, Poppins_400Regular, Poppins_700Bold } from '@expo-google-fonts/poppins';
