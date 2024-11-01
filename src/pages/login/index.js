@@ -3,14 +3,15 @@ import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image,
 import { useNavigation } from '@react-navigation/native';
 import { UserContext } from './../../UserContext';
 import { API_BASE_URL } from './../../config';
+import { useTranslation } from 'react-i18next'; // Importando useTranslation
 
 export function Login() {
   const navigation = useNavigation();
   const { setUserId, setRepresentante } = useContext(UserContext);
   const [keyboardIsVisible, setKeyboardIsVisible] = useState(false);
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { t } = useTranslation(); // Obtendo a função de tradução
 
   const handleLogin = () => {
     fetch(`${API_BASE_URL}/login`, {
@@ -27,21 +28,20 @@ export function Login() {
       if (response.ok) {
         response.json().then(data => {
           const userId = data.idUsuario;
-          const representante = data.representante; // Recebe o valor de 'representante'
+          const representante = data.representante;
           
-          // Seta o valor de 'representante' no contexto
           setRepresentante(representante);
           setUserId(userId);
           
           navigation.navigate('MainTabNavigator');
         });
       } else {
-        Alert.alert('Erro', 'Credenciais inválidas');
+        Alert.alert(t('error'), t('invalid_credentials')); // Usando tradução para erro
       }
     })
     .catch(error => {
-      console.error('Erro ao fazer login:', error);
-      Alert.alert('Erro', 'Ocorreu um erro ao tentar fazer login.');
+      console.error('Error logging in:', error);
+      Alert.alert(t('error'), t('login_error')); // Usando tradução para erro
     });
   };
 
@@ -77,10 +77,10 @@ export function Login() {
           <Image source={require('./../../assets/quilon.png')} style={styles.backgroundText} />
         </View>
 
-        <Text style={styles.title}>Faça seu login</Text>
-        <Text style={styles.userType}>Dados da conta</Text>
+        <Text style={styles.title}>{t('login')}</Text>
+        <Text style={styles.userType}>{t('account_data')}</Text>
 
-        <Text style={styles.subTitle}>Email</Text>
+        <Text style={styles.subTitle}>{t('email')}</Text>
         <View style={styles.orangeBorder}>
           <TextInput
             style={styles.input}
@@ -90,7 +90,7 @@ export function Login() {
           />
         </View>
 
-        <Text style={styles.subTitle}>Senha</Text>
+        <Text style={styles.subTitle}>{t('password')}</Text>
         <View style={styles.orangeBorder}>
           <TextInput
             style={styles.input}
@@ -101,13 +101,13 @@ export function Login() {
         </View>
 
         <TouchableOpacity>
-          <Text style={styles.redfSenha}>Esqueci minha senha?</Text>
+          <Text style={styles.redfSenha}>{t('forgot_password')}</Text>
         </TouchableOpacity>
 
         <View style={styles.signupContainer}>
-          <Text style={styles.newHereText}>Novo por aqui?</Text>
+          <Text style={styles.newHereText}>{t('new_here')}</Text>
           <TouchableOpacity style={styles.signupButton}>
-            <Text style={styles.signupButtonText} onPress={() => navigation.navigate('Personal')}>Crie sua conta!</Text>
+            <Text style={styles.signupButtonText} onPress={() => navigation.navigate('Personal')}>{t('create_account')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -116,7 +116,7 @@ export function Login() {
       {!keyboardIsVisible && (
       <View style={styles.bottomContainer}>
         <TouchableOpacity style={styles.nextButton} onPress={handleLogin}>
-          <Text style={styles.ButtonText}>Entrar</Text>
+          <Text style={styles.ButtonText}>{t('login')}</Text>
         </TouchableOpacity>
 
         <View style={styles.orContainer}>
@@ -127,7 +127,7 @@ export function Login() {
 
         <TouchableOpacity style={styles.googleButton}>
           <Image source={require('./../../assets/google.png')} style={styles.googleIcon} />
-          <Text style={styles.googleButtonText}>Continue com Google</Text>
+          <Text style={styles.googleButtonText}>{t('continue_with_google')}</Text>
         </TouchableOpacity>
       </View>
       )}

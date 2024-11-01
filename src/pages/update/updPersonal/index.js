@@ -5,6 +5,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import RNPickerSelect from 'react-native-picker-select';
 import { API_BASE_URL } from './../../../config';
 import { UserContext } from './../../../UserContext';
+import { useTranslation } from 'react-i18next';
 
 export function UpdPersonal() {
   const navigation = useNavigation();
@@ -21,6 +22,7 @@ export function UpdPersonal() {
   const [senha, setSenha] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [keyboardIsVisible, setKeyboardIsVisible] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -133,10 +135,10 @@ export function UpdPersonal() {
           <Image source={require('./../../../assets/quilon.png')} style={styles.backgroundText} />
         </View>
 
-        <Text style={styles.title}>Alteração de dados</Text>
-        <Text style={styles.userType}>Dados do Usuário</Text>
+        <Text style={styles.title}>{t('data_change')}</Text>
+        <Text style={styles.userType}>{t('user_data')}</Text>
 
-        <Text style={styles.subTitle}>Nome<Text style={styles.required}>*</Text></Text>
+        <Text style={styles.subTitle}>{t('name')}<Text style={styles.required}>*</Text></Text>
         <View style={styles.orangeBorder}>
           <TextInput
             style={styles.input}
@@ -147,7 +149,7 @@ export function UpdPersonal() {
 
         <View style={styles.horizontalArea}>
           <View style={styles.contactField}>
-            <Text style={styles.subTitle}>Data de Nascimento<Text style={styles.required}>*</Text></Text>
+            <Text style={styles.subTitle}>{t('birth_date')}<Text style={styles.required}>*</Text></Text>
             <View style={styles.orangeBorder}>
               <TouchableOpacity onPress={() => setShowDatePicker(true)}>
                 <Text style={styles.input}>{birthDate.toLocaleDateString('pt-BR')}</Text>
@@ -163,7 +165,7 @@ export function UpdPersonal() {
             </View>
           </View>
           <View style={styles.contactField}>
-            <Text style={styles.subTitle}>Sexo<Text style={styles.required}>*</Text></Text>
+            <Text style={styles.subTitle}>{t('sex')}<Text style={styles.required}>*</Text></Text>
             <View style={styles.orangeBorder}>
               <RNPickerSelect
                 onValueChange={(value) => setSex(value)}
@@ -201,7 +203,7 @@ export function UpdPersonal() {
           </View>
         </View>
 
-        <Text style={styles.subTitle}>CPF<Text style={styles.required}>*</Text></Text>
+        <Text style={styles.subTitle}>{t('cpf')}<Text style={styles.required}>*</Text></Text>
         <View style={styles.orangeBorder}>
           <TextInput
             style={styles.input}
@@ -211,7 +213,7 @@ export function UpdPersonal() {
           />
         </View>
 
-        <Text style={styles.subTitle}>RG<Text style={styles.required}>*</Text></Text>
+        <Text style={styles.subTitle}>{t('rg')}<Text style={styles.required}>*</Text></Text>
         <View style={styles.orangeBorder}>
           <TextInput
             style={styles.input}
@@ -223,7 +225,7 @@ export function UpdPersonal() {
 
         <View style={styles.horizontalArea}>
           <View style={styles.contactField}>
-            <Text style={styles.subTitle}>Celular<Text style={styles.required}>*</Text></Text>
+            <Text style={styles.subTitle}>{t('cellphone')}<Text style={styles.required}>*</Text></Text>
             <View style={styles.orangeBorder}>
               <TextInput
                 style={styles.input}
@@ -234,7 +236,7 @@ export function UpdPersonal() {
             </View>
           </View>
           <View style={styles.contactField}>
-            <Text style={styles.subTitle}>Telefone</Text>
+            <Text style={styles.subTitle}>{t('phone')}</Text>
             <View style={styles.orangeBorder}>
               <TextInput
                 style={styles.input}
@@ -250,7 +252,7 @@ export function UpdPersonal() {
       {!keyboardIsVisible && (
         <View style={styles.bottomContainer}>
           <TouchableOpacity style={styles.nextButton} onPress={handleUpdatePress}>
-            <Text style={styles.ButtonText}>Atualizar</Text>
+            <Text style={styles.ButtonText}>{t('update')}</Text>
           </TouchableOpacity>
         </View>
       )}

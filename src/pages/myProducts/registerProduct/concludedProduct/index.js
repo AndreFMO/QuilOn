@@ -1,12 +1,12 @@
 // Concluded.js
-import React, { useContext, useEffect } from 'react';
+import React from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Text, Image } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { UserContext } from '../../../../UserContext';
+import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next'; // Importando useTranslation
 
 export function ConcludedProduct() {
   const navigation = useNavigation();
-  const route = useRoute();
+  const { t } = useTranslation(); // Usando useTranslation para tradução
 
   const handleNextPress = () => {
     navigation.navigate('MyProducts');
@@ -17,11 +17,11 @@ export function ConcludedProduct() {
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.containerLogo}>
           <Image source={require('./../../../../assets/check-icon.png')} style={styles.check}></Image>
-          <Text style={styles.subTitle}>Cadastrado com sucesso!</Text>
-          <Text style={styles.description}>O cadastro do seu produto foi realizado com sucesso!</Text>
+          <Text style={styles.subTitle}>{t('registration_successful')}</Text>
+          <Text style={styles.description}>{t('product_registration_success')}</Text>
         </View>
         <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
-          <Text style={styles.ButtonText}>Próximo</Text>
+          <Text style={styles.ButtonText}>{t('next')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>

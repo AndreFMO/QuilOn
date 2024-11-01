@@ -5,6 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { API_BASE_URL } from '../../../../config';
 import { UserContext } from '../../../../UserContext';
+import { useTranslation } from 'react-i18next'; // Importar useTranslation
 
 export function ProductPreview({ route }) {
   const { userId } = useContext(UserContext);
@@ -13,8 +14,8 @@ export function ProductPreview({ route }) {
   const [images, setImages] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false); // Estado para controlar o carregamento
 
-  const categories = ['Acessórios', 'Cestarias', 'Cerâmicas', 'Outros'];
-
+  const { t } = useTranslation();
+  const categories = [t('acessorios'), t('cestaria'), t('ceramica'), t('diversos')]; 
   const reorderedCategories = [myProductData.categoria, ...categories.filter(category => category !== myProductData.categoria)];
 
   const pickImage = async () => {
@@ -22,7 +23,7 @@ export function ProductPreview({ route }) {
       const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
       if (permissionResult.granted === false) {
-        Alert.alert('Permissão necessária', 'Permissão para acessar a galeria é necessária!');
+        Alert.alert(t('permission_required'), t('permission_required'));
         return;
       }
 
@@ -37,7 +38,7 @@ export function ProductPreview({ route }) {
         setImages([...images, result.assets[0].uri]);
       }
     } catch (error) {
-      // Trate o erro adequadamente
+    
     }
   };
 
@@ -64,7 +65,7 @@ export function ProductPreview({ route }) {
       });
 
       if (!productResponse.ok) {
-        throw new Error(`Erro HTTP! Status: ${productResponse.status}`);
+        throw new Error(t('http_error', { status: productResponse.status }));
       }
 
       const productData = await productResponse.json();
@@ -90,13 +91,13 @@ export function ProductPreview({ route }) {
         });
 
         if (!imageResponse.ok) {
-          throw new Error(`Erro HTTP ao enviar imagem! Status: ${imageResponse.status}`);
+          throw new Error(t('image_upload_error', { status: imageResponse.status }));
         }
       }
 
       navigation.navigate('ConcludedProduct');
     } catch (error) {
-      Alert.alert('Erro', 'Houve um erro ao cadastrar o produto.');
+      Alert.alert(t('error'), t('product_registration_error'));
     } finally {
       setIsSubmitting(false); // Redefinir estado ao finalizar o processo
     }
@@ -118,14 +119,14 @@ export function ProductPreview({ route }) {
         ))}
         <TouchableOpacity style={styles.productImage} onPress={pickImage}>
           <Icon name="upload" size={22} />
-          <Text style={styles.productPhoto}>Adicione fotos aqui!</Text>
+          <Text style={styles.productPhoto}>{t('add_photos')}</Text>
         </TouchableOpacity>
       </ScrollView>
       <View style={styles.container}>
         <Text style={styles.productName}>{myProductData.title}</Text>
-        <Text style={styles.productTitles}>Tempo de Produção:</Text>
+        <Text style={styles.productTitles}>{t('production_time')}</Text>
         <Text style={styles.productDescription}>{myProductData.pdtTime}</Text>
-        <Text style={styles.productTitles}>Categoria:</Text>
+        <Text style={styles.productTitles}>{t('category')}</Text>
 
         <View style={styles.categoryArea}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -139,21 +140,21 @@ export function ProductPreview({ route }) {
           </ScrollView>
         </View>
 
-        <Text style={styles.productTitles}>Descrição do Produto</Text>
+        <Text style={styles.productTitles}>{t('product_description')}</Text>
         <Text style={styles.productDescription}>{myProductData.descricao}</Text>
-        <Text style={styles.productQtd}>Quantidade: <Text style={styles.productDescription}>{myProductData.amount}</Text></Text>
+        <Text style={styles.productQtd}>{t('quantity')}: <Text style={styles.productDescription}>{myProductData.amount}</Text></Text>
 
         <View style={styles.priceArea}>
           <View>
-            <Text style={styles.productDescription}>Valor:</Text>
+            <Text style={styles.productDescription}>{t('value')}:</Text>
             <Text style={styles.productPrice}>R$ {myProductData.price}</Text>
           </View>
           <TouchableOpacity 
             style={[styles.nextButton, isSubmitting && { opacity: 0.5 }]} 
             onPress={handleSubmit} 
-            disabled={isSubmitting} // Desabilitar o botão enquanto está carregando
+            disabled={isSubmitting}
           >
-            <Text style={styles.ButtonText}>Finalizar</Text>
+            <Text style={styles.ButtonText}>{t('finish')}</Text>
           </TouchableOpacity>
         </View>
       </View>

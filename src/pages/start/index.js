@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, Text, ImageBackground, Image, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Asset } from 'expo-asset';
+import { useTranslation } from 'react-i18next'; // Importando useTranslation
 
 export function Start() {
   const navigation = useNavigation();
   const [isReady, setIsReady] = useState(false);
+  const { t } = useTranslation(); // Obtendo a função de tradução
 
   useEffect(() => {
     async function loadAssets() {
@@ -38,10 +40,10 @@ export function Start() {
         <Image source={require('./../../assets/quilon.png')} style={styles.backgroundText}></Image>
         <View style={styles.bottomContainer}>
           <TouchableOpacity style={styles.loginButton} onPress={handleLoginPress}>
-            <Text style={styles.ButtonText}>Entrar</Text>
+            <Text style={styles.ButtonText}>{t('login')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.signUpButton} onPress={handleSignUpPress}>
-            <Text style={styles.ButtonText}>Cadastrar-se</Text>
+            <Text style={styles.ButtonText}>{t('sign_up')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -89,7 +91,7 @@ const styles = StyleSheet.create({
     borderColor: "#6666",
     elevation: 5,
   },
-  signUpButton:{
+  signUpButton: {
     width: "100%",
     height: 50,
     alignItems: 'center',

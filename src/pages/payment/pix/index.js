@@ -4,16 +4,17 @@ import { useNavigation } from '@react-navigation/native';
 import { API_BASE_URL } from './../../../config';
 import { UserContext } from './../../../UserContext';
 import { CartContext } from './../../../cartContext';
+import { useTranslation } from 'react-i18next'; // Importando o hook useTranslation
 
 export function Pix({ route }) {
   const navigation = useNavigation();
   const { userId, userAddressId } = useContext(UserContext);
-  const { cart, clearCart } = useContext(CartContext); // Incluindo clearCart
-
-  const { total } = route.params; 
+  const { cart, clearCart } = useContext(CartContext);
+  const { total } = route.params;
 
   const [pixCode, setPixCode] = useState('1234567890123456789012345678901234567890');
   const [keyboardIsVisible, setKeyboardIsVisible] = useState(false);
+  const { t } = useTranslation(); // Usando o hook para traduções
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
@@ -31,7 +32,7 @@ export function Pix({ route }) {
 
   const copyToClipboard = () => {
     Clipboard.setString(pixCode);
-    Alert.alert("Sucesso", "Código PIX copiado!");
+    Alert.alert(t('success'), t('pix_copied')); // Usando tradução
   };
 
   const handleConcludePurchase = async () => {
@@ -61,12 +62,10 @@ export function Pix({ route }) {
       }
 
       const result = await response.json();
-      Alert.alert("Sucesso", "Compra concluída com sucesso!");
+      Alert.alert(t('success'), t('purchase_completed')); 
       
-      // Limpar o carrinho após a compra
       clearCart();
-      
-      // Navegar para a tela inicial
+
       navigation.navigate('Home');
     } catch (error) {
       Alert.alert("Erro", error.message);
@@ -86,14 +85,14 @@ export function Pix({ route }) {
           <Image source={require('./../../../assets/quilon.png')} style={styles.backgroundText} />
         </View>
 
-        <Text style={styles.title}>Pagamento por PIX</Text>
-        <Text style={styles.userType}>Escaneie o QRcode abaixo:</Text>
+        <Text style={styles.title}>{t('pix_payment')}</Text>
+        <Text style={styles.userType}>{t('scan_qrcode')}</Text>
 
         <View style={styles.containerLogo}>
           <Image source={require('./../../../assets/qr-code.png')} style={styles.qrcode} />
         </View>
 
-        <Text style={styles.subTitle}>Pix copia e cola:</Text>
+        <Text style={styles.subTitle}>{t('pix_copy_paste')}</Text>
         <TouchableOpacity onPress={copyToClipboard} style={styles.pixContainer}>
           <TextInput
             style={styles.input}
@@ -108,7 +107,7 @@ export function Pix({ route }) {
       {!keyboardIsVisible && (
         <View style={styles.bottomContainer}>
           <TouchableOpacity style={styles.nextButton} onPress={handleConcludePurchase}>
-            <Text style={styles.ButtonText}>Concluir</Text>
+            <Text style={styles.ButtonText}>{t('conclude')}</Text>
           </TouchableOpacity>
         </View>
       )}

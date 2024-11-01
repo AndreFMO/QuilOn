@@ -3,8 +3,10 @@ import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image,
 import { useNavigation } from '@react-navigation/native';
 import RNPickerSelect from 'react-native-picker-select';
 import DotIndicator from '../../../../assets/components/DotIndicator';
+import { useTranslation } from 'react-i18next'; // Importando o hook
 
 export function ProductData({ route }) {
+  const { t } = useTranslation(); // Usando o hook para tradução
   const navigation = useNavigation();
 
   const [title, setTitle] = useState('');
@@ -39,17 +41,17 @@ export function ProductData({ route }) {
 
   const handleNextPress = () => {
     if (!title || !categoria || !descricao || !pdtTime || !price || !amount) {
-      Alert.alert('Erro', 'Por favor, preencha todos os campos obrigatórios marcados por: *');
+      Alert.alert(t('error'), t('fill_all_fields')); // Usando traduções para mensagens de erro
       return;
     }
   
     const dataToPass = {
-      title: title,
-      categoria: categoria,
-      descricao: descricao,
-      pdtTime: pdtTime,
-      price: price,
-      amount: amount,
+      title,
+      categoria,
+      descricao,
+      pdtTime,
+      price,
+      amount,
     };
     
     navigation.navigate('ProductPreview', { myProductData: dataToPass });
@@ -68,10 +70,10 @@ export function ProductData({ route }) {
           <Image source={require('./../../../../assets/quilon.png')} style={styles.backgroundText} />
         </View>
 
-        <Text style={styles.title}>Cadastre seu produto</Text>
-        <Text style={styles.userType}>Representante quilombola</Text>
+        <Text style={styles.title}>{t('product_registration')}</Text>
+        <Text style={styles.userType}>{t('representative_type')}</Text>
 
-        <Text style={styles.subTitle}>Título<Text style={styles.required}>*</Text></Text>
+        <Text style={styles.subTitle}>{t('title')}<Text style={styles.required}>*</Text></Text>
         <View style={styles.orangeBorder}>
           <TextInput
             style={styles.input}
@@ -80,19 +82,19 @@ export function ProductData({ route }) {
           />
         </View>
 
-        <Text style={styles.subTitle}>Categoria<Text style={styles.required}>*</Text></Text>
+        <Text style={styles.subTitle}>{t('category')}<Text style={styles.required}>*</Text></Text>
         <View style={styles.orangeBorder}>
           <RNPickerSelect
-            onValueChange={(value) => setCategoria(value)}
+            onValueChange={setCategoria}
             placeholder={{
-              label: 'Selecione o a categoria',
+              label: t('select_category'), // Usando tradução
               value: null,
             }}
             items={[
-              { label: 'Acessórios', value: 'Acessórios' },
-              { label: 'Cestarias', value: 'Cestarias' },
-              { label: 'Cerâmicas', value: 'Cerâmicas' },
-              { label: 'Outro', value: 'Outro' },
+              { label: t('accessories'), value: 'Acessórios' }, // Usando tradução
+              { label: t('baskets'), value: 'Cestarias' }, // Usando tradução
+              { label: t('ceramics'), value: 'Cerâmicas' }, // Usando tradução
+              { label: t('other'), value: 'Outro' }, // Usando tradução
             ]}
             style={{
               inputIOS: {
@@ -116,7 +118,7 @@ export function ProductData({ route }) {
           />
         </View>
 
-        <Text style={styles.subTitle}>Descrição<Text style={styles.required}>*</Text></Text>
+        <Text style={styles.subTitle}>{t('description')}<Text style={styles.required}>*</Text></Text>
         <View style={[styles.orangeBorder, styles.descriptionContainer]}>
           <TextInput
             style={[styles.input, styles.textArea]}
@@ -127,21 +129,21 @@ export function ProductData({ route }) {
           />
         </View>
 
-        <Text style={styles.subTitle}>Tempo de Produção<Text style={styles.required}>*</Text></Text>
+        <Text style={styles.subTitle}>{t('production_time')}<Text style={styles.required}>*</Text></Text>
         <View style={styles.orangeBorder}>
           <RNPickerSelect
-            onValueChange={(value) => setPdtTime(value)}
+            onValueChange={setPdtTime}
             placeholder={{
-              label: 'Selecione o prazo',
+              label: t('select_time'), // Usando tradução
               value: null,
             }}
             items={[
-              { label: 'Menos de 1 dia', value: 'Menos de 1 dia' },
-              { label: 'De 1 a 5 dias', value: 'De 1 a 5 dias' },
-              { label: 'De 6 a 10 dias', value: 'De 6 a 10 dias' },
-              { label: 'De 11 a 20 dias', value: 'De 11 a 20 dias' },
-              { label: 'Mais de 20 dias', value: 'Mais de 20 dias' },
-              { label: 'Não se aplica', value: 'Não se aplica' },
+              { label: t('less_than_one_day'), value: 'Menos de 1 dia' }, // Usando tradução
+              { label: t('one_to_five_days'), value: 'De 1 a 5 dias' }, // Usando tradução
+              { label: t('six_to_ten_days'), value: 'De 6 a 10 dias' }, // Usando tradução
+              { label: t('eleven_to_twenty_days'), value: 'De 11 a 20 dias' }, // Usando tradução
+              { label: t('more_than_twenty_days'), value: 'Mais de 20 dias' }, // Usando tradução
+              { label: t('not_applicable'), value: 'Não se aplica' }, // Usando tradução
             ]}
             style={{
               inputIOS: {
@@ -167,7 +169,7 @@ export function ProductData({ route }) {
 
         <View style={styles.horizontalArea}>
           <View style={styles.contactField}>
-            <Text style={styles.subTitle}>Preço<Text style={styles.required}>*</Text></Text>
+            <Text style={styles.subTitle}>{t('price')}<Text style={styles.required}>*</Text></Text>
             <View style={styles.orangeBorder}>
               <TextInput
                 style={styles.input}
@@ -178,7 +180,7 @@ export function ProductData({ route }) {
             </View>
           </View>
           <View style={styles.contactField}>
-            <Text style={styles.subTitle}>Quantidade<Text style={styles.required}>*</Text></Text>
+            <Text style={styles.subTitle}>{t('quantity')}<Text style={styles.required}>*</Text></Text>
             <View style={styles.orangeBorder}>
               <TextInput
                 style={styles.input}
@@ -195,7 +197,7 @@ export function ProductData({ route }) {
         <View style={styles.bottomContainer}>
           <DotIndicator totalSteps={2} currentStep={0} />
           <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
-            <Text style={styles.ButtonText}>Próximo</Text>
+            <Text style={styles.ButtonText}>{t('next')}</Text>
           </TouchableOpacity>
         </View>
       )}

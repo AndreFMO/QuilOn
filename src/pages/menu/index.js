@@ -4,6 +4,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { API_BASE_URL } from './../../config';
 import { UserContext } from '../../UserContext';
 import { CartContext } from '../../cartContext';
+import { useTranslation } from 'react-i18next';
 
 const Menu = ({ visible, onClose, navigation }) => {
   if (!visible) return null;
@@ -11,6 +12,12 @@ const Menu = ({ visible, onClose, navigation }) => {
   const { userId, username, representante, setRepresentante, setUserId, setQuilomboId } = useContext(UserContext);
   const { clearCart } = useContext(CartContext);
   const [userImage, setUserImage] = useState(null);
+
+  const { t, i18n } = useTranslation();
+  const toggleLanguage = () => {
+    const newLanguage = i18n.language === 'pt' ? 'en' : 'pt';
+    i18n.changeLanguage(newLanguage);
+  };
 
   useEffect(() => {
     if (userId) {
@@ -72,42 +79,41 @@ const Menu = ({ visible, onClose, navigation }) => {
         <View style={styles.divider} />
         <TouchableOpacity style={styles.buttons} onPress={home}>
           <Icon name="home" size={25} color="#fff" style={[styles.icon, styles.homeIcon]} />
-          <Text style={[styles.menuItem, { marginHorizontal: 15 }]}>Início</Text>
+          <Text style={[styles.menuItem, { marginHorizontal: 15 }]}>{t('home')}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.buttons} onPress={perfil}>
           <Icon name="user" size={24} color="#fff" style={[styles.icon, styles.profileIcon]} />
-          <Text style={styles.menuItem}>Perfil</Text>
+          <Text style={styles.menuItem}>{t('profile')}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.buttons}>
           <Icon name="heart" size={20} color="#fff" style={styles.icon} />
-          <Text style={styles.menuItem}>Favoritos</Text>
+          <Text style={styles.menuItem}>{t('favorites')}</Text>
         </TouchableOpacity>
 
-        {/* Mostrar "Meus Produtos" somente se representante for 1 */}
         {representante === 1 && (
           <TouchableOpacity style={styles.buttons} onPress={myProducts}>
             <Icon name="shopping-bag" size={19} color="#fff" style={styles.icon} />
-            <Text style={styles.menuItem}>Meus Produtos</Text>
+            <Text style={styles.menuItem}>{t('my_products')}</Text>
           </TouchableOpacity>
         )}
 
         <View style={styles.divider} />
-        <TouchableOpacity style={styles.buttons}>
+        <TouchableOpacity style={styles.buttons} onPress={toggleLanguage}>
           <Icon name="cog" size={22} color="#fff" style={styles.icon} />
-          <Text style={styles.menuItem}>Configurações</Text>
+          <Text style={styles.menuItem}>{i18n.language === 'pt' ? 'English' : 'Português'}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.buttons}>
           <Icon name="bell" size={20} color="#fff" style={styles.icon} />
-          <Text style={styles.menuItem}>Notificação</Text>
+          <Text style={styles.menuItem}>{t('notifications')}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.buttons}>
           <Icon name="question-circle" size={22} color="#fff" style={styles.icon} />
-          <Text style={styles.menuItem}>Ajuda</Text>
+          <Text style={styles.menuItem}>{t('help')}</Text>
         </TouchableOpacity>
         <View style={styles.divider} />
         <TouchableOpacity style={styles.buttons} onPress={handleLogout}>
           <Icon name="sign-out" size={24} color="#fff" style={styles.icon} />
-          <Text style={styles.menuItem}>Sair da Conta</Text>
+          <Text style={styles.menuItem}>{t('logout')}</Text>
         </TouchableOpacity>
       </View>
     </View>

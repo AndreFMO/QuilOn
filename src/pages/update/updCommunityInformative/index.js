@@ -5,10 +5,12 @@ import * as ImagePicker from 'expo-image-picker';
 import { UserContext } from './../../../UserContext';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { API_BASE_URL } from './../../../config';
+import { useTranslation } from 'react-i18next';
 
 export function UpdCommunityInformative() {
   const { quilomboId } = useContext(UserContext);
   const navigation = useNavigation();
+  const { t } = useTranslation();
 
   const [quilomboData, setQuilomboData] = useState({
     population: '',
@@ -168,10 +170,10 @@ export function UpdCommunityInformative() {
           <Image source={require('./../../../assets/quilon.png')} style={styles.backgroundText} />
         </View>
 
-        <Text style={styles.title}>Informativo do Quilombo</Text>
-        <Text style={styles.userType}>Insira alguns dados adicionais da sua comunidade</Text>
+        <Text style={styles.title}>{t('quilombo_newsletter')}</Text>
+        <Text style={styles.userType}>{t('more_details')}</Text>
 
-        <Text style={styles.subTitle}>População</Text>
+        <Text style={styles.subTitle}>{t('population')}</Text>
         <View style={styles.orangeBorder}>
           <TextInput
             style={styles.input}
@@ -181,7 +183,7 @@ export function UpdCommunityInformative() {
           />
         </View>
 
-        <Text style={styles.subTitle}>Adicione algumas imagens que representem o seu quilombo:</Text>
+        <Text style={styles.subTitle}>{t('quilombo_images')}</Text>
         <View style={styles.imagesContainer}>
           {images.map((image, index) => (
             <TouchableOpacity
@@ -198,7 +200,7 @@ export function UpdCommunityInformative() {
           ))}
         </View>
 
-        <Text style={styles.subTitle}>História do Quilombo</Text>
+        <Text style={styles.subTitle}>{t('quilombo_history')}</Text>
         <View style={[styles.orangeBorder, styles.descriptionContainer]}>
           <TextInput
             style={[styles.input, styles.textArea]}

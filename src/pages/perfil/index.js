@@ -6,13 +6,13 @@ import { UserContext } from './../../UserContext';
 import { API_BASE_URL } from './../../config';
 import { LineChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 
 export function Perfil() {
   const navigation = useNavigation();
   const {userId, representante, setQuilomboId} = useContext(UserContext);
-  const [userType, setUserType] = useState("Representante Quilombola");
   const [selectedTab, setSelectedTab] = useState('perfil');
   const [isDropdownOpenPersonal, setIsDropdownOpenPersonal] = useState(false);
   const [isDropdownOpenAddress, setIsDropdownOpenAddress] = useState(false);
@@ -30,6 +30,7 @@ export function Perfil() {
   const screenWidth = Dimensions.get("window").width;
   const [quilomboImage, setQuilomboImage] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
+  const { t } = useTranslation();
 
   const fetchAddress = async () => {
     if (userId) {
@@ -117,25 +118,40 @@ export function Perfil() {
   const processMonthlySalesData = (data) => {
     const monthlyData = {};
     const monthlyQuantity = {};
-    const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-
+    
+    // Obtemos os nomes dos meses traduzidos
+    const monthNames = [
+      t('month_jan'), 
+      t('month_feb'), 
+      t('month_mar'), 
+      t('month_apr'), 
+      t('month_may'), 
+      t('month_jun'), 
+      t('month_jul'), 
+      t('month_aug'), 
+      t('month_sep'), 
+      t('month_oct'), 
+      t('month_nov'), 
+      t('month_dec')
+    ];
+  
     data.forEach(item => {
       const purchaseDate = new Date(item.purchaseDate);
       const month = monthNames[purchaseDate.getMonth()]; 
-
+  
       if (!monthlyData[month]) {
         monthlyData[month] = 0;
         monthlyQuantity[month] = 0;
       }
-
+  
       monthlyData[month] += item.totalSaleValue;
       monthlyQuantity[month] += item.quantity;
     });
-
+  
     const labels = monthNames; 
     const salesValues = labels.map(label => monthlyData[label] || 0);
     const quantityValues = labels.map(label => monthlyQuantity[label] || 0);
-
+  
     setMonthlySalesData({
       salesData: {
         labels,
@@ -146,7 +162,7 @@ export function Perfil() {
         datasets: [{ data: quantityValues }]
       }
     });
-  };
+  };  
 
   const fetchUserImage = async () => {
     try {
@@ -288,7 +304,7 @@ export function Perfil() {
         style={styles.infoButton}
         onPress={() => setIsDropdownOpenPersonal(!isDropdownOpenPersonal)}
       >
-        <Text style={styles.tabText}>Dados Pessoais</Text>
+        <Text style={styles.tabText}>{t('personal_data')}</Text>
         <Icon name={isDropdownOpenPersonal ? 'caret-down' : 'caret-right'} size={20} color="black" />
       </TouchableOpacity>
 
@@ -297,18 +313,18 @@ export function Perfil() {
           <View>
             <View style={styles.separation}>
               <View style={styles.username}>
-                <Text style={styles.dropdownText}>{user?.nome || 'Nome'}</Text>
-                <Text style={styles.dropdownText}>{user?.dataNasc ? `${calculateAge(user.dataNasc)} anos` : 'Data de nascimento não disponível'}</Text>
+                <Text style={styles.dropdownText}>{user?.nome || t('name')}</Text>
+                <Text style={styles.dropdownText}>{user?.dataNasc ? `${calculateAge(user.dataNasc)} ${t('years')}` : t('birth_date_not_available')}</Text> 
               </View>
-              <Text style={styles.dropdownText}>Sexo: {user?.sexo}</Text>
+              <Text style={styles.dropdownText}>{t('sex')}: {user?.sexo}</Text>
             </View>
             <View style={styles.separation}>
-              <Text style={styles.dropdownText}>CPF: {user?.cpf ? formatCPF(user.cpf) : 'Não disponível'}</Text>
-              <Text style={styles.dropdownText}>RG: {user?.rg ? formatRG(user.rg) : 'Não disponível'}</Text>
+              <Text style={styles.dropdownText}>{t('cpf')}: {user?.cpf ? formatCPF(user.cpf) : t('not_available')}</Text>
+              <Text style={styles.dropdownText}>{t('rg')}: {user?.rg ? formatRG(user.rg) : t('not_available')}</Text>
             </View>
             <View style={styles.separation}>
-              <Text style={styles.dropdownText}>Celular: {user?.celular || 'Não disponível'}</Text>
-              <Text style={styles.dropdownText}>Telefone: {user?.telefone || 'Não disponível'}</Text>
+              <Text style={styles.dropdownText}>{t('cellphone')}: {user?.celular || t('not_available')}</Text>
+              <Text style={styles.dropdownText}>{t('phone')}: {user?.telefone || t('not_available')}</Text>
             </View>
           </View>
           <Icon name="angle-right" size={30} color="gray" />
@@ -316,45 +332,49 @@ export function Perfil() {
       )}
     </View>
   );
-  
+    
   const renderUserAddress = () => (
     <View style={styles.perfil2}>
       <TouchableOpacity
         style={styles.infoButton}
         onPress={() => setIsDropdownOpenAddress(!isDropdownOpenAddress)}
       >
-        <Text style={styles.tabText}>Endereço do Usuário</Text>
+        <Text style={styles.tabText}>{t('address_user')}</Text> 
         <Icon name={isDropdownOpenAddress ? 'caret-down' : 'caret-right'} size={20} color="black" />
-      </TouchableOpacity> 
-  
+      </TouchableOpacity>
+
       {isDropdownOpenAddress && (
         <TouchableOpacity style={styles.dropdownContent} onPress={() => navigation.navigate('UpdAddress', { address, idEndereco: address?.idEndereco })}>
           <View style={styles.separation}>
             {loading ? (
-              <Text style={styles.dropdownText}>Carregando...</Text>
+              <Text style={styles.dropdownText}>{t('loading')}</Text> 
             ) : address ? (
               <>
-                <Text style={styles.dropdownText}>{address.endereco}, nº {address.numero}, {address.bairro}</Text>
-                <Text style={styles.dropdownText}>{address.cidade}-{address.uf}</Text>
+                <Text style={styles.dropdownText}>
+                  {`${address.endereco}, nº ${address.numero}, ${address.bairro}`}
+                </Text>
+                <Text style={styles.dropdownText}>
+                  {`${address.cidade}-${address.uf}`}
+                </Text>
                 {address.complemento && <Text style={styles.dropdownText}>{address.complemento}</Text>}
               </>
             ) : (
-              <Text style={styles.dropdownText}>Endereço não encontrado</Text>
+              <Text style={styles.dropdownText}>{t('address_not_found')}</Text> 
             )}
           </View>
           <Icon name="angle-right" size={30} color="gray" />
-        </TouchableOpacity> 
+        </TouchableOpacity>
       )}
     </View>
   );
-  
+
   const renderUserAccount = () => (
     <View style={styles.perfil2}>
       <TouchableOpacity
         style={styles.infoButton}
         onPress={() => setIsDropdownOpenAccount(!isDropdownOpenAccount)}
       >
-        <Text style={styles.tabText}>Conta</Text>
+        <Text style={styles.tabText}>{t('account')}</Text>
         <Icon name={isDropdownOpenAccount ? 'caret-down' : 'caret-right'} size={20} color="black" />
       </TouchableOpacity> 
   
@@ -376,7 +396,7 @@ export function Perfil() {
         style={styles.infoButton}
         onPress={() => setIsDropdownOpenCommunityInfo(!isDropdownOpenCommunityInfo)}
       >
-        <Text style={styles.tabText}>Dados da Comunidade</Text>
+        <Text style={styles.tabText}>{t("community_data")}</Text>
         <Icon name={isDropdownOpenCommunityInfo ? 'caret-down' : 'caret-right'} size={20} color="black" />
       </TouchableOpacity> 
   
@@ -384,15 +404,15 @@ export function Perfil() {
         <TouchableOpacity style={styles.dropdownContent} onPress={() => navigation.navigate('UpdQuilombo', { quilombo })}>
           <View>
             <View style={styles.separation}>
-              <Text style={styles.dropdownText}>Nome da Comunidade: {quilombo?.name || 'Nome não disponível'}</Text>
-              <Text style={styles.dropdownText}>Certificação Quilombola: {quilombo?.certificacao || 'Não disponível'}</Text>
+              <Text style={styles.dropdownText}>{t("community_name")}: {quilombo?.name || 'Nome não disponível'}</Text>
+              <Text style={styles.dropdownText}>{t("certification_number")}: {quilombo?.certificacao || 'Não disponível'}</Text>
             </View>
             <View style={styles.separation}>
               <Text style={styles.dropdownText}>Latitude: {quilombo?.latitude || 'Não disponível'}</Text>
               <Text style={styles.dropdownText}>Longitude: {quilombo?.longitude || 'Não disponível'}</Text>
             </View>
             <View style={styles.separation}>
-              <Text style={styles.dropdownText}>Complemento: {quilombo?.complemento || 'Não disponível'}</Text>
+              <Text style={styles.dropdownText}>{t("complement")}: {quilombo?.complemento || 'Não disponível'}</Text>
             </View>
           </View>
           <Icon name="angle-right" size={30} color="gray" />
@@ -407,14 +427,14 @@ export function Perfil() {
         style={styles.infoButton}
         onPress={() => setIsDropdownOpenCommunityInformative(!isDropdownOpenCommunityInformative)}
       >
-        <Text style={styles.tabText}>Informativo do Quilombo</Text>
+        <Text style={styles.tabText}>{t("quilombo_newsletter")}</Text>
         <Icon name={isDropdownOpenCommunityInformative ? 'caret-down' : 'caret-right'} size={20} color="black" />
       </TouchableOpacity> 
   
       {isDropdownOpenCommunityInformative && (
         <TouchableOpacity style={styles.dropdownContent} onPress={() => {navigation.navigate('UpdCommunityInformative')}}>
           <View style={styles.separation}>
-            <Text style={styles.dropdownText}>Atualizar Informativo</Text>
+            <Text style={styles.dropdownText}>{t("update_newsletter")}</Text>
           </View>
           <Icon name="angle-right" size={30} color="gray" />
         </TouchableOpacity> 
@@ -430,13 +450,13 @@ export function Perfil() {
             style={styles.infoButton}
             onPress={() => setIsDropdownOpenCommunityPerformance(!isDropdownOpenCommunityPerformance)}
           >
-            <Text style={styles.tabText}>Performance da Comunidade</Text>
+            <Text style={styles.tabText}>{t('community_performance')}</Text>
             <Icon name={isDropdownOpenCommunityPerformance ? 'caret-down' : 'caret-right'} size={20} color="black" />
           </TouchableOpacity>
           
           {isDropdownOpenCommunityPerformance && (
             <View style={styles.dropdownContent}>
-              <Text style={styles.dropdownText}>Carregando dados de vendas...</Text>
+              <Text style={styles.dropdownText}>{t('loading_sales_data')}</Text>
             </View>
           )}
         </View>
@@ -450,13 +470,13 @@ export function Perfil() {
             style={styles.infoButton}
             onPress={() => setIsDropdownOpenCommunityPerformance(!isDropdownOpenCommunityPerformance)}
           >
-            <Text style={styles.tabText}>Performance da Comunidade</Text>
+            <Text style={styles.tabText}>{t('community_performance')}</Text>
             <Icon name={isDropdownOpenCommunityPerformance ? 'caret-down' : 'caret-right'} size={20} color="black" />
           </TouchableOpacity>
   
           {isDropdownOpenCommunityPerformance && (
             <View style={styles.dropdownContent}>
-              <Text style={styles.dropdownText}>Nenhuma venda efetuada.</Text>
+              <Text style={styles.dropdownText}>{t('no_sales_made')}</Text>
             </View>
           )}
         </View>
@@ -469,14 +489,14 @@ export function Perfil() {
           style={styles.infoButton}
           onPress={() => setIsDropdownOpenCommunityPerformance(!isDropdownOpenCommunityPerformance)}
         >
-          <Text style={styles.tabText}>Performance da Comunidade</Text>
+          <Text style={styles.tabText}>{t('community_performance')}</Text>
           <Icon name={isDropdownOpenCommunityPerformance ? 'caret-down' : 'caret-right'} size={20} color="black" />
         </TouchableOpacity>
   
         {isDropdownOpenCommunityPerformance && (
           <TouchableOpacity style={styles.dropdownContent} onPress={() => navigation.navigate('CommunityPerformance')}>
             <View style={styles.chartContainer}>
-              <Text style={[styles.dropdownText, { textAlign: 'center' }]}>Lucro Mensal</Text>
+              <Text style={[styles.dropdownText, { textAlign: 'center' }]}>{t('monthly_profit')}</Text>
               <LineChart
                 data={monthlySalesData.salesData}
                 width={screenWidth * 0.87}
@@ -517,8 +537,6 @@ export function Perfil() {
       </View>
     );
   };
-  
-
 
   return (
     <KeyboardAvoidingView
@@ -536,13 +554,13 @@ export function Perfil() {
             style={[styles.tabButton, selectedTab === 'perfil' && styles.activeTab]}
             onPress={() => setSelectedTab('perfil')}
           >
-            <Text style={[styles.tabText, selectedTab === 'perfil' && styles.activeTabText]}>Perfil</Text>
+            <Text style={[styles.tabText, selectedTab === 'perfil' && styles.activeTabText]}>{t('profile')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.tabButton, selectedTab === 'comunidade' && styles.activeTab]}
             onPress={() => setSelectedTab('comunidade')}
           >
-            <Text style={[styles.tabText, selectedTab === 'comunidade' && styles.activeTabText]}>Comunidade</Text>
+            <Text style={[styles.tabText, selectedTab === 'comunidade' && styles.activeTabText]}>{t('community')}</Text>
           </TouchableOpacity>
         </View>
         )}
@@ -557,7 +575,7 @@ export function Perfil() {
                 )}
               </TouchableOpacity>
               <Text style={styles.title}>{user?.nome || 'Nome de Usuario'}</Text>
-              <Text style={styles.userType}>{userType}</Text>
+              <Text style={styles.userType}>{t('quilombola_representative')}</Text>
             </View>
 
             {renderUserInfo()}
@@ -578,7 +596,7 @@ export function Perfil() {
                 )}
               </TouchableOpacity>
               <Text style={styles.title}>{quilombo?.name || 'Nome da Comunidade'}</Text>
-              <Text style={styles.userType}>Comunidade Quilombola</Text>
+              <Text style={styles.userType}>{t('quilombola_community')}</Text>
             </View>
 
             {renderCommunityInfo()}

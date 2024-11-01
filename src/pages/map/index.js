@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Modal, ScrollView } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { API_BASE_URL } from './../../config';
+import { useTranslation } from 'react-i18next'; // Importa o hook de tradução
 
 export function Map() {
+  const { t } = useTranslation(); // Hook para usar traduções
   const [searchQuery, setSearchQuery] = useState("");
   const [region, setRegion] = useState({
     latitude: -24.4881,
@@ -70,7 +72,7 @@ export function Map() {
           });
           setMarkerCoordinate({ latitude: parseFloat(location.lat), longitude: parseFloat(location.lon) });
         } else {
-          console.warn("Nenhuma localização encontrada.");
+          console.warn(t("no_products_found")); // Usar chave de tradução
         }
       })
       .catch(error => {
@@ -146,7 +148,7 @@ export function Map() {
         {markerCoordinate && (
           <Marker
             coordinate={markerCoordinate}
-            title="New Marker"
+            title={t("new_marker")} // Usar chave de tradução para novo marcador
           />
         )}
       </MapView>
@@ -160,7 +162,6 @@ export function Map() {
               onChangeText={setSearchQuery}
               value={searchQuery}
               onSubmitEditing={handleSearch}
-              placeholder=""
             />
           </View>
           <TouchableOpacity style={styles.userIcon} onPress={clearSearch}>
@@ -189,7 +190,7 @@ export function Map() {
               <Text style={styles.description}>{selectedQuilombo?.description}</Text>
               {informativeData && (
                 <>
-                  <Text style={styles.description}>População: {informativeData.population}</Text>
+                  <Text style={styles.description}>{t("population")}: {informativeData.population}</Text>
                   <View style={styles.divider} />
                   {informativeImages.length > 0 && (
                     <View style={styles.imageRow}>
@@ -203,7 +204,7 @@ export function Map() {
                     </View>
                   )}
                   <View style={styles.divider} />
-                  <Text style={styles.modalSubtitle}>História do Quilombo:</Text>
+                  <Text style={styles.modalSubtitle}>{t("quilombo_history")}: </Text>
                   <ScrollView style={styles.scrollView}>
                     <Text style={styles.description}>{informativeData.history}</Text>
                   </ScrollView>
@@ -211,7 +212,7 @@ export function Map() {
               )}
             </View>
             <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
-              <Text style={styles.closeButtonText}>Fechar</Text>
+              <Text style={styles.closeButtonText}>{t("close")}</Text>
             </TouchableOpacity>
           </View>
         </View>

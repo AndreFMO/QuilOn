@@ -5,6 +5,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { API_BASE_URL } from './../../config';
 import { UserContext } from '../../UserContext';
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export function MyProducts() {
   const { userId } = useContext(UserContext);
@@ -13,6 +14,7 @@ export function MyProducts() {
   const [products, setProducts] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation();
+  const { t, i18n } = useTranslation();
 
   // Fetch products when the selected category changes
   useEffect(() => {
@@ -30,11 +32,13 @@ export function MyProducts() {
     try {
       const response = await fetch(`${API_BASE_URL}/products/${userId}`);
       const data = await response.json();
-      let filteredProducts = data.products;
+      const allProducts = data.products;
+
+      let filteredProducts = allProducts;
 
       if (searchQuery) {
         const searchTerm = searchQuery.toLowerCase();
-        filteredProducts = data.products.filter(product => {
+        filteredProducts = allProducts.filter(product => {
           const productName = product[1].toLowerCase();
           const productCategory = product[2].toLowerCase();
           const productDescription = product[3].toLowerCase();
@@ -48,11 +52,13 @@ export function MyProducts() {
 
       if (selectedCategory === 'Diversos') {
         setProducts(filteredProducts);
+      } else if (selectedCategory === 'Recomendados') {
+        setProducts(recommendedProducts);
       } else {
         setProducts(filteredProducts.filter(product => product[2] === selectedCategory));
       }
     } catch (error) {
-      console.error('Erro ao obter produtos:', error);
+      //console.error('Erro ao obter produtos:', error);
     }
   };
 
@@ -90,7 +96,7 @@ export function MyProducts() {
           <TouchableOpacity onPress={() => navigation.navigate('Home')} style={styles.returnButtonContainer}>
             <Image source={require('./../../assets/return.png')} style={styles.returnButton} />
           </TouchableOpacity>
-          <Text style={styles.title}>Meus Produtos</Text>
+          <Text style={styles.title}>{t('my_products')}</Text>
 
           <View style={styles.searchArea}>
             <View style={styles.searchContainer}>
@@ -104,37 +110,41 @@ export function MyProducts() {
               />
             </View>
           </View>
-          <Text style={styles.title}>Categorias</Text>
-          <View style={styles.categoryArea}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <TouchableOpacity
-                style={[styles.categoryButton, selectedCategory === 'Diversos' && styles.selectedCategoryButton]}
-                onPress={() => handleCategoryPress('Diversos')}>
-                <Text style={[styles.categoryText, selectedCategory === 'Diversos' && styles.selectedCategoryText]}>Diversos</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.categoryButton, selectedCategory === 'Acessórios' && styles.selectedCategoryButton]}
-                onPress={() => handleCategoryPress('Acessórios')}>
-                <Text style={[styles.categoryText, selectedCategory === 'Acessórios' && styles.selectedCategoryText]}>Acessórios</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.categoryButton, selectedCategory === 'Cestaria' && styles.selectedCategoryButton]}
-                onPress={() => handleCategoryPress('Cestaria')}>
-                <Text style={[styles.categoryText, selectedCategory === 'Cestaria' && styles.selectedCategoryText]}>Cestaria</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.categoryButton, selectedCategory === 'Cerâmica' && styles.selectedCategoryButton]}
-                onPress={() => handleCategoryPress('Cerâmica')}>
-                <Text style={[styles.categoryText, selectedCategory === 'Cerâmica' && styles.selectedCategoryText]}>Cerâmica</Text>
-              </TouchableOpacity>
-            </ScrollView>
-          </View>
-          <Text style={styles.title}>
-            {selectedCategory === 'Diversos' ? `Produtos ${selectedCategory}` : `Produtos de "${selectedCategory}"`}
-          </Text>
+          <Text style={styles.title}>{t('categories')}</Text>
+        <View style={styles.categoryArea}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <TouchableOpacity 
+              style={[styles.categoryButton, selectedCategory === 'Diversos' && styles.selectedCategoryButton]}
+              onPress={() => handleCategoryPress('Diversos')}>
+              <Text style={[styles.categoryText, selectedCategory === 'Diversos' && styles.selectedCategoryText]}>{t('diversos')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.categoryButton, selectedCategory === 'Acessórios' && styles.selectedCategoryButton]}
+              onPress={() => handleCategoryPress('Acessórios')}>
+              <Text style={[styles.categoryText, selectedCategory === 'Acessórios' && styles.selectedCategoryText]}>{t('acessorios')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.categoryButton, selectedCategory === 'Cestaria' && styles.selectedCategoryButton]}
+              onPress={() => handleCategoryPress('Cestaria')}>
+              <Text style={[styles.categoryText, selectedCategory === 'Cestaria' && styles.selectedCategoryText]}>{t('cestaria')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.categoryButton, selectedCategory === 'Cerâmica' && styles.selectedCategoryButton]}
+              onPress={() => handleCategoryPress('Cerâmica')}>
+              <Text style={[styles.categoryText, selectedCategory === 'Cerâmica' && styles.selectedCategoryText]}>{t('ceramica')}</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+        <Text style={styles.title}>
+          {selectedCategory === 'Diversos' 
+            ? i18n.language === 'en'
+              ? `${t('various')} ${t('products')}`
+              : `${t('products')} ${t('diversos')}`
+            : `${t('products_of')} "${t(selectedCategory === 'Acessórios' ? 'acessorios' : selectedCategory === 'Cestaria' ? 'cestaria' : selectedCategory === 'Cerâmica' ? 'ceramica' : selectedCategory.toLowerCase())}"`}
+        </Text>
           <View style={styles.productArea}>
             {products.length === 0 ? (
-              <Text style={styles.noProductText}>Nenhum produto{"\n"}encontrado</Text>
+              <Text style={styles.noProductText}>{t('no_products_found')}</Text>
             ) : (
               <View style={styles.produtosList}>
                 {products.map(product => (

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform, Alert, Keyboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next'; // Importando a função useTranslation para lidar com traduções
 import DotIndicator from '../../../assets/components/DotIndicator'; // Caminho para o componente de indicador de progresso
 
 export function Address({ route }) {
+  const { t } = useTranslation(); // Hook de tradução
   const navigation = useNavigation();
-  const [userType, setUserType] = useState("Endereço do Usuário");
+  const [userType, setUserType] = useState(t('address_user')); // Usando tradução para "Endereço do Usuário"
   const [address, setAddress] = useState({
     street: '',
     neighborhood: '',
@@ -40,10 +42,10 @@ export function Address({ route }) {
 
   const handleNextPress = () => {
     if (!address.street || !address.neighborhood || !address.number || !address.city || !address.state) {
-      Alert.alert('Erro', 'Por favor, preencha todos os campos obrigatórios marcados por: *');
+      Alert.alert(t('error'), t('error_fill_required')); // Mensagem de erro traduzida
       return;
     }
-  
+
     navigation.navigate('Account', { personalData: personalData, addressData: address });
   };
 
@@ -62,7 +64,7 @@ export function Address({ route }) {
 
         <Text style={styles.userType}>{userType}</Text>
 
-        <Text style={styles.subTitle}>Endereço<Text style={styles.required}>*</Text></Text>
+        <Text style={styles.subTitle}>{t('address')}<Text style={styles.required}>*</Text></Text>
         <View style={styles.orangeBorder}>
           <TextInput 
             style={styles.input} 
@@ -73,7 +75,7 @@ export function Address({ route }) {
 
         <View style={styles.horizontalArea}>
           <View style={styles.leftField}>
-            <Text style={styles.subTitle}>Bairro<Text style={styles.required}>*</Text></Text>
+            <Text style={styles.subTitle}>{t('neighborhood')}<Text style={styles.required}>*</Text></Text>
             <View style={styles.orangeBorder}>
               <TextInput 
                 style={styles.input} 
@@ -83,13 +85,13 @@ export function Address({ route }) {
             </View>
           </View>
           <View style={styles.rightField}>
-            <Text style={styles.subTitle}>Número<Text style={styles.required}>*</Text></Text>
+            <Text style={styles.subTitle}>{t('number')}<Text style={styles.required}>*</Text></Text>
             <View style={styles.orangeBorder}>
             <TextInput 
               style={styles.input} 
               value={address.number}
               onChangeText={text => setAddress({...address, number: text})}
-              keyboardType="numeric" // Adicionando esta linha para definir o teclado como numérico
+              keyboardType="numeric" 
             />
             </View>
           </View>
@@ -97,7 +99,7 @@ export function Address({ route }) {
 
         <View style={styles.horizontalArea}>
           <View style={styles.leftField}>
-            <Text style={styles.subTitle}>Cidade<Text style={styles.required}>*</Text></Text>
+            <Text style={styles.subTitle}>{t('city')}<Text style={styles.required}>*</Text></Text>
             <View style={styles.orangeBorder}>
               <TextInput 
                 style={styles.input} 
@@ -107,7 +109,7 @@ export function Address({ route }) {
             </View>
           </View>
           <View style={styles.rightField}>
-            <Text style={styles.subTitle}>UF<Text style={styles.required}>*</Text></Text>
+            <Text style={styles.subTitle}>{t('state')}<Text style={styles.required}>*</Text></Text>
             <View style={styles.orangeBorder}>
               <TextInput 
                 style={styles.input} 
@@ -118,7 +120,7 @@ export function Address({ route }) {
           </View>
         </View>
 
-        <Text style={styles.subTitle}>Complemento</Text>
+        <Text style={styles.subTitle}>{t('complement')}</Text>
         <View style={styles.orangeBorder}>
           <TextInput 
             style={styles.input} 
@@ -126,15 +128,13 @@ export function Address({ route }) {
             onChangeText={text => setAddress({...address, complement: text})}
           />
         </View>
-
-
       </ScrollView>
 
       {!keyboardIsVisible && (
         <View style={styles.bottomContainer}>
           <DotIndicator totalSteps={3} currentStep={1} />
           <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
-            <Text style={styles.ButtonText}>Próximo</Text>
+            <Text style={styles.ButtonText}>{t('next')}</Text>
           </TouchableOpacity>
         </View>
       )}

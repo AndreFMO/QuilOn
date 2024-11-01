@@ -1,9 +1,11 @@
 import React, { useContext, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Text, Image } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next'; // Import do hook de tradução
 import { UserContext } from '../../../UserContext';
 
 export function Concluded() {
+  const { t } = useTranslation(); // Hook para pegar a função de tradução
   const navigation = useNavigation();
   const route = useRoute();
   const { userId, representante } = route.params;
@@ -24,11 +26,11 @@ export function Concluded() {
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.containerLogo}>
           <Image source={require('./../../../assets/check-icon.png')} style={styles.check}></Image>
-          <Text style={styles.subTitle}>Cadastrado com sucesso!</Text>
-          <Text style={styles.description}>Seu cadastro foi realizado com sucesso!</Text>
+          <Text style={styles.subTitle}>{t('registration_successful')}</Text>
+          <Text style={styles.description}>{t('product_registration_success')}</Text>
         </View>
         <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
-          <Text style={styles.ButtonText}>Próximo</Text>
+          <Text style={styles.ButtonText}>{t('next')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>

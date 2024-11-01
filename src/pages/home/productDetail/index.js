@@ -5,6 +5,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 import { API_BASE_URL } from './../../../config';
 import { CartContext } from './../../../cartContext';
+import { useTranslation } from 'react-i18next';  // Importando o hook
 
 export function ProductDetail({ route }) {
   const { product } = route.params;
@@ -12,6 +13,7 @@ export function ProductDetail({ route }) {
   const [totalImages, setTotalImages] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useContext(CartContext);
+  const { t } = useTranslation();  // Usando o hook
 
   const categories = ['Acessórios', 'Cestarias', 'Cerâmicas', 'Outros'];
   const reorderedCategories = [product[2], ...categories.filter(category => category !== product[2])];
@@ -63,7 +65,7 @@ export function ProductDetail({ route }) {
 
   const addToCartAndNavigate = () => {
     if (quantity > product[6]) {
-      alert(`Não é possível adicionar mais do que ${product[6]} unidades deste produto.`);
+      alert(t('add_to_cart_alert', { max: product[6] }));
       return;
     }
     addToCart(product, quantity);
@@ -89,9 +91,9 @@ export function ProductDetail({ route }) {
         <Text style={styles.productName}>{product[1]}</Text>
         <View style={styles.priceArea}>
           <View>
-            <Text style={styles.productQtd}>Disponível: <Text style={styles.productDescription}>{product[6]} unidades</Text></Text>
+            <Text style={styles.productQtd}>{t('available')} <Text style={styles.productDescription}>{product[6]} {t('units')}</Text></Text>
             <Text style={styles.productPriceUnity}>R$ {product[5]}</Text>
-            <Text style={styles.productTitles}>Tempo de Produção:</Text>
+            <Text style={styles.productTitles}>{t('production_time')}</Text>
             <Text style={styles.productDescription}>{product[4]}</Text>
           </View>
           <View>
@@ -110,16 +112,16 @@ export function ProductDetail({ route }) {
           </View>
         </View>
 
-        <Text style={styles.productTitles}>Descrição do Produto</Text>
+        <Text style={styles.productTitles}>{t('product_description')}</Text>
         <Text style={styles.productDescription}>{product[3]}</Text>
 
         <View style={styles.priceArea}>
           <View>
-            <Text style={styles.productDescription}>Valor Total:</Text>
+            <Text style={styles.productDescription}>{t('total_value')}:</Text>
             <Text style={styles.productPrice}>R$ {(product[5] * quantity).toFixed(2)}</Text>
           </View>
-          <TouchableOpacity style={styles.nextButton}>
-            <Text style={styles.ButtonText} onPress={addToCartAndNavigate}>Comprar</Text>
+          <TouchableOpacity style={styles.nextButton} onPress={addToCartAndNavigate}>
+            <Text style={styles.ButtonText}>{t('buy')}</Text>
           </TouchableOpacity>
         </View>
       </View>

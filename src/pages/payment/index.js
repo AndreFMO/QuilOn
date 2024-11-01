@@ -1,23 +1,23 @@
 import React, { useContext, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { CartContext } from './../../cartContext';
 import { UserContext } from './../../UserContext';
+import { useTranslation } from 'react-i18next'; // Importando o hook useTranslation
 
 export function Payment() {
   const navigation = useNavigation();
   const { cart } = useContext(CartContext);
   const { userId } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState(false);
+  const { t } = useTranslation(); // Usando o hook para traduções
 
-  // Define as opções de entrega
   const deliveryOptions = [
-    { id: 'standard', title: 'Entrega Padrão', description: 'Receba entre 15 e 30 dias úteis', cost: 15 },
-    { id: 'express', title: 'Entrega Express', description: 'Receba entre 3 e 10 dias úteis', cost: 30 }
+    { id: 'standard', title: t('standard_delivery'), description: t('standard_delivery_description'), cost: 15 },
+    { id: 'express', title: t('express_delivery'), description: t('express_delivery_description'), cost: 30 }
   ];
 
-  // Inicializa o estado selecionado com a primeira opção
-  const [selectedDelivery, setSelectedDelivery] = useState(deliveryOptions[0].id); // Seleciona a primeira opção por padrão
+  const [selectedDelivery, setSelectedDelivery] = useState(deliveryOptions[0].id);
 
   const calculateSubtotal = () => {
     return cart.reduce((acc, item) => acc + item.product[5] * item.quantity, 0);
@@ -36,9 +36,9 @@ export function Payment() {
   const handlePayment = () => {
     setIsLoading(true);
     
-    const total = calculateTotal(); // Calcule o total
+    const total = calculateTotal();
     
-    navigation.navigate('Pix', { total }); // Passe o total como parâmetro
+    navigation.navigate('Pix', { total });
   
     setIsLoading(false);
   };
@@ -50,7 +50,7 @@ export function Payment() {
           <Image source={require('./../../assets/return.png')} style={styles.returnButton} />
         </TouchableOpacity>
 
-        <Text style={styles.title}>Opções de Entrega</Text>
+        <Text style={styles.title}>{t('delivery_options')}</Text>
 
         {deliveryOptions.map(option => (
           <TouchableOpacity
@@ -70,9 +70,9 @@ export function Payment() {
 
         <View style={styles.info}>
           <View>
-            <Text style={styles.infoDescription}>Valor da Compra</Text>
-            <Text style={styles.infoDescription}>Frete</Text>
-            <Text style={styles.productTitles}>Valor Final</Text>
+            <Text style={styles.infoDescription}>{t('calculate_subtotal')}</Text>
+            <Text style={styles.infoDescription}>{t('delivery_cost')}</Text>
+            <Text style={styles.productTitles}>{t('final_value')}</Text>
           </View>
           <View>
             <Text style={styles.infoDescription}>R$ {calculateSubtotal().toFixed(2)}</Text>
@@ -81,7 +81,7 @@ export function Payment() {
           </View>
         </View>
 
-        <Text style={styles.title}>Formas de Pagamento</Text>
+        <Text style={styles.title}>{t('payment_methods')}</Text>
 
         <TouchableOpacity style={styles.nextButton}>
           <Image source={require('./../../assets/visa.png')} style={styles.paymentIcons} />
@@ -148,6 +148,7 @@ const styles = StyleSheet.create({
   infoDescription: {
     fontSize: 14,
     color: 'gray',
+    width: 220,
     fontFamily: 'Poppins_400Regular',
   },
   productTitles: {
@@ -167,10 +168,11 @@ const styles = StyleSheet.create({
     borderColor: "#6666",
     padding: 12,
     elevation: 5,
+    flexDirection: 'row',
   },
   ButtonText: {
     marginLeft: 10,
-    color: "#FFF",
+    color: "#000",
     fontSize: 18,
     fontWeight: 'bold',
   },

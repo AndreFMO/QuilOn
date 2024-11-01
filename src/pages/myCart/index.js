@@ -5,11 +5,14 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { API_BASE_URL } from './../../config';
 import { CartContext } from './../../cartContext';
 import { UserContext } from './../../UserContext';
+import { useTranslation } from 'react-i18next'; // Importando o hook useTranslation
 
 export function MyCart() {
   const navigation = useNavigation();
   const { cart, incrementQuantity, decrementQuantity, removeFromCart } = useContext(CartContext);
-  const { userId, setUserAddressId } = useContext(UserContext); // Adicione a função setUserAddressId
+  const { userId, setUserAddressId } = useContext(UserContext);
+
+  const { t } = useTranslation(); // Usando o hook para traduções
 
   const [address, setAddress] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -32,7 +35,7 @@ export function MyCart() {
         const userAddress = addresses.find(addr => addr.idUsuario === userId);
 
         if (userAddress) {
-          setUserAddressId(userAddress.idEndereco); // Armazena o id do endereço no UserContext
+          setUserAddressId(userAddress.idEndereco);
         }
         
         setAddress(userAddress || null);
@@ -57,18 +60,18 @@ export function MyCart() {
           <Image source={require('./../../assets/return.png')} style={styles.returnButton} />
         </TouchableOpacity>
 
-        <Text style={styles.title}>Meu Carrinho</Text>
+        <Text style={styles.title}>{t('my_cart')}</Text>
 
         <View style={styles.productsArea}>
           {cart.length === 0 ? (
             <View style={styles.emptyCartContainer}>
-              <Text style={styles.emptyCart}>Seu carrinho está vazio.</Text>
+              <Text style={styles.emptyCart}>{t('empty_cart')}</Text>
             </View>
           ) : (
             <ScrollView contentContainerStyle={styles.productsList}>
               {cart.map((item, index) => (
                 <TouchableOpacity key={index} style={styles.products}>
-                  <Image source={{ uri: `${API_BASE_URL}/upload/${item.product[0]}/1` }} style={styles.productImage} />
+                  <Image source={{ uri: `${API_BASE_URL}/productImage/${item.product[0]}/1` }} style={styles.productImage} />
                   <View style={styles.productDetails}>
                     <View style={styles.productPrice}>
                       <Text style={StyleSheet.flatten([styles.productTitles, { width: '85%' }])} numberOfLines={1} ellipsizeMode="tail">{item.product[1]}</Text>
@@ -100,18 +103,18 @@ export function MyCart() {
           <TextInput
             style={styles.input}
             returnKeyType="search"
-            placeholder="Código Promocional"
+            placeholder={t('promo_code')}
           />
           <TouchableOpacity style={styles.codeButton} >
-            <Text style={styles.codeButtonText}>Aplicar</Text>
+            <Text style={styles.codeButtonText}>{t('apply')}</Text>
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity style={styles.address} onPress={() => navigation.navigate('UpdAddress', { address, idEndereco: address.idEndereco })}>
           <View>
-            <Text style={StyleSheet.flatten([styles.productTitles])}>Endereço de Entrega</Text>
+            <Text style={StyleSheet.flatten([styles.productTitles])}>{t('delivery_address')}</Text>
             {loading ? (
-              <Text style={StyleSheet.flatten([styles.addressDescription])}>Carregando...</Text>
+              <Text style={StyleSheet.flatten([styles.addressDescription])}>{t('loading')}</Text>
             ) : address ? (
               <>
                 <Text style={StyleSheet.flatten([styles.addressDescription])}>{address.endereco}, nº {address.numero}, {address.bairro}</Text>
@@ -119,19 +122,19 @@ export function MyCart() {
                 {address.complemento && <Text style={StyleSheet.flatten([styles.addressDescription])}>{address.complemento}</Text>}
               </>
             ) : (
-              <Text style={StyleSheet.flatten([styles.addressDescription])}>Endereço não encontrado</Text>
+              <Text style={StyleSheet.flatten([styles.addressDescription])}>{t('address_not_found')}</Text>
             )}
           </View>
           <Icon name="chevron-right" size={20} color="black" />
         </TouchableOpacity>
 
         <View style={styles.totalPriceArea}>
-          <Text style={styles.totalPrice}>Total ({cart.length} Itens):</Text>
+          <Text style={styles.totalPrice}>{t('total_items', { count: cart.length })}</Text>
           <Text style={styles.totalPrice1}>R$ {cart.reduce((acc, item) => acc + item.product[5] * item.quantity, 0).toFixed(2)}</Text>
         </View>
 
         <TouchableOpacity style={styles.nextButton} onPress={() => navigation.navigate('Payment')}>
-          <Text style={styles.ButtonText}>Processar encomenda</Text>
+          <Text style={styles.ButtonText}>{t('process_order')}</Text>
           <View style={styles.processIcon}>
             <Icon name="chevron-right" size={18} color="#D86626" />
           </View>
@@ -290,7 +293,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#D86626",
     height: 35,
     width: 70,
-    marginHorizontal: '6%',
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 10,

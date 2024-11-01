@@ -4,9 +4,11 @@ import { useNavigation } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import RNPickerSelect from 'react-native-picker-select';
 import DotIndicator from '../../../assets/components/DotIndicator';
+import { useTranslation } from 'react-i18next'; // Importando useTranslation
 
 export function Personal({ route }) {
   const navigation = useNavigation();
+  const { t } = useTranslation(); // Usando useTranslation para tradução
 
   const [name, setName] = useState('');
   const [birthDate, setBirthDate] = useState(new Date());
@@ -48,7 +50,7 @@ export function Personal({ route }) {
 
   const handleNextPress = () => {
     if (!name || !birthDate || !sex || !cpf || !rg || !cellphone) {
-      Alert.alert('Erro', 'Por favor, preencha todos os campos obrigatórios marcados por: *');
+      Alert.alert(t('error'), t('fill_all_fields')); // Usando chaves de tradução
       return;
     }
   
@@ -64,7 +66,6 @@ export function Personal({ route }) {
     
     navigation.navigate('Address', { personalData: dataToPass });
   };
-  
 
   return (
     <KeyboardAvoidingView
@@ -79,9 +80,9 @@ export function Personal({ route }) {
           <Image source={require('./../../../assets/quilon.png')} style={styles.backgroundText} />
         </View>
 
-        <Text style={styles.title}>Cadastre-se</Text>
-        <Text style={styles.userType}>Dados do Usuário</Text>
-        <Text style={styles.subTitle}>Nome<Text style={styles.required}>*</Text></Text>
+        <Text style={styles.title}>{t('register')}</Text>
+        <Text style={styles.userType}>{t('user_data')}</Text>
+        <Text style={styles.subTitle}>{t('name')}<Text style={styles.required}>*</Text></Text>
         <View style={styles.orangeBorder}>
           <TextInput
             style={styles.input}
@@ -92,7 +93,7 @@ export function Personal({ route }) {
 
         <View style={styles.horizontalArea}>
           <View style={styles.contactField}>
-            <Text style={styles.subTitle}>Data de Nascimento<Text style={styles.required}>*</Text></Text>
+            <Text style={styles.subTitle}>{t('birth_date')}<Text style={styles.required}>*</Text></Text>
             <View style={styles.orangeBorder}>
               <TouchableOpacity onPress={() => setShowDatePicker(true)}>
                 <Text style={styles.input}>{personalData ? personalData.birthDate : birthDate.toLocaleDateString()}</Text>
@@ -108,18 +109,18 @@ export function Personal({ route }) {
             </View>
           </View>
           <View style={styles.contactField}>
-            <Text style={styles.subTitle}>Sexo<Text style={styles.required}>*</Text></Text>
+            <Text style={styles.subTitle}>{t('sex')}<Text style={styles.required}>*</Text></Text>
             <View style={styles.orangeBorder}>
               <RNPickerSelect
                 onValueChange={(value) => setSex(value)}
                 placeholder={{
-                  label: 'Selecione o sexo',
+                  label: t('select_sex'), // Usando chave de tradução
                   value: null,
                 }}
                 items={[
-                  { label: 'Masculino', value: 'Masculino' },
-                  { label: 'Feminino', value: 'Feminino' },
-                  { label: 'Outro', value: 'Outro' },
+                  { label: t('male'), value: 'Masculino' }, // Usando chave de tradução
+                  { label: t('female'), value: 'Feminino' }, // Usando chave de tradução
+                  { label: t('other'), value: 'Outro' }, // Usando chave de tradução
                 ]}
                 style={{
                   inputIOS: {
@@ -145,7 +146,7 @@ export function Personal({ route }) {
           </View>
         </View>
 
-        <Text style={styles.subTitle}>CPF<Text style={styles.required}>*</Text></Text>
+        <Text style={styles.subTitle}>{t('cpf')}<Text style={styles.required}>*</Text></Text>
         <View style={styles.orangeBorder}>
           <TextInput
             style={styles.input}
@@ -155,7 +156,7 @@ export function Personal({ route }) {
           />
         </View>
 
-        <Text style={styles.subTitle}>RG<Text style={styles.required}>*</Text></Text>
+        <Text style={styles.subTitle}>{t('rg')}<Text style={styles.required}>*</Text></Text>
         <View style={styles.orangeBorder}>
           <TextInput
             style={styles.input}
@@ -167,7 +168,7 @@ export function Personal({ route }) {
 
         <View style={styles.horizontalArea}>
           <View style={styles.contactField}>
-            <Text style={styles.subTitle}>Celular<Text style={styles.required}>*</Text></Text>
+            <Text style={styles.subTitle}>{t('cellphone')}<Text style={styles.required}>*</Text></Text>
             <View style={styles.orangeBorder}>
               <TextInput
                 style={styles.input}
@@ -178,7 +179,7 @@ export function Personal({ route }) {
             </View>
           </View>
           <View style={styles.contactField}>
-            <Text style={styles.subTitle}>Telefone</Text>
+            <Text style={styles.subTitle}>{t('phone')}</Text>
             <View style={styles.orangeBorder}>
               <TextInput
                 style={styles.input}
@@ -195,7 +196,7 @@ export function Personal({ route }) {
         <View style={styles.bottomContainer}>
           <DotIndicator totalSteps={3} currentStep={0} />
           <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
-            <Text style={styles.ButtonText}>Próximo</Text>
+            <Text style={styles.ButtonText}>{t('next')}</Text>
           </TouchableOpacity>
         </View>
       )}

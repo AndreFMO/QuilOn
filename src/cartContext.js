@@ -17,7 +17,6 @@ export const CartProvider = ({ children }) => {
       }
   
       if (existingProductIndex > -1) {
-        alert(`O produto "${product[1]}" já está no seu carrinho!`);
         return prevCart; 
       } else {
         return [...prevCart, { product, quantity }];

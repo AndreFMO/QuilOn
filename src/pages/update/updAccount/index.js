@@ -3,6 +3,7 @@ import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image,
 import { useNavigation } from '@react-navigation/native';
 import { API_BASE_URL } from './../../../config';
 import { UserContext } from './../../../UserContext';
+import { useTranslation } from 'react-i18next';
 
 export function UpdAccount() {
   const navigation = useNavigation();
@@ -12,6 +13,7 @@ export function UpdAccount() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [keyboardIsVisible, setKeyboardIsVisible] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -107,20 +109,20 @@ export function UpdAccount() {
           <Image source={require('./../../../assets/quilon.png')} style={styles.backgroundText} />
         </View>
 
-        <Text style={styles.title}>Alteração de dados</Text>
-        <Text style={styles.userType}>Dados da Conta</Text>
+        <Text style={styles.title}>{t('data_change')}</Text>
+        <Text style={styles.userType}>{t('account_data')}</Text>
 
-        <Text style={styles.subTitle}>Email<Text style={styles.required}>*</Text></Text>
+        <Text style={styles.subTitle}>{t('email')}<Text style={styles.required}>*</Text></Text>
         <View style={styles.orangeBorder}>
           <TextInput style={styles.input} value={email} onChangeText={setEmail} />
         </View>
 
-        <Text style={styles.subTitle}>Senha<Text style={styles.required}>*</Text></Text>
+        <Text style={styles.subTitle}>{t('password')}<Text style={styles.required}>*</Text></Text>
         <View style={styles.orangeBorder}>
           <TextInput style={styles.input} value={password} onChangeText={setPassword} secureTextEntry />
         </View>
 
-        <Text style={styles.subTitle}>Confirmar senha<Text style={styles.required}>*</Text></Text>
+        <Text style={styles.subTitle}>{t('confirm_password')}<Text style={styles.required}>*</Text></Text>
         <View style={styles.orangeBorder}>
           <TextInput style={styles.input} value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry />
         </View>
@@ -129,7 +131,7 @@ export function UpdAccount() {
       {!keyboardIsVisible && (
         <View style={styles.bottomContainer}>
           <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
-            <Text style={styles.ButtonText}>Atualizar</Text>
+            <Text style={styles.ButtonText}>{t('update')}</Text>
           </TouchableOpacity>
         </View>
       )}

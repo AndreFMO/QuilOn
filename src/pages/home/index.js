@@ -4,10 +4,12 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { API_BASE_URL } from './../../config';
 import { UserContext } from '../../UserContext';
 import { CartContext } from './../../cartContext';
+import { useTranslation } from 'react-i18next';
 
 export function Home() {
+  const { t, i18n } = useTranslation();
   const { userId, username, usersex, setUsername, setUserSex } = useContext(UserContext);
-  const { cart } = useContext(CartContext); 
+  const { cart } = useContext(CartContext);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState('Diversos');
   const [products, setProducts] = useState([]);
@@ -19,9 +21,20 @@ export function Home() {
     useCallback(() => {
       fetchUserDetails();
       fetchProducts();
-      fetchRecommendedProducts(); // Atualize os produtos recomendados sempre que a tela for focada
+      fetchRecommendedProducts();
     }, [selectedCategory, cart])
   );
+
+  // Obtém o idioma atual
+  const currentLanguage = i18n.language;
+
+  // Lógica para determinar a saudação
+  let greeting;
+  if (currentLanguage === 'pt') {
+    greeting = usersex === 'Feminino' ? 'Bem-vinda' : 'Bem-vindo';
+  } else {
+    greeting = t('welcome'); // Use a tradução padrão para outros idiomas
+  }
 
   const fetchUserDetails = async () => {
     try {
@@ -109,15 +122,14 @@ export function Home() {
             conteudoBuscado: searchQuery,
           }),
         });
-  
+
         if (response.ok) {
           console.log('Busca cadastrada com sucesso!');
-          // Atualize os produtos recomendados após a busca
           fetchRecommendedProducts();
         } else {
           console.error('Erro ao cadastrar busca:', response.status);
         }
-  
+
         fetchProducts();
       } catch (error) {
         console.error('Erro ao cadastrar busca:', error);
@@ -125,10 +137,10 @@ export function Home() {
     } else {
       console.log('A barra de busca está vazia.');
       fetchProducts();
-      fetchRecommendedProducts(); // Atualize os produtos recomendados se a busca estiver vazia
+      fetchRecommendedProducts();
     }
   };
-  
+
   const handleCategoryPress = (category) => {
     if (selectedCategory === category) {
       return;
@@ -147,9 +159,7 @@ export function Home() {
             onRefresh={onRefresh} />
         }
       >
-        <Text style={styles.title}>
-          {usersex === 'Feminino' ? 'Bem-vinda' : 'Bem-vindo'}, {username}!
-        </Text>
+        <Text style={styles.title}>{greeting}, {username}!</Text>
         <View style={styles.searchArea}>
           <View style={styles.searchContainer}>
             <Image source={require('./../../assets/search-icon.png')} style={styles.searchIcon} />
@@ -162,43 +172,50 @@ export function Home() {
             />
           </View>
         </View>
-        <Text style={styles.title}>Categorias</Text>
+        <Text style={styles.title}>{t('categories')}</Text>
         <View style={styles.categoryArea}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <TouchableOpacity 
               style={[styles.categoryButton, selectedCategory === 'Diversos' && styles.selectedCategoryButton]}
               onPress={() => handleCategoryPress('Diversos')}>
-              <Text style={[styles.categoryText, selectedCategory === 'Diversos' && styles.selectedCategoryText]}>Diversos</Text>
+              <Text style={[styles.categoryText, selectedCategory === 'Diversos' && styles.selectedCategoryText]}>{t('diversos')}</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={[styles.categoryButton, selectedCategory === 'Acessórios' && styles.selectedCategoryButton]}
               onPress={() => handleCategoryPress('Acessórios')}>
-              <Text style={[styles.categoryText, selectedCategory === 'Acessórios' && styles.selectedCategoryText]}>Acessórios</Text>
+              <Text style={[styles.categoryText, selectedCategory === 'Acessórios' && styles.selectedCategoryText]}>{t('acessorios')}</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={[styles.categoryButton, selectedCategory === 'Cestaria' && styles.selectedCategoryButton]}
               onPress={() => handleCategoryPress('Cestaria')}>
-              <Text style={[styles.categoryText, selectedCategory === 'Cestaria' && styles.selectedCategoryText]}>Cestaria</Text>
+              <Text style={[styles.categoryText, selectedCategory === 'Cestaria' && styles.selectedCategoryText]}>{t('cestaria')}</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={[styles.categoryButton, selectedCategory === 'Cerâmica' && styles.selectedCategoryButton]}
               onPress={() => handleCategoryPress('Cerâmica')}>
-              <Text style={[styles.categoryText, selectedCategory === 'Cerâmica' && styles.selectedCategoryText]}>Cerâmica</Text>
+              <Text style={[styles.categoryText, selectedCategory === 'Cerâmica' && styles.selectedCategoryText]}>{t('ceramica')}</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={[styles.categoryButton, selectedCategory === 'Recomendados' && styles.selectedCategoryButton]}
               onPress={() => handleCategoryPress('Recomendados')}>
-              <Text style={[styles.categoryText, selectedCategory === 'Recomendados' && styles.selectedCategoryText]}>Recomendados</Text>
+              <Text style={[styles.categoryText, selectedCategory === 'Recomendados' && styles.selectedCategoryText]}>{t('recommended_products')}</Text>
             </TouchableOpacity>
           </ScrollView>
         </View>
         <Text style={styles.title}>
-          {selectedCategory === 'Diversos' || selectedCategory === 'Recomendados' ? `Produtos ${selectedCategory}` : `Produtos de "${selectedCategory}"`}
+          {selectedCategory === 'Diversos' 
+            ? i18n.language === 'en'
+              ? `${t('various')} ${t('products')}`
+              : `${t('products')} ${t('diversos')}`
+            : selectedCategory === 'Recomendados' 
+            ? `${t('recommended_products')}` 
+            : `${t('products_of')} "${t(selectedCategory === 'Acessórios' ? 'acessorios' : selectedCategory === 'Cestaria' ? 'cestaria' : selectedCategory === 'Cerâmica' ? 'ceramica' : selectedCategory.toLowerCase())}"`}
         </Text>
+
 
         <View style={styles.productArea}>
           {products.length === 0 ? (
-            <Text style={styles.noProductText}>Nenhum produto{"\n"}encontrado</Text>
+            <Text style={styles.noProductText}>{t('no_products_found')}</Text>
           ) : (
             <View style={styles.produtosList}>
               {products.map(product => (
@@ -217,6 +234,7 @@ export function Home() {
       </ScrollView>
     </View>
   );
+  
 }
 
 const styles = StyleSheet.create({

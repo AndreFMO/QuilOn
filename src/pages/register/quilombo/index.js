@@ -3,8 +3,10 @@ import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image,
 import { useNavigation, useRoute } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import { API_BASE_URL } from './../../../config';
+import { useTranslation } from 'react-i18next'; // Importa o hook de tradução
 
 export function Quilombo() {
+  const { t } = useTranslation(); // Inicializa a tradução
   const navigation = useNavigation();
   const route = useRoute();
   const { personalData, addressData } = route.params || {};
@@ -30,7 +32,7 @@ export function Quilombo() {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
-          Alert.alert('Erro', 'Permissão para acessar a localização não foi concedida.');
+          Alert.alert('Erro', t('error_location_permission')); // Usa a tradução
           return;
         }
 
@@ -40,7 +42,7 @@ export function Quilombo() {
           latAndLng: `${location.coords.latitude},${location.coords.longitude}`
         });
       } catch (error) {
-        Alert.alert('Erro', 'Não foi possível obter a localização.');
+        Alert.alert('Erro', t('error_location')); // Usa a tradução
         console.error(error);
       }
     };
@@ -56,7 +58,7 @@ export function Quilombo() {
   const handleNextPress = async () => {
     // Verificar se todos os campos obrigatórios foram preenchidos
     if (!quilomboData.name || !quilomboData.certificationNumber || !quilomboData.latAndLng) {
-      Alert.alert('Erro', 'Por favor, preencha todos os campos obrigatórios marcados por: *');
+      Alert.alert('Erro', t('error_fill_fields')); // Usa a tradução
       return;
     }
 
@@ -142,7 +144,7 @@ export function Quilombo() {
 
     } catch (error) {
       console.error("Erro na promessa:", error);
-      Alert.alert('Erro', 'Ocorreu um erro ao realizar o cadastro.');
+      Alert.alert('Erro', t('registration_error')); // Usa a tradução
     }
   };
 
@@ -160,9 +162,9 @@ export function Quilombo() {
           <Image source={require('./../../../assets/quilon.png')} style={styles.backgroundText} />
         </View>
 
-        <Text style={styles.title}>Dados do Quilombo</Text>
-
-        <Text style={styles.subTitle}>Nome da comunidade<Text style={styles.required}>*</Text></Text>
+        <Text style={styles.title}>{t('community_data')}</Text>
+        
+        <Text style={styles.subTitle}>{t('community_name')}<Text style={styles.required}>*</Text></Text>
         <View style={styles.orangeBorder}>
           <TextInput 
             style={styles.input} 
@@ -171,7 +173,7 @@ export function Quilombo() {
           />
         </View>
 
-        <Text style={styles.subTitle}>Número de certificação do Quilombo<Text style={styles.required}>*</Text></Text>
+        <Text style={styles.subTitle}>{t('certification_number')}<Text style={styles.required}>*</Text></Text>
         <View style={styles.orangeBorder}>
           <TextInput 
             style={styles.input} 
@@ -181,7 +183,7 @@ export function Quilombo() {
           />
         </View>
 
-        <Text style={styles.subTitle}>Quilometro e complemento</Text>
+        <Text style={styles.subTitle}>{t('kilometer_and_complement')}</Text>
         <View style={styles.orangeBorder}>
           <TextInput 
             style={styles.input} 
@@ -194,7 +196,7 @@ export function Quilombo() {
       {!keyboardIsVisible && (
         <View style={styles.bottomContainer}>
           <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
-            <Text style={styles.ButtonText}>Próximo</Text>
+            <Text style={styles.ButtonText}>{t('next')}</Text>
           </TouchableOpacity>
         </View>
       )}

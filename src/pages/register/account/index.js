@@ -3,34 +3,30 @@ import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image,
 import { useNavigation, useRoute } from '@react-navigation/native';
 import DotIndicator from '../../../assets/components/DotIndicator';
 import { API_BASE_URL } from './../../../config';
+import { useTranslation } from 'react-i18next';
 
 export function Account() {
+  const { t } = useTranslation(); // Hook para pegar as traduções
   const navigation = useNavigation();
   const route = useRoute();
   const { personalData = {}, addressData = {} } = route.params || {};
 
-  const [userType, setUserType] = useState("Dados da Conta");
+  const [userType, setUserType] = useState(t('account_data')); // Usando a tradução
   const [isChecked, setIsChecked] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [userId, setUserId] = useState(null);
   const [keyboardIsVisible, setKeyboardIsVisible] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);  // Novo estado
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      'keyboardDidShow',
-      () => {
-        setKeyboardIsVisible(true);
-      }
-    );
-    const keyboardDidHideListener = Keyboard.addListener(
-      'keyboardDidHide',
-      () => {
-        setKeyboardIsVisible(false);
-      }
-    );
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardIsVisible(true);
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardIsVisible(false);
+    });
 
     return () => {
       keyboardDidShowListener.remove();
@@ -39,48 +35,40 @@ export function Account() {
   }, []);
 
   const handleNextPress = async () => {
-    // Evitar envio múltiplo
     if (isSubmitting) return;
 
-    // Verificar se as senhas coincidem
     if (password !== confirmPassword) {
-      Alert.alert('Erro', 'As senhas não coincidem.');
+      Alert.alert(t('error'), t('password_mismatch')); // Usando a tradução
       return;
     }
 
-    // Verificar se a opção de entrar como representante quilombola está marcada
     if (isChecked) {
       const personalDataWithCredentials = {
         ...personalData,
         email,
-        senha: password
+        senha: password,
       };
       navigation.navigate('Quilombo', { personalData: personalDataWithCredentials, addressData });
       return;
     }
 
-    // Verificar se todos os campos obrigatórios foram preenchidos
     if (!email || !password || !confirmPassword) {
-      Alert.alert('Erro', 'Por favor, preencha todos os campos obrigatórios marcados por: *');
+      Alert.alert(t('error'), t('error_fill_required')); // Usando a tradução
       return;
     }
 
     for (const key in personalData) {
-      if (personalData.hasOwnProperty(key) && personalData[key] === '') {
-        continue;
-      }
+      if (personalData.hasOwnProperty(key) && personalData[key] === '') continue;
       if (!personalData[key]) {
-        Alert.alert('Erro', `O campo ${key} está vazio.`);
+        Alert.alert(t('error'), `O campo ${key} está vazio.`);
         return;
       }
     }
 
     for (const key in addressData) {
-      if (addressData.hasOwnProperty(key) && addressData[key] === '') {
-        continue;
-      }
+      if (addressData.hasOwnProperty(key) && addressData[key] === '') continue;
       if (!addressData[key]) {
-        Alert.alert('Erro', `O campo ${key} está vazio.`);
+        Alert.alert(t('error'), `O campo ${key} está vazio.`);
         return;
       }
     }
@@ -103,17 +91,17 @@ export function Account() {
       numero: addressData.number,
       cidade: addressData.city,
       uf: addressData.state,
-      complemento: addressData.complement || ''
+      complemento: addressData.complement || '',
     };
 
     try {
-      setIsSubmitting(true); // Bloquear enquanto envia
+      setIsSubmitting(true);
       const userResponse = await fetch(`${API_BASE_URL}/user`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(userData)
+        body: JSON.stringify(userData),
       });
 
       if (!userResponse.ok) {
@@ -129,9 +117,9 @@ export function Account() {
       const addressResponse = await fetch(`${API_BASE_URL}/address`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(addressDataToSend)
+        body: JSON.stringify(addressDataToSend),
       });
 
       if (!addressResponse.ok) {
@@ -139,20 +127,16 @@ export function Account() {
       }
 
       navigation.navigate('Concluded', { userId });
-
     } catch (error) {
-      console.error("Erro na promessa:", error);
-      Alert.alert('Erro', 'Ocorreu um erro ao realizar o cadastro.');
+      console.error('Erro na promessa:', error);
+      Alert.alert(t('error'), 'Ocorreu um erro ao realizar o cadastro.');
     } finally {
-      setIsSubmitting(false); // Liberar após envio
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.tela}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
+    <KeyboardAvoidingView style={styles.tela} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView contentContainerStyle={styles.container}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Image source={require('./../../../assets/return.png')} style={styles.returnButton} />
@@ -163,30 +147,39 @@ export function Account() {
 
         <Text style={styles.userType}>{userType}</Text>
 
-        <Text style={styles.subTitle}>Email<Text style={styles.required}>*</Text></Text>
+        <Text style={styles.subTitle}>
+          {t('email')}
+          <Text style={styles.required}>*</Text>
+        </Text>
         <View style={styles.orangeBorder}>
           <TextInput style={styles.input} value={email} onChangeText={setEmail} />
         </View>
 
-        <Text style={styles.subTitle}>Senha<Text style={styles.required}>*</Text></Text>
+        <Text style={styles.subTitle}>
+          {t('password')}
+          <Text style={styles.required}>*</Text>
+        </Text>
         <View style={styles.orangeBorder}>
           <TextInput style={styles.input} value={password} onChangeText={setPassword} secureTextEntry />
         </View>
 
-        <Text style={styles.subTitle}>Confirmar senha<Text style={styles.required}>*</Text></Text>
+        <Text style={styles.subTitle}>
+          {t('confirm_password')}
+          <Text style={styles.required}>*</Text>
+        </Text>
         <View style={styles.orangeBorder}>
           <TextInput style={styles.input} value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry />
         </View>
 
         <View style={styles.checkboxContainer}>
           <Switch
-            trackColor={{ false: "#6666", true: "#D86626" }}
-            thumbColor={isChecked ? "#ffffff" : "#ffffff"}
+            trackColor={{ false: '#6666', true: '#D86626' }}
+            thumbColor={isChecked ? '#ffffff' : '#ffffff'}
             ios_backgroundColor="#6666"
             onValueChange={() => setIsChecked(!isChecked)}
             value={isChecked}
           />
-          <Text style={styles.checkboxText}>Entrar como representante quilombola</Text>
+          <Text style={styles.checkboxText}>{t('quilombola_representative')}</Text>
         </View>
       </ScrollView>
 
@@ -194,11 +187,11 @@ export function Account() {
         <View style={styles.bottomContainer}>
           <DotIndicator totalSteps={3} currentStep={2} />
           <TouchableOpacity
-            style={[styles.nextButton, isSubmitting && { backgroundColor: '#ccc' }]} // Mudar cor ao submeter
+            style={[styles.nextButton, isSubmitting && { backgroundColor: '#ccc' }]}
             onPress={handleNextPress}
-            disabled={isSubmitting} // Desativar botão enquanto submete
+            disabled={isSubmitting}
           >
-            <Text style={styles.ButtonText}>{isSubmitting ? 'Enviando...' : 'Próximo'}</Text>
+            <Text style={styles.ButtonText}>{isSubmitting ? t('submitting') : t('next')}</Text>
           </TouchableOpacity>
         </View>
       )}

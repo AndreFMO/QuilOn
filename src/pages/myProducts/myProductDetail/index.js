@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { useFonts, Poppins_400Regular, Poppins_700Bold } from '@expo-google-fonts/poppins';
 import { useNavigation } from '@react-navigation/native';
 import { API_BASE_URL } from './../../../config';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { useTranslation } from 'react-i18next'; // Importando o hook de tradução
 
 export function MyProductDetail({ route }) {
   const { product } = route.params;
   const navigation = useNavigation();
   const [totalImages, setTotalImages] = useState(0);
+  
+  const { t } = useTranslation(); // Usando o hook de tradução
 
-  const categories = ['Acessórios', 'Cestarias', 'Cerâmicas', 'Outros'];
+  const categories = [t('acessorios'), t('cestaria'), t('ceramica'), t('diversos')]; // Usando chaves de tradução
   const reorderedCategories = [product[2], ...categories.filter(category => category !== product[2])];
 
   useEffect(() => {
@@ -33,13 +36,12 @@ export function MyProductDetail({ route }) {
         method: 'DELETE',
       });
       if (response.ok) {
-        //Alert.alert('Sucesso', 'Produto excluído com sucesso');
         navigation.navigate('MyProducts'); // Voltar para a lista de produtos
       } else {
-        //Alert.alert('Erro', 'Falha ao excluir o produto');
+        // Alert.alert(t('error'), t('delete_failed'));
       }
     } catch (error) {
-      //Alert.alert('Erro', 'Ocorreu um erro ao excluir o produto');
+      // Alert.alert(t('error'), t('delete_error'));
     }
   };
 
@@ -84,9 +86,9 @@ export function MyProductDetail({ route }) {
             <Icon name="trash" size={24} color="#fff" />
           </TouchableOpacity>
         </View>
-        <Text style={styles.productTitles}>Tempo de Produção:</Text>
+        <Text style={styles.productTitles}>{t('production_time')}</Text>
         <Text style={styles.productDescription}>{product[4]}</Text>
-        <Text style={styles.productTitles}>Categoria:</Text>
+        <Text style={styles.productTitles}>{t('category')}</Text>
 
         <View style={styles.categoryArea}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -100,17 +102,17 @@ export function MyProductDetail({ route }) {
           </ScrollView>
         </View>
 
-        <Text style={styles.productTitles}>Descrição do Produto</Text>
+        <Text style={styles.productTitles}>{t('product_description')}</Text>
         <Text style={styles.productDescription}>{product[3]}</Text>
-        <Text style={styles.productQtd}>Quantidade: <Text style={styles.productDescription}>{product[6]}</Text></Text>
+        <Text style={styles.productQtd}>{t('quantity')}: <Text style={styles.productDescription}>{product[6]}</Text></Text>
 
         <View style={styles.priceArea}>
           <View>
-            <Text style={styles.productDescription}>Valor:</Text>
+            <Text style={styles.productDescription}>{t('value')}:</Text>
             <Text style={styles.productPrice}>R$ {product[5]}</Text>
           </View>
           <TouchableOpacity style={styles.nextButton}>
-            <Text style={styles.ButtonText}>Editar</Text>
+            <Text style={styles.ButtonText}>{t('edit')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -218,7 +220,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_400Regular',
   },
   productQtd: {
-    fontSize:  16,
+    fontSize: 16,
     marginVertical: 10,
     fontFamily: 'Poppins_700Bold',
   },
@@ -249,5 +251,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
-

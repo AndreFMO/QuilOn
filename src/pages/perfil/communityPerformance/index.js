@@ -5,6 +5,7 @@ import { API_BASE_URL } from './../../../config';
 import { UserContext } from './../../../UserContext';
 import { BarChart, LineChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 export function CommunityPerformance() {
   const { userId } = useContext(UserContext);
@@ -13,6 +14,7 @@ export function CommunityPerformance() {
   const [monthlySalesData, setMonthlySalesData] = useState(null);
   const [salesData, setSalesData] = useState(null);
   const screenWidth = Dimensions.get("window").width;
+  const { t } = useTranslation();
 
   const fetchSalesData = async () => {
     if (userId) {
@@ -57,7 +59,7 @@ export function CommunityPerformance() {
   const processMonthlySalesData = (data) => {
     const monthlyData = {};
     const monthlyQuantity = {};
-    const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    const monthNames = [t('month_jan'), t('month_feb'), t('month_mar'), t('month_apr'), t('month_may'), t('month_jun'), t('month_jul'), t('month_aug'), t('month_sep'), t('month_oct'), t('month_nov'), t('month_dec')];
 
     data.forEach(item => {
       const purchaseDate = new Date(item.purchaseDate);
@@ -90,12 +92,12 @@ export function CommunityPerformance() {
 
   const renderCharts = () => {
     if (!salesData || !monthlySalesData) {
-      return <Text>Carregando dados de vendas...</Text>;
+      return <Text>{t('loading_sales_data')}</Text>;
     }
-  
+
     return (
       <View style={styles.chartContainer}>
-        <Text style={styles.dropdownText}>Lucro por Categoria</Text>
+        <Text style={styles.dropdownText}>{t('profit_by_category')}</Text>
         <BarChart
           data={salesData}
           width={screenWidth * 0.90}
@@ -125,8 +127,8 @@ export function CommunityPerformance() {
             borderRadius: 16,
           }}
         />
-  
-        <Text style={styles.dropdownText}>Lucro Mensal</Text>
+
+        <Text style={styles.dropdownText}>{t('monthly_profit')}</Text>
         <LineChart
           data={monthlySalesData.salesData}
           width={screenWidth * 0.90}
@@ -156,7 +158,7 @@ export function CommunityPerformance() {
           }}
         />
 
-        <Text style={styles.dropdownText}>Quantidade de Vendas Mensais</Text>
+        <Text style={styles.dropdownText}>{t('monthly_sales_quantity')}</Text>
         <LineChart
           data={monthlySalesData.quantityData}
           width={screenWidth * 0.90}
@@ -184,13 +186,10 @@ export function CommunityPerformance() {
             marginVertical: 8,
             borderRadius: 16,
           }}
-          
         />
       </View>
     );
   };
-  
-  
 
   useFocusEffect(
     useCallback(() => {
@@ -207,7 +206,7 @@ export function CommunityPerformance() {
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.returnButtonContainer}>
             <Image source={require('./../../../assets/return.png')} style={styles.returnButton} />
           </TouchableOpacity>
-          <Text style={styles.title}>Performance da Comunidade</Text>
+          <Text style={styles.title}>{t('community_performance')}</Text>
           {renderCharts()}
         </ScrollView>
       </View>

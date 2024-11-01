@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image, KeyboardAvoidingView, Platform, Keyboard, Alert } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { API_BASE_URL } from './../../../config';
+import { useTranslation } from 'react-i18next';
 
 export function UpdQuilombo() {
   const navigation = useNavigation();
   const route = useRoute();
   const { quilombo } = route.params || {};
+  const { t } = useTranslation();
 
   const [quilomboData, setQuilomboData] = useState({
     name: '',
@@ -94,10 +96,10 @@ export function UpdQuilombo() {
           <Image source={require('./../../../assets/quilon.png')} style={styles.backgroundText} />
         </View>
 
-        <Text style={styles.title}>Alteração de dados</Text>
-        <Text style={styles.userType}>Dados do Quilombo</Text>
+        <Text style={styles.title}>{t('data_change')}</Text>
+        <Text style={styles.userType}>{t('community_data')}</Text>
 
-        <Text style={styles.subTitle}>Nome da comunidade</Text>
+        <Text style={styles.subTitle}>{t('community_name')}</Text>
         <View style={styles.orangeBorder}>
           <TextInput 
             style={styles.input} 
@@ -106,7 +108,7 @@ export function UpdQuilombo() {
           />
         </View>
 
-        <Text style={styles.subTitle}>Número de certificação do Quilombo</Text>
+        <Text style={styles.subTitle}>{t('certification_number')}</Text>
         <View style={styles.orangeBorder}>
           <TextInput 
             style={styles.input} 
@@ -135,7 +137,7 @@ export function UpdQuilombo() {
           />
         </View>
 
-        <Text style={styles.subTitle}>Quilometro e complemento</Text>
+        <Text style={styles.subTitle}>{t('kilometer_and_complement')}</Text>
         <View style={styles.orangeBorder}>
           <TextInput 
             style={styles.input} 
@@ -149,7 +151,7 @@ export function UpdQuilombo() {
       {!keyboardIsVisible && (
         <View style={styles.bottomContainer}>
           <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
-            <Text style={styles.ButtonText}>Atualizar</Text>
+            <Text style={styles.ButtonText}>{t('update')}</Text>
           </TouchableOpacity>
         </View>
       )}

@@ -3,6 +3,7 @@ import { View, StyleSheet, ScrollView, TouchableOpacity, Text, TextInput, Image,
 import { useNavigation } from '@react-navigation/native';
 import { API_BASE_URL } from './../../../config';
 import { UserContext } from './../../../UserContext';
+import { useTranslation } from 'react-i18next';
 
 export function UpdAddress({ route }) {
   const navigation = useNavigation();
@@ -19,6 +20,7 @@ export function UpdAddress({ route }) {
 
   // Desestruturação para obter o endereço e o idEndereco passados via route.params
   const { address: initialAddress, idEndereco } = route.params || {};
+  const { t } = useTranslation();
 
   useEffect(() => {
     // Inicializa o endereço com os dados recebidos de route.params
@@ -106,10 +108,10 @@ export function UpdAddress({ route }) {
           <Image source={require('./../../../assets/quilon.png')} style={styles.backgroundText} />
         </View>
 
-        <Text style={styles.title}>Alteração de dados</Text>
-        <Text style={styles.userType}>Endereço do Usuário</Text>
+        <Text style={styles.title}>{t('data_change')}</Text>
+        <Text style={styles.userType}>{t('address_user')}</Text>
 
-        <Text style={styles.subTitle}>Endereço<Text style={styles.required}>*</Text></Text>
+        <Text style={styles.subTitle}>{t('address')}<Text style={styles.required}>*</Text></Text>
         <View style={styles.orangeBorder}>
           <TextInput 
             style={styles.input} 
@@ -120,7 +122,7 @@ export function UpdAddress({ route }) {
 
         <View style={styles.horizontalArea}>
           <View style={styles.leftField}>
-            <Text style={styles.subTitle}>Bairro<Text style={styles.required}>*</Text></Text>
+            <Text style={styles.subTitle}>{t('neighborhood')}<Text style={styles.required}>*</Text></Text>
             <View style={styles.orangeBorder}>
               <TextInput 
                 style={styles.input} 
@@ -130,7 +132,7 @@ export function UpdAddress({ route }) {
             </View>
           </View>
           <View style={styles.rightField}>
-            <Text style={styles.subTitle}>Número<Text style={styles.required}>*</Text></Text>
+            <Text style={styles.subTitle}>{t('number')}<Text style={styles.required}>*</Text></Text>
             <View style={styles.orangeBorder}>
               <TextInput 
                 style={styles.input} 
@@ -144,7 +146,7 @@ export function UpdAddress({ route }) {
 
         <View style={styles.horizontalArea}>
           <View style={styles.leftField}>
-            <Text style={styles.subTitle}>Cidade<Text style={styles.required}>*</Text></Text>
+            <Text style={styles.subTitle}>{t('city')}<Text style={styles.required}>*</Text></Text>
             <View style={styles.orangeBorder}>
               <TextInput 
                 style={styles.input} 
@@ -154,7 +156,7 @@ export function UpdAddress({ route }) {
             </View>
           </View>
           <View style={styles.rightField}>
-            <Text style={styles.subTitle}>UF<Text style={styles.required}>*</Text></Text>
+            <Text style={styles.subTitle}>{t('state')}<Text style={styles.required}>*</Text></Text>
             <View style={styles.orangeBorder}>
               <TextInput 
                 style={styles.input} 
@@ -165,7 +167,7 @@ export function UpdAddress({ route }) {
           </View>
         </View>
 
-        <Text style={styles.subTitle}>Complemento</Text>
+        <Text style={styles.subTitle}>{t('complement')}</Text>
         <View style={styles.orangeBorder}>
           <TextInput 
             style={styles.input} 
@@ -178,7 +180,7 @@ export function UpdAddress({ route }) {
       {!keyboardIsVisible && (
         <View style={styles.bottomContainer}>
           <TouchableOpacity style={styles.nextButton} onPress={handleNextPress}>
-            <Text style={styles.ButtonText}>Atualizar</Text>
+            <Text style={styles.ButtonText}>{t('update')}</Text>
           </TouchableOpacity>
         </View>
       )}
