@@ -5,8 +5,8 @@ import { initReactI18next } from 'react-i18next';
 i18n
   .use(initReactI18next)
   .init({
-    lng: 'en', // default language
-    fallbackLng: 'en',
+    lng: 'pt',
+    fallbackLng: 'pt',
     resources: {
       en: {
         translation: {
@@ -122,15 +122,15 @@ i18n
           "user_data": "User Data",
           "name": "Name",
           "birth_date": "Birth Date",
-          "sex": "Sex", // New translation
+          "sex": "Sex",
           "select_sex": "Select Sex",
           "male": "Male",
           "female": "Female",
           "other": "Other",
-          "cpf": "CPF", // New translation
-          "rg": "RG", // New translation
-          "cellphone": "Cellphone", // New translation
-          "phone": "Phone", // New translation
+          "cpf": "CPF",
+          "rg": "RG",
+          "cellphone": "Cellphone",
+          "phone": "Phone",
           "address_user": "User Address",
           "address": "Address",
           "neighborhood": "Neighborhood",
@@ -158,17 +158,17 @@ i18n
           "error_location": "Could not obtain the location.",
           "registration_error": "An error occurred while registering.",
           "personal_data": "Personal Data",
-          "years": "years", // New translation
-          "birth_date_not_available": "Birth date not available", // New translation
-          "not_available": "Not available", // New translation
-          "loading": "Loading...", // para a versão em inglês
-            "address_not_found": "Address not found", // para a versão em inglês
+          "years": "years",
+          "birth_date_not_available": "Birth date not available",
+          "not_available": "Not available",
+          "loading": "Loading...",
+            "address_not_found": "Address not found",
             "account": "Account",
             "quilombo_newsletter": "Quilombo Newsletter",
             "update_newsletter": "Update Newsletter",
-            "community_performance": "Community Performance", // para a versão em inglês
-            "loading_sales_data": "Loading sales data...", // para a versão em inglês
-            "no_sales_made": "No sales made.", // para a versão em inglês
+            "community_performance": "Community Performance",
+            "loading_sales_data": "Loading sales data...",
+            "no_sales_made": "No sales made.",
             "monthly_profit": "Monthly Profit",
             "community": "Community",
             "quilombola_community": "Quilombola Community",
@@ -306,15 +306,15 @@ i18n
           "user_data": "Dados do Usuário",
           "name": "Nome",
           "birth_date": "Data de Nascimento",
-          "sex": "Sexo", // New translation
+          "sex": "Sexo",
           "select_sex": "Selecionar Sexo",
           "male": "Masculino",
           "female": "Feminino",
           "other": "Outro",
-          "cpf": "CPF", // New translation
-          "rg": "RG", // New translation
-          "cellphone": "Celular", // New translation
-          "phone": "Telefone", // New translation
+          "cpf": "CPF",
+          "rg": "RG",
+          "cellphone": "Celular",
+          "phone": "Telefone",
           "address_user": "Endereço do Usuário",
           "address": "Endereço",
           "neighborhood": "Bairro",
@@ -342,18 +342,17 @@ i18n
           "error_location": "Não foi possível obter a localização.",
           "registration_error": "Ocorreu um erro ao cadastrar.",
           "personal_data": "Dados Pessoais",
-          "years": "anos", // New translation
-          "birth_date_not_available": "Data de nascimento não disponível", // New translation
-          "not_available": "Não disponível", // New translation
-          "loading": "Carregando...", // para a versão em português
-            "address_not_found": "Endereço não encontrado", // para a versão em português
+          "years": "anos",
+          "birth_date_not_available": "Data de nascimento não disponível",
+          "not_available": "Não disponível",
+          "loading": "Carregando...",
+            "address_not_found": "Endereço não encontrado",
             "account": "Conta",
             "quilombo_newsletter": "Informativo do Quilombo",
             "update_newsletter": "Atualizar Informativo",
-            // Adicione estas linhas ao seu arquivo i18n.js
-            "community_performance": "Performance da Comunidade", // para a versão em português
-            "loading_sales_data": "Carregando dados de vendas...", // para a versão em português
-            "no_sales_made": "Nenhuma venda efetuada.", // para a versão em português
+            "community_performance": "Performance da Comunidade",
+            "loading_sales_data": "Carregando dados de vendas...",
+            "no_sales_made": "Nenhuma venda efetuada.",
             "monthly_profit": "Lucro Mensal",
             "community": "Comunidade",
             "quilombola_community": "Comunidade Quilombola",
