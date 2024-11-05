@@ -57,9 +57,9 @@ export function Home() {
       const response = await fetch(`${API_BASE_URL}/products`);
       const data = await response.json();
       const allProducts = data.products;
-
+  
       let filteredProducts = allProducts;
-
+  
       if (searchQuery) {
         const searchTerm = searchQuery.toLowerCase();
         filteredProducts = allProducts.filter(product => {
@@ -73,16 +73,28 @@ export function Home() {
           );
         });
       }
-
+  
       if (selectedCategory === 'Diversos') {
         setProducts(filteredProducts);
       } else if (selectedCategory === 'Recomendados') {
         setProducts(recommendedProducts);
+      } else if (selectedCategory === 'Cestaria') {
+        setProducts(filteredProducts.filter(product => 
+          product[2].toLowerCase() === 'cestaria' || product[2].toLowerCase() === 'baskets'
+        ));
+      } else if (selectedCategory === 'Acessórios') {
+        setProducts(filteredProducts.filter(product => 
+          product[2].toLowerCase() === 'acessórios' || product[2].toLowerCase() === 'accessories'
+        ));
+      } else if (selectedCategory === 'Cerâmica') {
+        setProducts(filteredProducts.filter(product => 
+          product[2].toLowerCase() === 'cerâmica' || product[2].toLowerCase() === 'ceramics'
+        ));
       } else {
         setProducts(filteredProducts.filter(product => product[2] === selectedCategory));
       }
     } catch (error) {
-      //console.error('Erro ao obter produtos:', error);
+      console.error('Erro ao obter produtos:', error);
     }
   };
 
