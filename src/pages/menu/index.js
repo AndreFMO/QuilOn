@@ -7,11 +7,10 @@ import { CartContext } from '../../cartContext';
 import { useTranslation } from 'react-i18next';
 
 const Menu = ({ visible, onClose, navigation }) => {
-  if (!visible) return null;
-
   const { userId, username, representante, setRepresentante, setUserId, setQuilomboId } = useContext(UserContext);
   const { clearCart } = useContext(CartContext);
   const [userImage, setUserImage] = useState(null);
+  const [isLoaded, setIsLoaded] = useState(false); // Estado para controlar o carregamento
 
   const { t, i18n } = useTranslation();
   const toggleLanguage = () => {
@@ -24,14 +23,25 @@ const Menu = ({ visible, onClose, navigation }) => {
       fetch(`${API_BASE_URL}/userImage/${userId}?t=${new Date().getTime()}`)
         .then(response => {
           if (response.ok) {
-            return response.url; // Retorna a URL da imagem se estiver disponível
+            return response.url;
           }
           throw new Error('Imagem não encontrada');
         })
-        .then(imageUrl => setUserImage(imageUrl))
-        .catch(() => setUserImage(null)); // Caso a imagem não exista, seta como null
+        .then(imageUrl => {
+          setUserImage(imageUrl);
+          setIsLoaded(true); // Marcar como carregado quando a imagem for obtida
+        })
+        .catch(() => {
+          setUserImage(null);
+          setIsLoaded(true); // Marcar como carregado, mesmo se a imagem falhar
+        });
+    } else {
+      setIsLoaded(true); // Caso não tenha um userId, marcar como carregado
     }
   }, [userId]);
+
+  if (!visible) return null; // Não renderiza o menu se 'visible' for falso
+  if (!isLoaded) return <View />; // Exibe uma tela em branco até o menu estar carregado
 
   const home = () => {
     onClose();
@@ -100,7 +110,7 @@ const Menu = ({ visible, onClose, navigation }) => {
         <View style={styles.divider} />
         <TouchableOpacity style={styles.buttons} onPress={toggleLanguage}>
           <Icon name="cog" size={22} color="#fff" style={styles.icon} />
-          <Text style={styles.menuItem}>{i18n.language === 'pt' ? 'English' : 'Português'}</Text>
+          <Text style={styles.menuItem}>{i18n.language === 'pt' ? 'Configurações' : 'Settings'}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.buttons}>
           <Icon name="bell" size={20} color="#fff" style={styles.icon} />

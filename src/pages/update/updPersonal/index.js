@@ -152,7 +152,7 @@ export function UpdPersonal() {
             <Text style={styles.subTitle}>{t('birth_date')}<Text style={styles.required}>*</Text></Text>
             <View style={styles.orangeBorder}>
               <TouchableOpacity onPress={() => setShowDatePicker(true)}>
-                <Text style={styles.input}>{birthDate.toLocaleDateString('pt-BR')}</Text>
+                <Text style={[styles.input, { marginTop: 5 }]}>{birthDate.toLocaleDateString('pt-BR')}</Text>
               </TouchableOpacity>
               {showDatePicker && (
                 <DateTimePicker
@@ -171,13 +171,13 @@ export function UpdPersonal() {
                 onValueChange={(value) => setSex(value)}
                 value={sex}
                 placeholder={{
-                  label: 'Selecione o sexo',
+                  label: t('select_sex'), // Usando chave de tradução
                   value: null,
                 }}
                 items={[
-                  { label: 'Masculino', value: 'Masculino' },
-                  { label: 'Feminino', value: 'Feminino' },
-                  { label: 'Outro', value: 'Outro' },
+                  { label: t('male'), value: 'Masculino' }, // Usando chave de tradução
+                  { label: t('female'), value: 'Feminino' }, // Usando chave de tradução
+                  { label: t('other'), value: 'Outro' }, // Usando chave de tradução
                 ]}
                 style={{
                   inputIOS: {
@@ -192,6 +192,7 @@ export function UpdPersonal() {
                     fontSize: 16,
                     fontFamily: 'Poppins_400Regular',
                     color: '#000',
+                    marginTop: -10,
                   },
                   placeholder: {
                     color: '#000',
@@ -314,10 +315,11 @@ const styles = StyleSheet.create({
     width: "48%",
   },
   input: {
-    height: 30,
+    height: 45,
     fontSize: 16,
     fontFamily: 'Poppins_400Regular',
-    marginBottom: -3,
+    marginTop: -6,
+    marginBottom: -8,
   },
   bottomContainer: {
     paddingHorizontal: "5%",

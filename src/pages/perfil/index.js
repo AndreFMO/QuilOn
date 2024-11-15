@@ -50,7 +50,7 @@ export function Perfil() {
         const userAddress = addresses.find(addr => addr.idUsuario === userId);
         setAddress(userAddress || null);
       } catch (error) {
-        console.error("Erro ao buscar o endereço:", error);
+        //console.error("Erro ao buscar o endereço:", error);
       }
     }
   };
@@ -62,7 +62,7 @@ export function Perfil() {
         const data = await response.json();
         setUser(data);
       } catch (error) {
-        console.error("Erro ao buscar os dados do usuário:", error);
+        //console.error("Erro ao buscar os dados do usuário:", error);
       }
     }
   };
@@ -171,7 +171,7 @@ export function Perfil() {
         setProfileImage(`${API_BASE_URL}/userImage/${userId}?t=${new Date().getTime()}`);
       }
     } catch (error) {
-      console.error('Erro ao buscar a imagem do usuário:', error);
+      //console.error('Erro ao buscar a imagem do usuário:', error);
     }
   };
 
@@ -183,7 +183,7 @@ export function Perfil() {
           setQuilomboImage(`${API_BASE_URL}/quilomboImage/${quilomboId}?t=${new Date().getTime()}`);
         }
       } catch (error) {
-        console.error('Erro ao buscar a imagem do quilombo:', error);
+        //console.error('Erro ao buscar a imagem do quilombo:', error);
       }
     }
   };

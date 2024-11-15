@@ -115,7 +115,7 @@ export function Map() {
         const filteredImages = images.filter(image => image !== null);
         setInformativeImages(filteredImages);
       })
-      .catch(error => console.error("Erro ao buscar imagens:", error));
+      //.catch(error => console.error("Erro ao buscar imagens:", error));
   };
 
   const handleMarkerPress = (quilombo) => {

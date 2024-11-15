@@ -40,8 +40,8 @@ export function Login() {
       }
     })
     .catch(error => {
-      console.error('Error logging in:', error);
-      Alert.alert(t('error'), t('login_error')); // Usando tradução para erro
+      //console.error('Error logging in:', error);
+      //Alert.alert(t('error'), t('login_error'));
     });
   };
 
@@ -180,10 +180,11 @@ const styles = StyleSheet.create({
     borderBottomColor: '#BF8B6E',
   },
   input: {
-    height: 30,
-    fontSize: 16,
-    fontFamily: 'Poppins_400Regular',
-    marginBottom: -3,
+  height: 45,
+  fontSize: 16,
+  fontFamily: 'Poppins_400Regular',
+  marginTop: -6,
+  marginBottom: -8,
   },
   redfSenha: {
     paddingTop: 20,

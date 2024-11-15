@@ -93,20 +93,26 @@ export function Personal({ route }) {
 
         <View style={styles.horizontalArea}>
           <View style={styles.contactField}>
-            <Text style={styles.subTitle}>{t('birth_date')}<Text style={styles.required}>*</Text></Text>
-            <View style={styles.orangeBorder}>
-              <TouchableOpacity onPress={() => setShowDatePicker(true)}>
-                <Text style={styles.input}>{personalData ? personalData.birthDate : birthDate.toLocaleDateString()}</Text>
-              </TouchableOpacity>
-              {showDatePicker && (
-                <DateTimePicker
-                  value={personalData ? new Date(personalData.birthDate) : birthDate}
-                  mode="date"
-                  display="spinner"
-                  onChange={handleDateChange}
-                />
-              )}
-            </View>
+            <Text style={styles.subTitle}>
+            {t('birth_date')}
+            <Text style={styles.required}>*</Text>
+          </Text>
+          <View style={styles.orangeBorder}>
+            <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+              <Text style={[styles.input, { marginTop: 5 }]}>
+                {personalData ? personalData.birthDate : birthDate.toLocaleDateString()}
+              </Text>
+            </TouchableOpacity>
+            {showDatePicker && (
+              <DateTimePicker
+                value={personalData ? new Date(personalData.birthDate) : birthDate}
+                mode="date"
+                display="spinner"
+                onChange={handleDateChange}
+              />
+            )}
+          </View>
+
           </View>
           <View style={styles.contactField}>
             <Text style={styles.subTitle}>{t('sex')}<Text style={styles.required}>*</Text></Text>
@@ -135,6 +141,8 @@ export function Personal({ route }) {
                     fontSize: 16,
                     fontFamily: 'Poppins_400Regular',
                     color: '#000',
+                    marginTop: -10,
+             
                   },
                   placeholder: {
                     color: '#000',
@@ -257,11 +265,12 @@ const styles = StyleSheet.create({
     width: "48%",
   },
   input: {
-    height: 30,
+    height: 45,
     fontSize: 16,
     fontFamily: 'Poppins_400Regular',
-    marginBottom: -3,
-  },
+    marginTop: -6,
+    marginBottom: -8,
+    },
   bottomContainer: {
     paddingHorizontal: "5%",
     paddingTop: 20,

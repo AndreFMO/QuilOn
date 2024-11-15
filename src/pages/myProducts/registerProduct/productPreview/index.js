@@ -65,7 +65,7 @@ export function ProductPreview({ route }) {
       });
 
       if (!productResponse.ok) {
-        throw new Error(t('http_error', { status: productResponse.status }));
+        //throw new Error(t('http_error', { status: productResponse.status }));
       }
 
       const productData = await productResponse.json();
@@ -91,13 +91,13 @@ export function ProductPreview({ route }) {
         });
 
         if (!imageResponse.ok) {
-          throw new Error(t('image_upload_error', { status: imageResponse.status }));
+          //throw new Error(t('image_upload_error', { status: imageResponse.status }));
         }
       }
 
       navigation.navigate('ConcludedProduct');
     } catch (error) {
-      Alert.alert(t('error'), t('product_registration_error'));
+      //Alert.alert(t('error'), t('product_registration_error'));
     } finally {
       setIsSubmitting(false); // Redefinir estado ao finalizar o processo
     }

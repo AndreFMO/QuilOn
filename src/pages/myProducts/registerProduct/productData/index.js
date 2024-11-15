@@ -262,9 +262,11 @@ const styles = StyleSheet.create({
     width: "48%",
   },
   input: {
+    height: 45,
     fontSize: 16,
     fontFamily: 'Poppins_400Regular',
-    marginBottom: -3,
+    marginTop: -6,
+    marginBottom: -8,
   },
   textArea: {
     minHeight: 80,

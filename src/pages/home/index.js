@@ -94,7 +94,7 @@ export function Home() {
         setProducts(filteredProducts.filter(product => product[2] === selectedCategory));
       }
     } catch (error) {
-      console.error('Erro ao obter produtos:', error);
+      //console.error('Erro ao obter produtos:', error);
     }
   };
 

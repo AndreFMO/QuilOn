@@ -179,7 +179,7 @@ export function Account() {
             onValueChange={() => setIsChecked(!isChecked)}
             value={isChecked}
           />
-          <Text style={styles.checkboxText}>{t('quilombola_representative')}</Text>
+          <Text style={styles.checkboxText}>{t('enter_as_quilombola_representative')}</Text>
         </View>
       </ScrollView>
 
@@ -239,10 +239,11 @@ const styles = StyleSheet.create({
     borderBottomColor: '#BF8B6E',
   },
   input: {
-    height: 30,
+    height: 45,
     fontSize: 16,
     fontFamily: 'Poppins_400Regular',
-    marginBottom: -3,
+    marginTop: -6,
+    marginBottom: -8,
   },
   bottomContainer: {
     paddingHorizontal: "5%",

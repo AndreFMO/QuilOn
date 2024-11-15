@@ -29,7 +29,7 @@ export function UpdCommunityInformative() {
       });
   
       if (!response.ok) {
-        throw new Error('Erro ao buscar dados do informativo');
+        //throw new Error('Erro ao buscar dados do informativo');
       }
   
       const data = await response.json();
@@ -114,12 +114,12 @@ export function UpdCommunityInformative() {
       });
 
       if (!response.ok) {
-        throw new Error('Erro ao carregar as imagens');
+        //throw new Error('Erro ao carregar as imagens');
       }
 
       Alert.alert('Sucesso', 'Imagens carregadas com sucesso');
     } catch (error) {
-      Alert.alert('Erro', 'Erro ao carregar as imagens');
+      //Alert.alert('Erro', 'Erro ao carregar as imagens');
     }
   };
 
@@ -143,7 +143,7 @@ export function UpdCommunityInformative() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Erro ao cadastrar o informativo');
+        //throw new Error(data.error || 'Erro ao cadastrar o informativo');
       }
 
       // Após enviar o informativo, enviar as imagens
@@ -152,7 +152,7 @@ export function UpdCommunityInformative() {
       Alert.alert('Sucesso', 'Informativo atualizado com sucesso');
       navigation.goBack();
     } catch (error) {
-      Alert.alert('Erro', error.message || 'Erro ao cadastrar o informativo');
+      //Alert.alert('Erro', error.message || 'Erro ao cadastrar o informativo');
     }
   };
 
@@ -265,10 +265,11 @@ const styles = StyleSheet.create({
     borderBottomColor: '#BF8B6E',
   },
   input: {
-    height: 30,
+    height: 45,
     fontSize: 16,
     fontFamily: 'Poppins_400Regular',
-    marginBottom: -3,
+    marginTop: -6,
+    marginBottom: -8,
   },
   textArea: {
     minHeight: 150,
