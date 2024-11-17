@@ -24,8 +24,6 @@ Este repositório é dedicado ao E-commerce QuilOn desenvolvido em react-native.
 2. Instale as dependências necessárias, executando no terminal os comandos:
     ```sh
     npm install expo@latest
-    ```
-     ```sh
     npx expo install --fix
     ```
      
