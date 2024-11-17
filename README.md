@@ -44,7 +44,7 @@ Este repositório é dedicado ao E-commerce QuilOn desenvolvido em React Native.
 
 ### Executando no **Emulador**
 
-Para rodar o aplicativo no emulador Android ou iOS, siga as instruções abaixo:
+Para rodar o aplicativo no emulador Android, siga as instruções abaixo:
 
 #### No **Android Emulator**:
 
