@@ -52,8 +52,3 @@ Para rodar o aplicativo no emulador Android ou iOS, siga as instruções abaixo:
 2. Abra o Android Studio e inicie um emulador Android.
 3. Após a inicialização do emulador, volte ao terminal onde você executou `npx expo start -c` e pressione a tecla `a`. O Expo CLI irá automaticamente abrir o aplicativo no emulador Android.
 
-#### No **iOS Simulator** (apenas macOS):
-
-1. Certifique-se de ter o Xcode instalado no seu macOS.
-2. Abra o Xcode e inicie o iOS Simulator.
-3. Após a inicialização do simulador, volte ao terminal onde você executou `npx expo start -c` e pressione a tecla `i`. O Expo CLI irá abrir o aplicativo no iOS Simulator.
