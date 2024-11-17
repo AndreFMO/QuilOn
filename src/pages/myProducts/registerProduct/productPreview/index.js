@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Alert, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -103,6 +103,9 @@ export function ProductPreview({ route }) {
     }
   };
 
+  // Obter largura da tela
+  const screenWidth = Dimensions.get('window').width;
+
   return (
     <ScrollView style={styles.tela}>
       <TouchableOpacity onPress={() => navigation.goBack()} style={styles.returnButtonContainer}>
@@ -115,9 +118,9 @@ export function ProductPreview({ route }) {
         contentContainerStyle={styles.scrollViewContainer}
       >
         {images.map((image, index) => (
-          <Image key={index} source={{ uri: image }} style={styles.productImage} />
+          <Image key={index} source={{ uri: image }} style={[styles.productImage, { width: screenWidth, height: screenWidth }]} />
         ))}
-        <TouchableOpacity style={styles.productImage} onPress={pickImage}>
+        <TouchableOpacity style={[styles.productImage, { width: screenWidth, height: screenWidth }]} onPress={pickImage}>
           <Icon name="upload" size={22} />
           <Text style={styles.productPhoto}>{t('add_photos')}</Text>
         </TouchableOpacity>
@@ -182,7 +185,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: "#FFF",
     height: 400,
-    width: 'auto',
   },
   productPhoto: {
     marginLeft: 6,
@@ -192,8 +194,6 @@ const styles = StyleSheet.create({
   },
   productImage: {
     flexDirection: 'row',
-    width: 376.5,
-    height: 376.5,
     backgroundColor: '#D2C6BF',
     alignItems: 'center',
     justifyContent: 'center',
@@ -214,43 +214,10 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: -5,
   },
-  productCategory: {
-    fontSize: 15,
-    fontFamily: 'Poppins_400Regular',
-  },
   productTitles: {
     fontSize: 16,
     marginTop: 10,
     fontFamily: 'Poppins_700Bold',
-  },
-  categoryArea: {
-    flexDirection: 'row',
-    marginTop: 5,
-    marginBottom: 2,
-  },
-  categoryButton: {
-    margin: 2,
-    paddingHorizontal: 12,
-    height: 38,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 40,
-    borderWidth: 1,
-    borderColor: "#6666",
-    elevation: 2,
-    backgroundColor: "#FFF",
-  },
-  categoryText: {
-    fontSize: 13.5,
-    marginBottom: -3,
-    fontFamily: 'Poppins_700Bold',
-    color: 'grey',
-  },
-  selectedCategoryButton: {
-    borderColor: '#D86626',
-  },
-  selectedCategoryText: {
-    color: '#D86626',
   },
   productDescription: {
     fontSize: 14,

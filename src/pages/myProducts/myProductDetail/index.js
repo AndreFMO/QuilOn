@@ -4,14 +4,14 @@ import { useFonts, Poppins_400Regular, Poppins_700Bold } from '@expo-google-font
 import { useNavigation } from '@react-navigation/native';
 import { API_BASE_URL } from './../../../config';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { useTranslation } from 'react-i18next'; // Importando o hook de tradução
+import { useTranslation } from 'react-i18next';
 
 export function MyProductDetail({ route }) {
   const { product } = route.params;
   const navigation = useNavigation();
   const [totalImages, setTotalImages] = useState(0);
   
-  const { t } = useTranslation(); // Usando o hook de tradução
+  const { t } = useTranslation();
 
   const categories = [t('acessorios'), t('cestaria'), t('ceramica'), t('diversos')]; // Usando chaves de tradução
   const reorderedCategories = [product[2], ...categories.filter(category => category !== product[2])];
@@ -158,23 +158,29 @@ const styles = StyleSheet.create({
     marginTop: -30,
     elevation: 20,
   },
-  removeButton: {
-    marginTop: 2,
-    backgroundColor: "#D86626",
-    height: 40,
-    width: 40,
-    alignItems: 'center',
-    borderColor: "#6666",
-    elevation: 5,
+  categoryArea: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    borderRadius: 10,
-    marginLeft: 'auto',
+    alignItems: 'center',
+    width: '100%',
+    justifyContent: 'space-between',
   },
+  
   productName: {
     fontSize: 22,
     fontFamily: 'Poppins_700Bold',
     marginBottom: -5,
+    flex: 1,
+  },
+  removeButton: {
+    backgroundColor: "#D86626",
+    height: 40,
+    width: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderColor: "#6666",
+    elevation: 5,
+    borderRadius: 10,
+    marginLeft: 10,
   },
   productCategory: {
     fontSize: 15,
@@ -184,11 +190,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 10,
     fontFamily: 'Poppins_700Bold',
-  },
-  categoryArea: {
-    flexDirection: 'row',
-    marginTop: 5,
-    marginBottom: 2,
   },
   categoryButton: {
     margin: 2,

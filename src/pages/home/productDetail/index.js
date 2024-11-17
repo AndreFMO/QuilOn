@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { API_BASE_URL } from './../../../config';
 import { CartContext } from './../../../cartContext';
 import { useTranslation } from 'react-i18next';  // Importando o hook
+import { Dimensions } from 'react-native';
 
 export function ProductDetail({ route }) {
   const { product } = route.params;
@@ -90,27 +91,28 @@ export function ProductDetail({ route }) {
       <View style={styles.container}>
         <Text style={styles.productName}>{product[1]}</Text>
         <View style={styles.priceArea}>
-          <View>
-            <Text style={styles.productQtd}>{t('available')} <Text style={styles.productDescription}>{product[6]} {t('units')}</Text></Text>
-            <Text style={styles.productPriceUnity}>R$ {product[5]}</Text>
-            <Text style={styles.productTitles}>{t('production_time')}</Text>
-            <Text style={styles.productDescription}>{product[4]}</Text>
-          </View>
-          <View>
-            <View style={styles.qtdButton}>
-              <TouchableOpacity onPress={decrementQuantity} style={styles.qtdButtonTouchable}>
-                <Text style={styles.qtdButtonText}>-</Text>
-              </TouchableOpacity>
-              <Text style={styles.qtdButtonText}>{quantity}</Text>
-              <TouchableOpacity onPress={incrementQuantity} style={styles.qtdButtonTouchable}>
-                <Text style={styles.qtdButtonText}>+</Text>
-              </TouchableOpacity>
-            </View>
-            <TouchableOpacity style={styles.cartPlusButton} onPress={addToCartAndNavigate}>
-              <Icon name="cart-plus" size={24} color="#FFF" />
-            </TouchableOpacity>
-          </View>
+      <View style={styles.priceLeft}>
+        <Text style={styles.productQtd}>{t('available')} <Text style={styles.productDescription}>{product[6]} {t('units')}</Text></Text>
+        <Text style={styles.productPriceUnity}>R$ {product[5]}</Text>
+        <Text style={styles.productTitles}>{t('production_time')}</Text>
+        <Text style={styles.productDescription}>{product[4]}</Text>
+      </View>
+      <View style={styles.priceRight}>
+        <View style={styles.qtdButton}>
+          <TouchableOpacity onPress={decrementQuantity} style={styles.qtdButtonTouchable}>
+            <Text style={styles.qtdButtonText}>-</Text>
+          </TouchableOpacity>
+          <Text style={styles.qtdButtonText}>{quantity}</Text>
+          <TouchableOpacity onPress={incrementQuantity} style={styles.qtdButtonTouchable}>
+            <Text style={styles.qtdButtonText}>+</Text>
+          </TouchableOpacity>
         </View>
+        <TouchableOpacity style={styles.cartPlusButton} onPress={addToCartAndNavigate}>
+          <Icon name="cart-plus" size={24} color="#FFF" />
+        </TouchableOpacity>
+      </View>
+    </View>
+
 
         <Text style={styles.productTitles}>{t('product_description')}</Text>
         <Text style={styles.productDescription}>{product[3]}</Text>
@@ -129,7 +131,7 @@ export function ProductDetail({ route }) {
   );
 }
 
-
+const screenHeight = Dimensions.get('window').height;
 const styles = StyleSheet.create({
   tela: {
     flex: 1,
@@ -149,7 +151,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: "#FFF",
-    height: 380,
+    height: screenHeight * 0.52,
     width: 'auto',
   },
   productImage: {
@@ -164,6 +166,7 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingLeft: 30,
     marginTop: -30,
+    paddingBottom: 30,
     elevation: 20,
   },
   productName: {
@@ -285,4 +288,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
+  priceLeft: {
+    flex: 1,
+  },
+  priceRight: {
+    alignItems: 'flex-end',
+  }
+  
 });
